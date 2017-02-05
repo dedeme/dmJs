@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /deme/dmjs17
+gitk
+
