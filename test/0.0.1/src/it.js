@@ -13,6 +13,10 @@ it = () => {
 
   var aN1;
   var itN1;
+  var i0, i1, i2, s0, s1, s2;
+  var ik;
+  var pr1,npr1;
+  var even, neven;
 
   It = dm.It;
 
@@ -25,8 +29,9 @@ it = () => {
   t.eq(3, itN1.next());
   t.not(itN1.hasNext());
 
+  // constructors ------------------------------------------
+
   t.mark("constructors");
-  var i0, i1, i2, s0, s1, s2;
 
   i0 = [];
   i1 = [1];
@@ -48,6 +53,70 @@ it = () => {
   t.yes(It.from(i0).eq(It.from(s0)));
 
   t.yes(It.from(i2).eqf(It.from(i2), (a, b) => a === b));
+
+  t.eq("[]", It.from(i0).toString());
+  t.eq("[1]", It.from(i1).toString());
+  t.eq("[1, 2, 3]", It.from(i2).toString());
+
+  t.eq("", It.from(i0).to().toString());
+  t.eq("1", It.from(i1).to().toString());
+  t.eq("1,2,3", It.from(i2).to().toString());
+
+  t.eq("[]", It.fromStr("").toString());
+  t.eq("[a]", It.fromStr("a").toString());
+  t.eq("[a, b, c]", It.fromStr("abc").toString());
+
+  ik = dm.It.keys({"one" : 1, "two" : 2});
+  t.eq("one", ik.next().toString());
+  t.eq("two", ik.next().toString());
+  t.yes(!ik.hasNext())
+
+  // lazy --------------------------------------------------
+
+  t.mark("lazy");
+
+  t.eq("[1]", It.from(i0).add(1).toString());
+  t.eq("[1]", It.from(i0).add0(1).toString());
+  t.eq("[1, 2, 3, 1]", It.from(i2).add(1).toString());
+  t.eq("[1, 1, 2, 3]", It.from(i2).add0(1).toString());
+  t.eq("[1, 1, 2, 3]", It.from(i2).add(1, 1).toString());
+  t.eq("[1, 2, 3, 1]", It.from(i2).addIt(It.from(i1)).toString());
+  t.eq("[1, 1, 2, 3]", It.from(i2).addIt(It.from(i1), 1).toString());
+  t.eq("[1, 2, 3]", It.from(i2).addIt(It.from(i0)).toString());
+  t.eq("[1, 2, 3]", It.from(i2).addIt(It.from(i0), 1).toString());
+  t.eq("[]", It.from(i0).addIt(It.from(i0)).toString());
+  t.eq("[1, 2, 3]", It.from(i0).addIt(It.from(i2), 1).toString());
+
+  t.eq("[one, two, three]", It.from(s2).drop(0).toString());
+  t.eq("[two, three]", It.from(s2).drop(1).toString());
+  t.eq("[]", It.from(s2).drop(10).toString());
+  t.eq("[1, 2, 3]", It.from(i2).drop(0).toString());
+
+  pr1 = e => e < 2
+  npr1 = e => e >= 2
+
+  t.eq("[]", It.from(s2).take(0).toString());
+  t.eq("[]", It.from(s2).take(-30).toString());
+  t.eq("[one]", It.from(s2).take(1).toString());
+  t.eq("[one, two, three]", It.from(s2).take(10).toString());
+  t.eq("[1, 2, 3]", It.from(i2).take(1000).toString());
+  t.eq("[]", It.from(i0).takeWhile(pr1).toString());
+  t.eq("[1]", It.from(i1).takeWhile(pr1).toString());
+  t.eq("[1]", It.from(i2).takeWhile(pr1).toString());
+  t.eq("[]", It.from(i0).takeUntil(npr1).toString());
+  t.eq("[1]", It.from(i1).takeUntil(npr1).toString());
+  t.eq("[1]", It.from(i2).takeUntil(npr1).toString());
+
+  t.eq("[one, two, three]", It.from(s2).drop(0).toString());
+  t.eq("[two, three]", It.from(s2).drop(1).toString());
+  t.eq("[]", It.from(s2).drop(10).toString());
+  t.eq("[1, 2, 3]", It.from(i2).drop(0).toString());
+  t.eq("[]", It.from(i0).dropUntil(npr1).toString());
+  t.eq("[]", It.from(i1).dropWhile(pr1).toString());
+  t.eq("[2, 3]", It.from(i2).dropWhile(pr1).toString());
+  t.eq("[]", It.from(i0).dropWhile(pr1).toString());
+  t.eq("[]", It.from(i1).dropWhile(pr1).toString());
+  t.eq("[2, 3]", It.from(i2).dropWhile(pr1).toString());
 
   t.log();
 }
