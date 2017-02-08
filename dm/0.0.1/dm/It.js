@@ -4,10 +4,11 @@
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
 
-(ns => {
+(() => {
   "use strict";
+
   //# T :: ( - bool) - ( - T) - It
-  ns.It = function (hasNext, next) {
+  dm.It = function (hasNext, next) {
     var self;
     self = this;
 
@@ -212,37 +213,39 @@
 
 // ----------------------------------------------- //
 
+  let It = dm.It;
+
   //# - !It<?>
-  ns.It.empty = () => new dm.It (() => false, () => null);
+  It.empty = () => new It (() => false, () => null);
   /// Create an It from an array
   //# T :: Arr<T> - It<T>
-  ns.It.from = a => {
+  It.from = a => {
     var i, len;
     i = 0;
     len = a.length;
-    return new dm.It(
+    return new It(
       () => i < len,
       () => a[i++]
     );
   }
   /// Return an [It] over a Bytes object.
   //# Uint8Array - !It<num>
-  ns.It.fromBytes = bs => {
+  It.fromBytes = bs => {
     var l, c;
     l = bs.length;
     c = 0;
-    return new dm.It (() => c < l, () => bs[c++]);
+    return new It (() => c < l, () => bs[c++]);
   }
   /// Returns an [It] over String characters.
   //# str - !It<str>
-  ns.It.fromStr = s => {
+  It.fromStr = s => {
     var l, c;
     l = s.length;
     c = 0;
-    return new dm.It (() => c < l, () => s[c++]);
+    return new It (() => c < l, () => s[c++]);
   }
   //# !It<str> - ?str - str
-  ns.It.join = (i, sep) => {
+  It.join = (i, sep) => {
     var r;
     if (!sep) sep = "";
     if (!i.hasNext()) return "";
@@ -251,13 +254,13 @@
     return r;
   }
   //# K, V :: !Obj<K, V> - !It<K>
-  ns.It.keys = o => {
+  It.keys = o => {
     var tmp, k;
     tmp = [];
     for (k in o)
       tmp.push(k);
-    return dm.It.from(tmp)
+    return It.from(tmp)
   }
 
-})(dm);
+})();
 

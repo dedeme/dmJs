@@ -4,10 +4,11 @@
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
 
-(ns => {
+(() => {
   "use strict";
+
   //# * - * - Test
-  ns.Test = function (fname) {
+  dm.Test = function (fname) {
     var pass, fail, posName;
     var msg;
 
@@ -74,5 +75,5 @@
       }
     }
   }
-})(dm);
+})();
 

@@ -7,23 +7,12 @@
 
 it = () => {
   "use strict";
+  let It = dm.It;
 
-  var It;
-  var t;
+  let t = new dm.Test("It");
 
-  var aN1;
-  var itN1;
-  var i0, i1, i2, s0, s1, s2;
-  var ik;
-  var pr1,npr1;
-  var even, neven;
-
-  It = dm.It;
-
-  t = new dm.Test("It");
-
-  aN1 = [1, 2, 3];
-  itN1 = It.from(aN1);
+  let aN1 = [1, 2, 3];
+  let itN1 = It.from(aN1);
   t.eq(1, itN1.next());
   t.eq(2, itN1.next());
   t.eq(3, itN1.next());
@@ -33,12 +22,12 @@ it = () => {
 
   t.mark("constructors");
 
-  i0 = [];
-  i1 = [1];
-  i2 = [1, 2, 3];
-  s0 = [];
-  s1 = ["one"];
-  s2 = ["one", "two", "three"];
+  let i0 = [];
+  let i1 = [1];
+  let i2 = [1, 2, 3];
+  let s0 = [];
+  let s1 = ["one"];
+  let s2 = ["one", "two", "three"];
 
   t.not(It.empty().hasNext());
   t.not(It.from([]).hasNext());
@@ -66,7 +55,7 @@ it = () => {
   t.eq("[a]", It.fromStr("a").toString());
   t.eq("[a, b, c]", It.fromStr("abc").toString());
 
-  ik = dm.It.keys({"one" : 1, "two" : 2});
+  let ik = dm.It.keys({"one" : 1, "two" : 2});
   t.eq("one", ik.next().toString());
   t.eq("two", ik.next().toString());
   t.yes(!ik.hasNext())
@@ -92,8 +81,8 @@ it = () => {
   t.eq("[]", It.from(s2).drop(10).toString());
   t.eq("[1, 2, 3]", It.from(i2).drop(0).toString());
 
-  pr1 = e => e < 2
-  npr1 = e => e >= 2
+  let pr1 = e => e < 2
+  let npr1 = e => e >= 2
 
   t.eq("[]", It.from(s2).take(0).toString());
   t.eq("[]", It.from(s2).take(-30).toString());
