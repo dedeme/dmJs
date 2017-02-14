@@ -266,10 +266,9 @@ void append (Arr *roots, Arr *sourcesAdded, char *source, FILE *target) {
           status = CODE;
         } else {
           char *l0 = str_sub(l, 0, ix1);
-          char *l = str_sub(l, ix1 + 1, strlen(l));
+          l = str_sub(l, ix1 + 2, strlen(l));
           wcode(str_printf("%s\\\"", l0));
         }
-
       } else if (status == SQUOTE){
         int ix = str_cindex(l, '\'');
         if (ix == -1) {
@@ -285,7 +284,7 @@ void append (Arr *roots, Arr *sourcesAdded, char *source, FILE *target) {
           status = CODE;
         } else {
           char *l0 = str_sub(l, 0, ix1);
-          char *l = str_sub(l, ix1 + 1, strlen(l));
+          l = str_sub(l, ix1 + 2, strlen(l));
           wcode(str_printf("%s\\'", l0));
         }
       } else if (status == BQUOTE){
@@ -303,7 +302,7 @@ void append (Arr *roots, Arr *sourcesAdded, char *source, FILE *target) {
           status = CODE;
         } else {
           char *l0 = str_sub(l, 0, ix1);
-          char *l = str_sub(l, ix1 + 1, strlen(l));
+          l = str_sub(l, ix1 + 2, strlen(l));
           wcode(str_printf("%s\\`", l0));
         }
       }
@@ -332,40 +331,65 @@ int main (int argc, char **argv) {
   arr_add(roots, str_printf("%s/src", base));
 //  printf("%s\n", (char *)roots->os[1]);
 
-  char *source = readSource(fit, base);
+  while (it_has_next(fit)) {
+    char *l = str_trim(it_next(fit));
+    if (!*l) {
+      continue;
+    }
+
+    FNM(scopy, char, o) {
+      return str_copy(o);
+    }_FN
+    Arr *roots2 = it_to(it_map(it_from(roots), scopy));
+
+    Arr *s_t = str_split_trim(l, "->");
+    if (s_t->size != 2) {
+      error_generic(str_printf("'->' is missing in '%s'", l),ERROR_DATA);
+    }
+
+    char *source  = str_printf("%s/%s", base, s_t->os[0]);
 //  puts(source);
+    if (!file_exists(source)) {
+      error_generic(str_printf("File '%s' not found", source),ERROR_DATA);
+    }
+    if (file_is_directory(source)) {
+      error_generic(str_printf("'%s' is a directory", source),ERROR_DATA);
+    }
 
-  char *target = readTarget(fit, base);
+    char *target = str_printf("%s/%s", base, s_t->os[1]);
 //  puts(target);
+    if (file_write(target, "")) {
+      error_generic(
+        str_printf("File '%s' can not be written", target),ERROR_DATA);
+    }
 
-  readEnd(fit);
+    Arr *sourcesAdded = arr_new();
 
-  file_close_it(lck);
+    FILE *ftarget;
+    struct flock flck = {
+      .l_whence = SEEK_SET,
+      .l_start = 0,
+      .l_len = 0,
+    };
 
-  Arr *sourcesAdded = arr_new();
+    ftarget = fopen(target, "a");
+    if (!ftarget) {
+      return -1;
+    }
 
-  FILE *ftarget;
-  struct flock flck = {
-    .l_whence = SEEK_SET,
-    .l_start = 0,
-    .l_len = 0,
-  };
+    flck.l_type = F_WRLCK;
+    fcntl (fileno(ftarget), F_SETLKW, &flck);
 
-  ftarget = fopen(target, "a");
-  if (!ftarget) {
-    return -1;
+    arr_add(sourcesAdded, source);
+    append (roots2, sourcesAdded, source, ftarget);
+
+    flck.l_type = F_UNLCK;
+    fcntl (fileno(ftarget), F_SETLK, &lck);
+
+    fclose(ftarget);
   }
 
-  flck.l_type = F_WRLCK;
-  fcntl (fileno(ftarget), F_SETLKW, &flck);
-
-  arr_add(sourcesAdded, source);
-  append (roots, sourcesAdded, source, ftarget);
-
-  flck.l_type = F_UNLCK;
-  fcntl (fileno(ftarget), F_SETLK, &lck);
-
-  fclose(ftarget);
+  file_close_it(lck);
 
   puts ("Compilation successfully finished");
   return 0;
