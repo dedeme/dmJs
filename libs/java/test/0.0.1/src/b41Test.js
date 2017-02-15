@@ -22,7 +22,7 @@ function b41Test() {
   t.eq("f", b41.n2b(14));
   t.eq("F", b41.n2b(40));
 
-  t.mark("encode");
+  t.mark("encodex");
 
   var s = "ARazrmona Gómez, Antonio (€)";
   t.eq("RSpRTRRTgRTFRTxRTsRTuRTtRTgRRxRSvRWDRTsRTkRTFRSURRxRSpRTt" +
