@@ -29,7 +29,7 @@ function b41Test() {
     "RTzRTuRTtRToRTuRRxRRFVFRRSR", b41.encode(s));
   t.eq(s, b41.decode(b41.encode(s)));
 
-  t.mark("compress");
+  t.mark("compres");
 
   t.eq("RSp7RgFxsutgRRxRSvRWD2skFRSURRxRSp5tzutouRRxRRFVFRRSR",
     b41.compress(s));
