@@ -12,7 +12,7 @@
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
 
-/*
+
 tpTest();
 itTest();
 strTest();
@@ -20,6 +20,6 @@ b41Test();
 dateDmTest();
 storeTest();
 crypTest();
-*/decTest();
+decTest();
 
 mTableTest();
