@@ -4,19 +4,18 @@
  * Copyright 11-Feb-2017 (Deme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
-function dateDmTest() {
-  "use strict";
+const dateDmTest = () => {
+  const DateDm = dm.DateDm;
 
-  var DateDm = dm.DateDm;
-
-  var t = new dm.Test("DateDm");
+  const t = new dm.Test("DateDm");
 
   t.mark("constructor");
 
-  var d1 = new DateDm(29, 2, 2013);
-  var d2 = new DateDm(6, 3, 2013);
-  var d3 = new DateDm(30, 4, 2013);
+  let d1 = new DateDm(29, 2, 2013);
+  let d2 = new DateDm(6, 3, 2013);
+  let d3 = new DateDm(30, 4, 2013);
 
   t.mark("fromEn");
 
@@ -75,5 +74,5 @@ function dateDmTest() {
   t.yes(d3.eq(DateDm.restore(d3.serialize())));
 
   t.log();
-}
+};
 

@@ -5,14 +5,14 @@
  * Copyright 11-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
-function strTest() {
-  "use strict";
+const strTest = () => {
 
-  var str = dm.str;
-  var It = dm.It;
+  const It = dm.It;
+  const str = dm.str;
 
-  var t = new dm.Test("str");
+  const t = new dm.Test("str");
 
   t.mark("cutLeft");
 
@@ -99,8 +99,8 @@ function strTest() {
 
   t.mark("compare");
 
-  var arr = ["pérez", "pera", "p zarra", "pizarra"];
-  var arr2 = It.from(arr).sortf(str.compare).to();
+  let arr = ["pérez", "pera", "p zarra", "pizarra"];
+  let arr2 = It.from(arr).sortf(str.compare).to();
   t.eq(["p zarra", "pera", "pizarra", "pérez"].toString(), arr2.toString());
   arr2 = It.from(arr).sortf(str.localeCompare).to();
   t.eq(["p zarra", "pera", "pérez", "pizarra"].toString(), arr2.toString());
@@ -214,4 +214,4 @@ function strTest() {
   t.eq(str.sub("12345", 100, 100), "");
 
   t.log();
-}
+};

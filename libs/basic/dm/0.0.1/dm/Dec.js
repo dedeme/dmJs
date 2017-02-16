@@ -7,78 +7,95 @@
 
 (() => {
 
-  /// Operates with numbers using a precision of
-  /// 1/Math.pow(10, 14 - Math.log10(Math.abs(value)))
-  //# ?num - ?num - Dec
-  dm.Dec = function (value, scale) {
-    value = value || 0;
-    scale = scale || 0;
+  class Dec {
+    /// Operates with numbers using a precision of
+    /// 1/Math.pow(10, 14 - Math.log10(Math.abs(value)))
+    //# ?num - ?num - Dec
+    constructor (value, scale) {
+      value = value || 0;
+      scale = scale || 0;
 
-    let lg = Math.log10(Math.abs(value));
-    lg = lg < 0 ? 0 : lg;
-    this._precision = 1 / Math.pow(10, 14 - lg);
-    const _value = value < 0 ? value - this._precision : value + this._precision;
+      let lg = Math.log10(Math.abs(value));
+      lg = lg < 0 ? 0 : lg;
+      this._precision = 1 / Math.pow(10, 14 - lg);
+      const _value = value < 0
+        ? value - this._precision
+        : value + this._precision;
 
-    //# num
-    this.scale = scale < 0 ? 0 : scale;
+      //# num
+      this.scale = scale < 0 ? 0 : scale;
 
-    const _scale = Math.pow(10, scale);
+      const _scale = Math.pow(10, scale);
 
-    //# num
-    this.value = Math.round(_value * _scale) / _scale;
-  };
-
-  const Dec = dm.Dec;
-  const dec = dm.Dec.prototype;
-
-  /// Returns if [this] and [d] have the same value and scale
-  //# Dec - bool
-  dec.eq = d => Dec.eq(this.scale, d.scale, 0.000001) &&
-    Dec.eq(this.value, d.value, this._precision);
-
-  /// Returns if [this] and [d] have the same value. (Doesn't take into account
-  /// their scales and uses precision of [this])
-  //# Dec - bool
-  dec.eqValue = d => Dec.eq(this.value, d.value, this._precision);
-
-  /// Returns 1, 0 or -1 depending on [this] was greater, equal or lesser than
-  /// [d]. (Doesn't take into account their scales)
-  //# Dec - num
-  dec.compare = d => this.eqValue(d) ? 0 : this.value - d.value;
-
-  dec._format = (thousand, decimal) => {
-    const vs = Math.abs(this.value).toFixed(this.scale);
-    let left = vs;
-    let right = "";
-    let ix = 0;
-    if (this.scale) {
-      ix = vs.indexOf(".");
-      left = vs.substring(0, ix);
-      right = decimal + vs.substring(ix + 1);
+      //# num
+      this.value = Math.round(_value * _scale) / _scale;
     }
-    let size = 3;
-    while (left.length > size) {
-      ix = left.length - size;
-      left = left.substring(0, ix) + thousand + left.substring(ix);
-      size += 4;
+
+    /// Returns if [this] and [d] have the same value and scale
+    //# Dec - bool
+    eq (d) {
+      return Dec.eq(this.scale, d.scale, 0.000001) &&
+             Dec.eq(this.value, d.value, this._precision);
     }
-    return (this.value < 0 ? "-" : "") + left + right;
-  };
 
-  /// European format, with point of thousand and decimal comma.
-  //# - str
-  dec.toEs = () => this._format(".", ",");
+    /// Returns if [this] and [d] have the same value. (Doesn't take into
+    /// account their scales and uses precision of [this])
+    //# Dec - bool
+    eqValue (d) {
+      return Dec.eq(this.value, d.value, this._precision);
+    }
 
-  /// English format, with comma of thousand  and decimal point.
-  //# - str
-  dec.toEn = () => this._format(",", ".");
+    /// Returns 1, 0 or -1 depending on [this] was greater, equal or lesser than
+    /// [d]. (Doesn't take into account their scales)
+    //# Dec - num
+    compare (d) {
+      return this.eqValue(d) ? 0 : this.value - d.value;
+    }
 
-  /// Return [this] in base format.
-  //# - str
-  dec.toString = () => this.value.toFixed(this.scale);
+    _format (thousand, decimal) {
+      const vs = Math.abs(this.value).toFixed(this.scale);
+      let left = vs;
+      let right = "";
+      let ix = 0;
+      if (this.scale) {
+        ix = vs.indexOf(".");
+        left = vs.substring(0, ix);
+        right = decimal + vs.substring(ix + 1);
+      }
+      let size = 3;
+      while (left.length > size) {
+        ix = left.length - size;
+        left = left.substring(0, ix) + thousand + left.substring(ix);
+        size += 4;
+      }
+      return (this.value < 0 ? "-" : "") + left + right;
+    }
 
-  //# - Arr<num>
-  dec.serialize = () => [this.value, this.scale];
+    /// European format, with point of thousand and decimal comma.
+    //# - str
+    toEs () {
+      return this._format(".", ",");
+    }
+
+    /// English format, with comma of thousand  and decimal point.
+    //# - str
+    toEn () {
+      return this._format(",", ".");
+    }
+
+    /// Return [this] in base format.
+    //# - str
+    toString () {
+      return this.value.toFixed(this.scale);
+    }
+
+    //# - Arr<num>
+    serialize () {
+      return [this.value, this.scale];
+    }
+
+  }
+  dm.Dec = Dec;
 
 // ----------------------------------------------- //
 
@@ -144,7 +161,7 @@
       return dif > 0 ? n1 + Dec.rnd(dif + 1) : n2 + Dec.rnd(1 - dif);
     }
     if (n1) {
-      return n1 < 0 
+      return n1 < 0
         ? Math.ceil(Math.random() * n1)
         : Math.floor(Math.random() * n1);
     }

@@ -4,31 +4,28 @@
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
-(function () {
-  "use strict";
-
-  var b41 = dm.b41;
-  var It = dm.It;
+(() => {
+  const b41 = dm.b41;
+  const It = dm.It;
 
   dm.cryp = {};
-  var cryp = dm.cryp;
+  const cryp = dm.cryp;
 
   /// Encodes a string to b41
   //# str - str
-  cryp.s2b = function (s) { return b41.compress(s); };
+  cryp.s2b = s => b41.compress(s);
 
   /// Decodes a string codified with s2b()
   //# str - str
-  cryp.b2s = function (c) { return b41.decompress(c); };
+  cryp.b2s = c => b41.decompress(c);
 
   /// Generates a b41 random key of a length 'lg'
   //# num - str
-  cryp.genK = function (lg) {
-    return It.join(It.range(lg).map(function () {
-      return b41.n2b(Math.floor(Math.random() * 41));
-    }));
-  };
+  cryp.genK = lg => It.join(It.range(lg).map(() =>
+    b41.n2b(Math.floor(Math.random() * 41))
+  ));
 
   /**
    * Returns 'k' codified in irreversible way, using 'lg' B41 digits.
@@ -37,17 +34,17 @@
    *   return: 'lg' B41 digits
    */
   //# str - num - str
-  cryp.key = function (k, lg) {
-    var lg2 = k.length * 2;
-    if (lg2 < lg * 2) { lg2 = lg * 2; }
+  cryp.key = (k, lg) => {
+    let lg2 = k.length * 2;
+    if (lg2 < lg * 2) lg2 = lg * 2;
     k += "codified in irreversibleDeme is good, very good!\n\r8@@";
-    while (k.length < lg2) { k += k; }
+    while (k.length < lg2) k += k;
     k = k.substring(0, lg2);
-    var dt = b41.decodeBytes(b41.encode(k));
+    const dt = b41.decodeBytes(b41.encode(k));
     lg2 = dt.length;
 
-    var sum = 0;
-    var i = 0;
+    let sum = 0;
+    let i = 0;
     while (i < lg2) {
       sum = (sum + dt[i]) % 256;
       dt[i] = (sum + i + dt[i]) % 256;
@@ -69,12 +66,12 @@
    *   return: 'm' codified in B41 digits.
    */
   //# str - str - str
-  cryp.cryp = function (k, m) {
+  cryp.cryp = (k, m) => {
     m = b41.encode(m);
     k = cryp.key(k, m.length);
-    return It.join(It.range(m.length).map(function (i) {
-      return b41.n2b((b41.b2n(m.charAt(i)) + b41.b2n(k.charAt(i))) % 41);
-    }));
+    return It.join(It.range(m.length).map(i =>
+      b41.n2b((b41.b2n(m.charAt(i)) + b41.b2n(k.charAt(i))) % 41)
+    ));
   };
 
   /**
@@ -84,10 +81,10 @@
    *   return: 'c' decoded.
    */
   //# str - str - str
-  cryp.decryp = function (k, c) {
+  cryp.decryp = (k, c) => {
     k = cryp.key(k, c.length);
-    return b41.decode(It.join(It.range(c.length).map(function (i) {
-      var n = b41.b2n(c.charAt(i)) - b41.b2n(k.charAt(i));
+    return b41.decode(It.join(It.range(c.length).map(i => {
+      const n = b41.b2n(c.charAt(i)) - b41.b2n(k.charAt(i));
       return b41.n2b(n >= 0 ? n : n + 41);
     })));
   };
@@ -99,14 +96,11 @@
    *   return: 'm' encoded in B41 digits
    */
   //# num - str - str
-  cryp.autoCryp = function (nK, m) {
-    var k1 = Math.floor(Math.random() * 41);
-    var n = b41.n2b((nK + k1) % 41);
-    var k = cryp.genK(nK);
-    return b41.n2b(k1) +
-      n +
-      k +
-      cryp.cryp(k, m);
+  cryp.autoCryp = (nK, m) => {
+    const k1 = Math.floor(Math.random() * 41);
+    const n = b41.n2b((nK + k1) % 41);
+    const k = cryp.genK(nK);
+    return b41.n2b(k1) + n + k + cryp.cryp(k, m);
   };
 
   /**
@@ -115,9 +109,9 @@
    *   return: Decoded text
    */
   //# str - str
-  cryp.autoDecryp = function (c) {
-    var c1 = b41.b2n(c.charAt(1)) - b41.b2n(c.charAt(0));
-    var nK = c1 >= 0 ? c1 : c1 + 41;
+  cryp.autoDecryp = c => {
+    const c1 = b41.b2n(c.charAt(1)) - b41.b2n(c.charAt(0));
+    const nK = c1 >= 0 ? c1 : c1 + 41;
     return cryp.decryp(c.substr(2, nK), c.substr(2 + nK));
   };
 
@@ -129,9 +123,7 @@
    *   return: 'm' codified in B41 digits.
    */
   //# str - num - str - str
-  cryp.encode = function (k, nK, m) {
-    return cryp.cryp(k, cryp.autoCryp(nK, m));
-  };
+  cryp.encode = (k, nK, m) => cryp.cryp(k, cryp.autoCryp(nK, m));
 
   /**
    * Decodes a string codified with encode()
@@ -140,7 +132,7 @@
    *   return: 'c' decoded.
    */
   //# str - str - str
-  cryp.decode = function (k, c) { return cryp.autoDecryp(cryp.decryp(k, c)); };
+  cryp.decode = (k, c) => cryp.autoDecryp(cryp.decryp(k, c));
 
-}());
+})();
 

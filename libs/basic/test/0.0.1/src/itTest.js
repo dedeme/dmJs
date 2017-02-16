@@ -4,15 +4,15 @@
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
-function itTest() {
-  "use strict";
-  var It = dm.It;
+const itTest = () => {
+  const It = dm.It;
 
-  var t = new dm.Test("It");
+  const t = new dm.Test("It");
 
-  var aN1 = [1, 2, 3];
-  var itN1 = It.from(aN1);
+  let aN1 = [1, 2, 3];
+  let itN1 = It.from(aN1);
   t.eq(1, itN1.next());
   t.eq(2, itN1.next());
   t.eq(3, itN1.next());
@@ -22,12 +22,12 @@ function itTest() {
 
   t.mark("constructors");
 
-  var i0 = [];
-  var i1 = [1];
-  var i2 = [1, 2, 3];
-  var s0 = [];
-  var s1 = ["one"];
-  var s2 = ["one", "two", "three"];
+  let i0 = [];
+  let i1 = [1];
+  let i2 = [1, 2, 3];
+  let s0 = [];
+  let s1 = ["one"];
+  let s2 = ["one", "two", "three"];
 
   t.not(It.empty().hasNext());
   t.not(It.from([]).hasNext());
@@ -41,7 +41,7 @@ function itTest() {
   t.yes(!It.from(i1).eq(It.from(i2)));
   t.yes(It.from(i0).eq(It.from(s0)));
 
-  t.yes(It.from(i2).eqf(It.from(i2), function (a, b) { return a === b; }));
+  t.yes(It.from(i2).eqf(It.from(i2), (a, b) => a === b));
 
   t.eq("[]", It.from(i0).toString());
   t.eq("[1]", It.from(i1).toString());
@@ -55,7 +55,7 @@ function itTest() {
   t.eq("[a]", It.fromStr("a").toString());
   t.eq("[a, b, c]", It.fromStr("abc").toString());
 
-  var ik = dm.It.keys({"one" : 1, "two" : 2});
+  let ik = dm.It.keys({"one" : 1, "two" : 2});
   t.eq("one", ik.next().toString());
   t.eq("two", ik.next().toString());
   t.yes(!ik.hasNext());
@@ -81,8 +81,8 @@ function itTest() {
   t.eq("[]", It.from(s2).drop(10).toString());
   t.eq("[1, 2, 3]", It.from(i2).drop(0).toString());
 
-  var pr1 = function (e) { return e < 2; };
-  var npr1 = function (e) { return e >= 2; };
+  let pr1 = e => e < 2;
+  let npr1 = e => e >= 2;
 
   t.eq("[]", It.from(s2).take(0).toString());
   t.eq("[]", It.from(s2).take(-30).toString());
@@ -107,8 +107,8 @@ function itTest() {
   t.eq("[]", It.from(i1).dropWhile(pr1).toString());
   t.eq("[2, 3]", It.from(i2).dropWhile(pr1).toString());
 
-  var even = function (e) { return e % 2 === 0; };
-  var neven = function (e) { return e % 2 !== 0; };
+  let even = e => e % 2 === 0;
+  let neven = e => e % 2 !== 0;
 
   t.eq("[]", It.from(i0).filter(even).toString());
   t.eq("[]", It.from(i1).filter(even).toString());
@@ -117,7 +117,7 @@ function itTest() {
   t.eq("[1]", It.from(i1).filter(neven).toString());
   t.eq("[1, 3]", It.from(i2).filter(neven).toString());
 
-  var mul2 = function (e) { return e * 2; };
+  let mul2 = e => e * 2;
 
   t.eq("[]", It.from(i0).map(mul2).toString());
   t.eq("[2]", It.from(i1).map(mul2).toString());
@@ -127,8 +127,8 @@ function itTest() {
 
   t.mark("progresive");
 
-  var ftrue = function () { return true; };
-  var feq = function (a) { return function (e) { return a === e; }; };
+  let ftrue = () => true;
+  let feq = a => e => a === e;
 
   t.yes(It.from(i0).all(feq(1)));
   t.yes(It.from(i1).all(feq(1)));
@@ -187,7 +187,7 @@ function itTest() {
   t.eq("[1]", It.from(i1).reverse().toString());
   t.eq("[3, 2, 1]", It.from(i2).reverse().toString());
 
-  var arr = ["pérez", "pera", "p zarra", "pizarra"];
+  let arr = ["pérez", "pera", "p zarra", "pizarra"];
   t.eq(
     ["p zarra", "pera", "pizarra", "pérez"].toString(),
     It.from(arr).sort().to().toString()
@@ -211,36 +211,42 @@ function itTest() {
   t.eq("[]", It.range(2, 2).toString());
 
   t.eq("[]", It.zip(It.from(s0), It.from(s2)).toString());
-  var its = It.unzip(It.zip(It.from(s1), It.from(s2)));
+  let its = It.unzip(It.zip(It.from(s1), It.from(s2)));
   t.yes(its.e1.eq(It.from(s1)));
   t.yes(its.e2.eq(It.from(s1)));
   its = It.unzip(It.zip(It.from(i1), It.from(i2)));
   t.yes(its.e1.eq(It.from(i1)));
   t.yes(its.e2.eq(It.from(i1)));
 
-  var sum = 0;
-  It.from(i0).each(function (e) { sum += e; });
+  let sum = 0;
+  It.from(i0).each(e => {
+    sum += e;
+  });
   t.eq(0, sum);
-  It.from(i1).each(function (e) { sum += e; });
+  It.from(i1).each(e => {
+    sum += e;
+  });
   t.eq(1, sum);
-  It.from(i2).each(function (e) { sum += e; });
+  It.from(i2).each(e => {
+    sum += e; }
+  );
   t.eq(7, sum);
 
-  var sum2 = 0;
+  let sum2 = 0;
   sum = 0;
-  It.from(i0).eachIx(function (e, ix) {
+  It.from(i0).eachIx((e, ix) => {
     sum += e;
     sum2 += ix;
   });
   t.eq(0, sum);
   t.eq(0, sum2);
-  It.from(i1).eachIx(function (e, ix) {
+  It.from(i1).eachIx((e, ix) => {
     sum += e;
     sum2 += ix;
   });
   t.eq(1, sum);
   t.eq(0, sum2);
-  It.from(i2).eachIx(function (e, ix) {
+  It.from(i2).eachIx((e, ix) => {
     sum += e;
     sum2 += ix;
   });
@@ -248,5 +254,5 @@ function itTest() {
   t.eq(3, sum2);
 
   t.log();
-}
+};
 

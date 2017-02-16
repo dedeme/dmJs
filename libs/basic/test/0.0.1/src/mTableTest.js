@@ -4,17 +4,16 @@
  * Copyright 14-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
-function mTableTest() {
-  "use strict";
+const mTableTest = () => {
+  const MTable = dm.MTable;
 
-  var MTable = dm.MTable;
-
-  var t = new dm.Test("MTable");
+  const t = new dm.Test("MTable");
 
   t.mark("readArray");
 
-  var tb = new MTable(["name", "age"]);
+  let tb = new MTable(["name", "age"]);
   t.eq(0, tb.readArray().size());
   t.eq(0, tb.read().size());
   tb.addArray(["Peter", 23]);
@@ -98,7 +97,7 @@ function mTableTest() {
 
   t.mark("serialization");
 
-  var tb2 = MTable.restore(tb.serialize());
+  let tb2 = MTable.restore(tb.serialize());
   t.eq(2, tb2.data.length);
   t.eq(1, tb2.getArray(1)[0]);
   t.eq("Clare", tb2.getArray(1)[1]);
@@ -107,11 +106,11 @@ function mTableTest() {
   t.eq("John", tb2.getArray(2)[1]);
   t.eq(undefined, tb2.getArray(2)[2]);
 
-  var tb3 = new MTable(["client", "amount"]);
+  let tb3 = new MTable(["client", "amount"]);
   tb3.addArray(["Peter", new dm.Dec(45.67, 3)]);
-  var tb4 = MTable.restore (
+  let tb4 = MTable.restore(
     tb3.serialize(function (r) { return [r[0], r[1], r[2].serialize()]; }),
-    function (r) { return [r[0], r[1], dm.Dec.restore(r[2])]; }
+    r => [r[0], r[1], dm.Dec.restore(r[2])]
   );
   t.eq(0, tb3.getArray(0)[0]);
   t.eq("Peter", tb3.getArray(0)[1]);
@@ -121,6 +120,6 @@ function mTableTest() {
   t.eq(new dm.Dec(45.67, 3).toString(), tb4.getArray(0)[2].toString());
 
   t.log();
-}
+};
 
 

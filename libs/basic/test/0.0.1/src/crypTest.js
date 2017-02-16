@@ -4,13 +4,12 @@
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
-function crypTest() {
-  "use strict";
+const crypTest = () => {
+  const cryp = dm.cryp;
 
-  var cryp = dm.cryp;
-
-  var t = new dm.Test("cryp");
+  const t = new dm.Test("cryp");
 
   t.mark("s2b-b2s");
 
@@ -70,5 +69,5 @@ function crypTest() {
 
 
   t.log();
-}
+};
 

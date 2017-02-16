@@ -10,116 +10,133 @@
 (() => {
   const str = dm.str;
 
-  /// Note: Jan is 1, Dec is 12.
-  //# num - num - num - DateDm
-  dm.DateDm = function (day, month, year) {
-    var date = new Date(year, month - 1, day, 12, 0, 0);
+  class DateDm {
+    /// Note: Jan is 1, Dec is 12.
+    //# num - num - num - DateDm
+    constructor (day, month, year) {
+      var date = new Date(year, month - 1, day, 12, 0, 0);
 
-    //# Date
-    this.date = date;
+      //# Date
+      this.date = date;
 
-    /// In range 1-31
-    //# num
-    this.day = date.getDate();
+      /// In range 1-31
+      //# num
+      this.day = date.getDate();
 
-    /// In range 1-12
-    //# num
-    this.month = date.getMonth() + 1;
+      /// In range 1-12
+      //# num
+      this.month = date.getMonth() + 1;
 
-    ///
-    //# num
-    this.year = date.getFullYear();
-  };
+      ///
+      //# num
+      this.year = date.getFullYear();
+    }
 
-  const DateDm = dm.DateDm;
-  const dateDm = DateDm.prototype;
+    //# DateDm - bool
+    eq (d) {
+      return this.day === d.day &&
+             this.month === d.month &&
+             this.year === d.year;
+    }
 
-  //# DateDm - bool
-  dateDm.eq = d => 
-    this.day === d.day && this.month === d.month && this.year === d.year;
+    //# DateDm - num
+    compare (d) {
+      return this.year === d.year
+        ? this.month === d.month
+          ? this.day - d.day
+          : this.month - d.month
+        : this.year - d.year;
+    }
 
-  //# DateDm - num
-  dateDm.compare = d =>
-    this.year === d.year
-      ? this.month === d.month
-        ? this.day - d.day
-        : this.month - d.month
-      : this.year - d.year;
+    /// Returns a new DataDm equals to [this] + [days]
+    //# num - !DateDm
+    add (days) {
+      return DateDm.fromTime(this.toTime() + days * 86400000);
+    }
 
-  /// Returns a new DataDm equals to [this] + [days]
-  //# num - !DateDm
-  dateDm.add = days => DateDm.fromTime(this.toTime() + days * 86400000);
+    /// Returns [this] - [d] in days.
+    //# DateDm - num
+    df (d) {
+      return Math.round((this.toTime() - d.toTime()) / 86400000);
+    }
 
-  /// Returns [this] - [d] in days.
-  //# DateDm - num
-  dateDm.df = d => Math.round((this.toTime() - d.toTime()) / 86400000);
+    /**
+     * Returns a string that represents to [this]. <p>
+     * [template] is a kind <tt>printf</tt> with next sustitution
+     * variables:
+     *   %d  Day in number 06 -> 6
+     *   %D  Day with tow digits 06 -> 06
+     *   %m  Month in number 03 -> 3
+     *   %M  Month with two digits 03 -> 03
+     *   %y  Year with two digits 2010 -> 10
+     *   %Y  Year with four digits 2010 -> 2010
+     *   %b  Month with three characters.
+     *   %B  Month with all characters.
+     *   %1  Week day with one character: L M X J V S D
+     *   %a  Week day with tree characters.
+     *   %A  Week day withd all characters.
+     *   %%  The sign %
+     */
+    //# str - str
+    format (template) {
+      const r = (code, value) => {
+        template = str.replace(template, code, value);
+      };
 
-  /**
-   * Returns a string that represents to [this]. <p>
-   * [template] is a kind <tt>printf</tt> with next sustitution
-   * variables:
-   *   %d  Day in number 06 -> 6
-   *   %D  Day with tow digits 06 -> 06
-   *   %m  Month in number 03 -> 3
-   *   %M  Month with two digits 03 -> 03
-   *   %y  Year with two digits 2010 -> 10
-   *   %Y  Year with four digits 2010 -> 2010
-   *   %b  Month with three characters.
-   *   %B  Month with all characters.
-   *   %1  Week day with one character: L M X J V S D
-   *   %a  Week day with tree characters.
-   *   %A  Week day withd all characters.
-   *   %%  The sign %
-   */
-  //# str - str
-  dateDm.format = template => {
-    const r = (code, value) => { template = str.replace(template, code, value); };
+      const d = "" + this.day;
+      const dw = this.date.getDay();
+      const w = DateDm.week[dw];
+      const mn = this.date.getMonth();
+      const m = "" + (mn + 1);
+      const ms = DateDm.months[mn];
+      const y = "0000" + this.year;
 
-    const d = "" + this.day;
-    const dw = this.date.getDay();
-    const w = DateDm.week[dw];
-    const mn = this.date.getMonth();
-    const m = "" + (mn + 1);
-    const ms = DateDm.months[mn];
-    const y = "0000" + this.year;
+      r("%d", d);
+      r("%D", d.length === 1 ? "0" + d : d);
+      r("%m", m);
+      r("%M", m.length === 1 ? "0" + m : m);
+      r("%y", str.sub(y, -2));
+      r("%Y", str.sub(y, -4));
+      r("%b", ms.substring(0, 3));
+      r("%B", ms);
+      r("%1", DateDm.week1.charAt(dw));
+      r("%a", w.substring(0, 3));
+      r("%A", w);
+      r("%%", "%");
 
-    r("%d", d);
-    r("%D", d.length === 1 ? "0" + d : d);
-    r("%m", m);
-    r("%M", m.length === 1 ? "0" + m : m);
-    r("%y", str.sub(y, -2));
-    r("%Y", str.sub(y, -4));
-    r("%b", ms.substring(0, 3));
-    r("%B", ms);
-    r("%1", DateDm.week1.charAt(dw));
-    r("%a", w.substring(0, 3));
-    r("%A", w);
-    r("%%", "%");
+      return template;
+    }
 
-    return template;
-  };
+    /// Returns [this] in format "yyyymmdd"
+    //# - str
+    base () {
+      return str.sub("0000" + this.year, -4) +
+             str.sub("00" + this.month, -2) +
+             str.sub("00" + this.day, -2);
+    }
+    //# - Date
+    toDate () {
+      return this.date;
+    }
 
-  /// Returns [this] in format "yyyymmdd"
-  //# - str
-  dateDm.base = () => str.sub("0000" + this.year, -4) +
-    str.sub("00" + this.month, -2) +
-    str.sub("00" + this.day, -2);
+    //# - num
+    toTime () {
+      return this.date.getTime();
+    }
 
-  //# - Date
-  dateDm.toDate = () => this.date;
-
-  //# - num
-  dateDm.toTime = () => this.date.getTime();
-
-  /// Spanish format
-  //# - str
-  dateDm.toString = () => str.sub("00" + this.day, -2) + "/" +
-    str.sub("00" + this.month, -2) + "/" +
-    str.sub("0000" + this.year, -4);
-  };
-
-  //# - Arr<*>
-  dateDm.serialize = function () { return [this.day, this.month, this.year]; };
+    /// Spanish format
+    //# - str
+    toString () {
+      return str.sub("00" + this.day, -2) + "/" +
+             str.sub("00" + this.month, -2) + "/" +
+             str.sub("0000" + this.year, -4);
+    }
+    //# - Arr<*>
+    serialize () {
+      return [this.day, this.month, this.year];
+    }
+  }
+  dm.DateDm = DateDm;
 
 // ----------------------------------------------- //
 
@@ -140,11 +157,12 @@
   DateDm.week1 = "DLMXJVS";
 
   //# Date - DateDm
-  DateDm.fromDate = d => new DateDm(d.getDate(), d.getMonth() + 1, d.getFullYear());
+  DateDm.fromDate = d =>
+    new DateDm(d.getDate(), d.getMonth() + 1, d.getFullYear());
 
   /// [s] is in format yyyymmdd (mm in range 01-12)
   //# str - DateDm
-  DateDm.fromStr = s => 
+  DateDm.fromStr = s =>
     new DateDm(+s.substring(6), +s.substring(4, 6), +s.substring(0, 4));
 
   /// [s] is in format dd-mm-yyyy or dd-mm-yy or dd/mm/yyyy or dd/mm/yy
