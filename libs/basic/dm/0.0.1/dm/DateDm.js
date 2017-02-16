@@ -3,13 +3,12 @@
  * Copyright 11-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
 /// Class to manipulate dates, specially in spanish format.<p>
 
-(function () {
-  "use strict";
-
-  var str = dm.str;
+(() => {
+  const str = dm.str;
 
   /// Note: Jan is 1, Dec is 12.
   //# num - num - num - DateDm
@@ -32,39 +31,28 @@
     this.year = date.getFullYear();
   };
 
-  var DateDm = dm.DateDm;
-  var dateDm = DateDm.prototype;
+  const DateDm = dm.DateDm;
+  const dateDm = DateDm.prototype;
 
-
-  ///
   //# DateDm - bool
-  dateDm.eq = function (d) {
-    return this.day === d.day &&
-      this.month === d.month &&
-      this.year === d.year;
-  };
+  dateDm.eq = d => 
+    this.day === d.day && this.month === d.month && this.year === d.year;
 
-  ///
   //# DateDm - num
-  dateDm.compare = function (d) {
-    return this.year === d.year
+  dateDm.compare = d =>
+    this.year === d.year
       ? this.month === d.month
         ? this.day - d.day
         : this.month - d.month
       : this.year - d.year;
-  };
 
   /// Returns a new DataDm equals to [this] + [days]
   //# num - !DateDm
-  dateDm.add = function (days) {
-    return DateDm.fromTime(this.toTime() + days * 86400000);
-  };
+  dateDm.add = days => DateDm.fromTime(this.toTime() + days * 86400000);
 
   /// Returns [this] - [d] in days.
-  //# !DateDm - num
-  dateDm.df = function (d) {
-    return Math.round((this.toTime() - d.toTime()) / 86400000);
-  };
+  //# DateDm - num
+  dateDm.df = d => Math.round((this.toTime() - d.toTime()) / 86400000);
 
   /**
    * Returns a string that represents to [this]. <p>
@@ -84,18 +72,16 @@
    *   %%  The sign %
    */
   //# str - str
-  dateDm.format = function (template) {
-    var r = function (code, value) {
-      template = str.replace(template, code, value);
-    };
+  dateDm.format = template => {
+    const r = (code, value) => { template = str.replace(template, code, value); };
 
-    var d = "" + this.day;
-    var dw = this.date.getDay();
-    var w = DateDm.week[dw];
-    var mn = this.date.getMonth();
-    var m = "" + (mn + 1);
-    var ms = DateDm.months[mn];
-    var y = "0000" + this.year;
+    const d = "" + this.day;
+    const dw = this.date.getDay();
+    const w = DateDm.week[dw];
+    const mn = this.date.getMonth();
+    const m = "" + (mn + 1);
+    const ms = DateDm.months[mn];
+    const y = "0000" + this.year;
 
     r("%d", d);
     r("%D", d.length === 1 ? "0" + d : d);
@@ -115,35 +101,23 @@
 
   /// Returns [this] in format "yyyymmdd"
   //# - str
-  dateDm.base = function () {
-    var y = "0000" + this.year;
-    var m = "00" + this.month;
-    var d = "00" + this.day;
-    return str.sub(y, -4) +
-      str.sub(m, -2) +
-      str.sub(d, -2);
-  };
+  dateDm.base = () => str.sub("0000" + this.year, -4) +
+    str.sub("00" + this.month, -2) +
+    str.sub("00" + this.day, -2);
 
-  ///
-  //# - !Date
-  dateDm.toDate = function () { return this.date; };
+  //# - Date
+  dateDm.toDate = () => this.date;
 
-  ///
   //# - num
-  dateDm.toTime = function () { return this.date.getTime(); };
+  dateDm.toTime = () => this.date.getTime();
 
   /// Spanish format
   //# - str
-  dateDm.toString = function () {
-    var y = "0000" + this.year;
-    var m = "00" + this.month;
-    var d = "00" + this.day;
-    return str.sub(d, -2) + "/" +
-      str.sub(m, -2) + "/" +
-      str.sub(y, -4);
+  dateDm.toString = () => str.sub("00" + this.day, -2) + "/" +
+    str.sub("00" + this.month, -2) + "/" +
+    str.sub("0000" + this.year, -4);
   };
 
-  ///
   //# - Arr<*>
   dateDm.serialize = function () { return [this.day, this.month, this.year]; };
 
@@ -165,60 +139,50 @@
   //# str
   DateDm.week1 = "DLMXJVS";
 
-  ///
-  //# !Date - !DateDm
-  DateDm.fromDate = function (date) {
-    return new DateDm(date.getDate(), date.getMonth() + 1, date.getFullYear());
-  };
+  //# Date - DateDm
+  DateDm.fromDate = d => new DateDm(d.getDate(), d.getMonth() + 1, d.getFullYear());
 
   /// [s] is in format yyyymmdd (mm in range 01-12)
-  //# str - !DateDm
-  DateDm.fromStr = function (s) {
-    return new DateDm(+s.substring(6), +s.substring(4, 6), +s.substring(0, 4));
-  };
+  //# str - DateDm
+  DateDm.fromStr = s => 
+    new DateDm(+s.substring(6), +s.substring(4, 6), +s.substring(0, 4));
 
   /// [s] is in format dd-mm-yyyy or dd-mm-yy or dd/mm/yyyy or dd/mm/yy
   /// (mm in range 01-12)
-  //# str - !DateDm
-  DateDm.fromEu = function (s) {
-    var ps = s.split("/");
+  //# str - DateDm
+  DateDm.fromEu = s => {
+    let ps = s.split("/");
     if (ps.length === 1) {
       ps = s.split("-");
     }
-    var y = +ps[2];
+    const y = +ps[2];
     return new DateDm(+ps[0], +ps[1], ps[2].length === 2 ? 2000 + y : y);
   };
 
   /// [s] is in format mm-dd-yyyy or mm-dd-yy or mm/dd/yyyy or mm/dd/yy
   /// (mm in range 01-12)
-  //# str - !DateDm
-  DateDm.fromEn = function (s) {
-    var ps = s.split("/");
+  //# str - DateDm
+  DateDm.fromEn = s => {
+    let ps = s.split("/");
     if (ps.length === 1) {
       ps = s.split("-");
     }
-    var y = +ps[2];
+    const y = +ps[2];
     return new DateDm(+ps[1], +ps[0], ps[2].length === 2 ? 2000 + y : y);
   };
 
-  ///
-  //# num - !DateDm
-  DateDm.fromTime = function (time) { return DateDm.fromDate(new Date(time)); };
+  //# num - DateDm
+  DateDm.fromTime = time => DateDm.fromDate(new Date(time));
 
   /// Returns the date-hour actual.
-  //# - !DateDm
-  DateDm.now = function () { return DateDm.fromTime(Date.now()); };
+  //# - DateDm
+  DateDm.now = () => DateDm.fromTime(Date.now());
 
-  ///
-  //# !Arr<?> - !DateDm
-  DateDm.restore = function (serial) {
-    return new DateDm(serial[0], serial[1], serial[2]);
-  };
+  //# Arr<num> - DateDm
+  DateDm.restore = serial => new DateDm(serial[0], serial[1], serial[2]);
 
-  ///
+  // [y] is the complete year (e.g. 2014)
   //# num - bool
-  DateDm.isLeap = function (year) {
-    return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
-  };
+  DateDm.isLeap = y => ((y % 4 === 0) && (y % 100 !== 0)) || (y % 400 === 0);
 
-}());
+})();

@@ -3,10 +3,10 @@
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
+/*global dm */
 
-(function () {
-  "use strict";
-  var Tp = dm.Tp;
+(() => {
+  const Tp = dm.Tp;
 
   //# T :: ( - bool) - ( - T) - It
   dm.It = function (hasNext, next) {
@@ -16,28 +16,28 @@
     this.next = next;
   };
 
-  var It = dm.It;
-  var it = It.prototype;
+  const It = dm.It;
+  const it = It.prototype;
 
   /// Returns [this] with [element] added at end or at [i] if [i] is
   /// not null
-  //# T - ?num - !It<T>
-  it.add = function (e, i) {
-    var self = this;
-    var c = 0;
+  //# T - ?num - It<T>
+  it.add = (e, i) => {
+    const self = this;
+    let c = 0;
     if (!i) {
       return new It(
-        function () { return c === 0; },
-        function () {
-          if (self.hasNext()) { return self.next(); }
+        () => c === 0,
+        () => {
+          if (self.hasNext()) return self.next();
           ++c;
           return e;
         }
       );
     }
     return new It(
-      function () { return self.hasNext() || c < i; },
-      function () {
+      () => self.hasNext() || c < i,
+      () => {
         if (c <= i) {
           if (self.hasNext() && c < i) {
             ++c;
@@ -52,13 +52,13 @@
   };
 
   /// Returns [this] with [e] added at begin
-  //# T - !It<T>
+  //# T - It<T>
   it.add0 = function (e) {
-    var self = this;
-    var isNotAdd = true;
+    const self = this;
+    let isNotAdd = true;
     return new It(
-      function () { return self.hasNext() || isNotAdd; },
-      function () {
+      () => self.hasNext() || isNotAdd,
+      () => {
         if (isNotAdd) {
           isNotAdd = false;
           return e;
@@ -69,15 +69,15 @@
   };
 
   /// Inserts an iterator in [this] at [i] or at end if [i] is null.
-  //# !It<T> - num= - !It<T>
+  //# It<T> - ?num - It<T>
   it.addIt = function (it, i) {
-    var self = this;
-    var c = 0;
+    const self = this;
+    let c = 0;
     return new It(
-      function () { return self.hasNext() || it.hasNext(); },
-      function () {
+      () => self.hasNext() || it.hasNext(),
+      () => {
         if (!i) {
-          if (self.hasNext()) { return self.next(); }
+          if (self.hasNext()) return self.next();
           return it.next();
         }
         if (c < i) {
@@ -87,7 +87,7 @@
           }
           c = i;
         }
-        if (it.hasNext()) { return it.next(); }
+        if (it.hasNext()) return it.next();
         return self.next();
       }
     );
@@ -95,99 +95,99 @@
 
   /// Returns <b>true</b> if all elements give <b>true</b> with [f]
   //# (T - bool) - bool
-  it.all = function (f) {
-    while (this.hasNext()) { if (!f(this.next())) { return false; } }
+  it.all = f => {
+    while (this.hasNext()) 
+      if (!f(this.next())) return false; 
     return true;
   };
 
   /// Returns <b>true</b> if any element of [this] is equals (===) to [e]
   //# T - bool
-  it.contains = function (e) {
-    while (this.hasNext()) { if (e === this.next()) { return true; } }
+  it.contains = e => {
+    while (this.hasNext()) 
+      if (e === this.next())  return true;
     return false;
   };
 
   /// Returns <b>true</b> if any element of [this] returns true with [f]
-  //# func(T):bool - bool
-  it.containsf = function (f) {
-    while (this.hasNext()) { if (f(this.next())) { return true; } }
+  //# (T - bool) - bool
+  it.containsf = f => {
+    while (this.hasNext()) 
+      if (f(this.next())) return true;
     return false;
   };
 
   /// Returns the number of elements whish give <b>true</b> with [f] <p>
   /// Number of all the elements is returned by [size()]
   //# (T - bool) - num
-  it.count = function (f) { return this.filter(f).size(); };
+  it.count = f => this.filter(f).size();
 
   /// Returns rest of [this] after call [take ()]
-  //# num - !It<T>
-  it.drop = function (n) {
-    var r = this.take(n);
-    while (r.hasNext()) { r.next(); }
+  //# num - It<T>
+  it.drop = n => {
+    const r = this.take(n);
+    while (r.hasNext()) r.next();
     return this;
   };
 
   /// Returns rest of [It] after call [takeWhile()]
-  //# (T - bool) - !It<T>
-  it.dropWhile = function (f) {
-    return this.dropUntil(function (e) { return !f(e); });
-  };
+  //# (T - bool) - It<T>
+  it.dropWhile = f => this.dropUntil(e => !f(e));
 
   /// Returns rest of It after call[ takeUntil()]
-  //# (T - bool) - !It<T>
-  it.dropUntil = function (f) {
-    var self = this;
-    var last = null;
-    var nx = true;
+  //# (T - bool) - It<T>
+  it.dropUntil = f => {
+    const self = this;
+    let last = null;
+    let nx = true;
     while (true) {
       if (self.hasNext()) {
         last = self.next();
-        if (f(last)) { break; }
+        if (f(last)) break;
       } else {
         nx = false;
         break;
       }
     }
     return new It(
-      function () { return nx; },
-      function () {
-        var r = last;
-        if (self.hasNext()) { last = self.next(); } else { nx = false; }
+      () => nx,
+      () => {
+        const r = last;
+        if (self.hasNext()) last = self.next();
+        else nx = false;
         return r;
       }
     );
   };
 
   //# (T - ) -
-  it.each = function (f) {
-    while (this.hasNext()) { f(this.next()); }
+  it.each = f => {
+    while (this.hasNext()) f(this.next());
   };
 
   //# (T - num - ) -
-  it.eachIx = function (f) {
-    var c = -1;
-    while (this.hasNext()) { f(this.next(), ++c); }
+  it.eachIx = f => {
+    let c = -1;
+    while (this.hasNext()) f(this.next(), ++c);
   };
 
   /// Equals comparing with "!=="
   //# It<T> - bool
-  it.eq = function (i) {
-    if (!i) { return false; }
-    while (this.hasNext() && i.hasNext()) {
-      if (this.next() !== i.next()) { return false; }
-    }
-    if (this.hasNext() || i.hasNext()) { return false; }
+  it.eq = i => {
+    if (!i) return false;
+    while (this.hasNext() && i.hasNext())
+      if (this.next() !== i.next()) return false; 
+    if (this.hasNext() || i.hasNext()) return false;
     return true;
   };
 
   /// Equals comparing with [f]
   //# It<T> - (T - T - bool) - bool
-  it.eqf = function (i, f) {
-    if (!i) { return false; }
-    while (this.hasNext() && i.hasNext()) {
-      if (!f(this.next(), i.next())) { return false; }
-    }
-    if (this.hasNext() || i.hasNext()) { return false; }
+  it.eqf = (i, f) => {
+    if (!i) return false;
+    while (this.hasNext() && i.hasNext())
+      if (!f(this.next(), i.next())) return false;
+    if (this.hasNext() || i.hasNext()) return false;
     return true;
   };
 
@@ -195,18 +195,16 @@
    * Filters [this], returning a subset of collection.
    *   f      : Function to select values
    */
-  //# (T - bool) - !It<T>
-  it.filter = function (f) {
-    var self = this;
-    var last = null;
-    var nx = true;
-    var nnext = function () {
+  //# (T - bool) - It<T>
+  it.filter = f => {
+    const self = this;
+    let last = null;
+    let nx = true;
+    const nnext = function () {
       while (true) {
         if (self.hasNext()) {
           last = self.next();
-          if (f(last)) {
-            break;
-          }
+          if (f(last)) break;
         } else {
           nx = false;
           break;
@@ -215,9 +213,9 @@
     };
     nnext();
     return new It(
-      function () { return nx; },
-      function () {
-        var r = last;
+      () => nx,
+      () => {
+        const r = last;
         nnext();
         return r;
       }
@@ -225,30 +223,29 @@
   };
 
   /// Returns those elements that gives <b>true</b> with [f].
-  //# (T - bool) - !Arr<T>
-  it.find = function (f) {
-    var a = [];
-    this.each(function (e) { if (f(e)) { a.push(e); } });
+  //# (T - bool) - Arr<T>
+  it.find = f => {
+    let a = [];
+    this.each(e => { if (f(e)) a.push(e); });
     return a;
   };
 
   /// Returns the first element that gives <b>true</b> with [f] or null
   //# (T - bool) - T
-  it.findFirst = function (f) {
-    var e;
+  it.findFirst = f => {
     while (this.hasNext()) {
-      e = this.next();
-      if (f(e)) { return e; }
+      let e = this.next();
+      if (f(e)) return e;
     }
     return null;
   };
 
   /// Returns the index of first element that is equals (===) to [e]
   //# T - num
-  it.index = function (e) {
-    var i = 0;
+  it.index = e => {
+    let i = 0;
     while (this.hasNext()) {
-      if (this.next() === e) { return i; }
+      if (this.next() === e) return i;
       ++i;
     }
     return -1;
@@ -257,10 +254,10 @@
   /// Returns the index of first element that gives <b>true</b> with [f]
   /// or -1 if [this] has nothing
   //# (T - bool) - num
-  it.indexf = function (f) {
-    var i = 0;
+  it.indexf = f => {
+    let i = 0;
     while (this.hasNext()) {
-      if (f(this.next())) { return i; }
+      if (f(this.next())) return i;
       ++i;
     }
     return -1;
@@ -268,11 +265,11 @@
 
   /// Returns the index of first element that is equals (===) to [e]
   //# T - num
-  it.lastIndex = function (o) {
-    var r = -1;
-    var i = 0;
-    this.each(function (e) {
-      if (e === o) { r = i; }
+  it.lastIndex = o => {
+    let r = -1;
+    let i = 0;
+    this.each(e => {
+      if (e === o) r = i;
       ++i;
     });
     return r;
@@ -281,11 +278,11 @@
   /// Returns the index of last element that gives <b>true</b> with [f]
   /// or -1 if [this] has nothing
   //# (T - bool) - num
-  it.lastIndexf = function (f) {
-    var r = -1;
-    var i = 0;
-    this.each(function (e) {
-      if (f(e)) { r = i; }
+  it.lastIndexf = f => {
+    let r = -1;
+    let i = 0;
+    this.each(e => {
+      if (f(e)) r = i;
       ++i;
     });
     return r;
@@ -293,59 +290,54 @@
 
   /// Returns the iterator whish results of apply 'f' to every element
   /// of 'this'
-  //# U :: (T - U) - !It<U>
-  it.map = function (f) {
-    var self = this;
-    return new It(
-      function () { return self.hasNext(); },
-      function () { return f(self.next()); }
-    );
+  //# U :: (T - U) - It<U>
+  it.map = f => {
+    const self = this;
+    return new It(() => self.hasNext(), () => f(self.next());
   };
-
   /// Returns the result of applying [f]([f]([seed], e1), e2)... over
   /// every element of [this].
   //# R :: R - (R - T - R) - R
-  it.reduce = function (seed, f) {
-    while (this.hasNext()) { seed = f(seed, this.next()); }
+  it.reduce = (seed, f) => {
+    while (this.hasNext()) seed = f(seed, this.next());
     return seed;
   };
 
   /// Returns [this] in reverse order
   ///   Creates an array!
-  //# - !It<T>
-  it.reverse = function () { return It.from(this.to().reverse()); };
+  //# - It<T>
+  it.reverse = () => It.from(this.to().reverse());
 
   /// Returns the number of elements of [this].
   //# - num
-  it.size = function () {
-    var r = 0;
-    this.each(function () { ++r; });
+  it.size = () => {
+    let r = 0;
+    this.each(() => { ++r; });
     return r;
   };
 
   /// Sort [this] in natural order (lowercase after uppercase)
   ///   Creates an array!
-  //# - !It<T>
-  it.sort = function () { return It.from(this.to().sort()); };
+  //# - It<T>
+  it.sort = () => It.from(this.to().sort());
 
   /// Sort [this] conforming [compare] function
   ///   Creates an array!
-  //# (T - T - num) - !It<T>
-  it.sortf = function (f) { return It.from(this.to().sort(f)); };
+  //# (T - T - num) - It<T>
+  it.sortf = f => It.from(this.to().sort(f));
 
   /// Returns an iterator over elements of [this] mixed
   ///   Creates an array!
-  //# - !It<T>
-  it.shuffle = function () {
-    var tmp;
-    var ni;
-    var a = this.to();
-    var i = a.length;
-    if (!i) { return It.empty(); }
+  //# - It<T>
+  it.shuffle = () => {
+    let ni;
+    const a = this.to();
+    let i = a.length;
+    if (!i) return It.empty();
     while (--i) {
       ni = Math.floor(Math.random() * (i + 1));
       if (ni !== i) {
-        tmp = a[i];
+        let tmp = a[i];
         a[i] = a[ni];
         a[ni] = tmp;
       }
@@ -358,12 +350,12 @@
    * If [this] has less elements than 'n' returns all of theirs.<p>
    * [this] can be used for the rest of data after consume 'take'.
    */
-  //# num - !It<T>
-  it.take = function (n) {
-    var self = this;
+  //# num - It<T>
+  it.take = n => {
+    const self = this;
     return new It(
-      function () { return self.hasNext() && n > 0; },
-      function () {
+      () => self.hasNext() && n > 0,
+      () => {
         --n;
         return self.next();
       }
@@ -371,19 +363,19 @@
   };
 
   /// Returns the first elements of [it] whish give <b>true</b> with [f]
-  //# (T - bool) - !It<T>
-  it.takeWhile = function (f) {
-    var self = this;
-    var last = null;
-    var hnx = false;
+  //# (T - bool) - It<T>
+  it.takeWhile = f => {
+    const self = this;
+    let last = null;
+    let hnx = false;
     if (self.hasNext()) {
       last = self.next();
       hnx = true;
     }
     return new It(
-      function () { return hnx && f(last); },
-      function () {
-        var r = last;
+      () => hnx && f(last),
+      () => {
+        const r = last;
         last = null;
         hnx = false;
         if (self.hasNext()) {
@@ -396,20 +388,18 @@
   };
 
   /// Returns the n first elements of [it] whish give <b>false</b> with [f]
-  //# (T - bool) - !It<T>
-  it.takeUntil = function (f) {
-    return this.takeWhile(function (e) { return !f(e); });
-  };
+  //# (T - bool) - It<T>
+  it.takeUntil = f => this.takeWhile(e => !f(e));
 
-  //# - !Arr<T>
-  it.to = function () {
-    var a = [];
-    this.each(function (o) { a.push(o); });
+  //# - Arr<T>
+  it.to = () => {
+    let a = [];
+    this.each(o => { a.push(o); });
     return a;
   };
 
   //# - str
-  it.toString = function () { return "[" + It.join(this, ", ") + "]"; };
+  it.toString = () => "[" + It.join(this, ", ") + "]";
 
 // ----------------------------------------------- //
 
