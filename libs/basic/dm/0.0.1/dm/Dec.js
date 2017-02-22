@@ -22,13 +22,21 @@
         ? value - this._precision
         : value + this._precision;
 
-      //# num
-      this.scale = scale < 0 ? 0 : scale;
+      this._scale = scale < 0 ? 0 : scale;
 
       const _scale = Math.pow(10, scale);
 
-      //# num
-      this.value = Math.round(_value * _scale) / _scale;
+      this._value = Math.round(_value * _scale) / _scale;
+    }
+
+    //# num
+    get scale () {
+      return this._scale;
+    }
+
+    //# num
+    get value () {
+      return this._value;
     }
 
     /// Returns if [this] and [d] have the same value and scale

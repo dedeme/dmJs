@@ -11,10 +11,18 @@
   class It {
     //# T :: ( - bool) - ( - T) - It
     constructor (hasNext, next) {
-      //#  - bool
-      this.hasNext = hasNext;
-      //# T :: - T
-      this.next = next;
+      this._hasNext = hasNext;
+      this._next = next;
+    }
+
+    //#  - bool
+    get hasNext () {
+      return this._hasNext;
+    }
+
+    //# T :: - T
+    get next () {
+      return this._next;
     }
 
     /// Returns [this] with [element] added at end or at [i] if [i] is

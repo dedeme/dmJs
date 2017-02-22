@@ -22,15 +22,25 @@
      */
     //# Arr<str> - MTable
     constructor (fieldNames) {
-      //# Arr<str>
-      this.fieldNames = fieldNames;
+      this._fieldNames = fieldNames;
+      this._data = [];
+      this._nextId = 0;
+    }
 
-      //# Arr<Arr<*>>
-      this.data = [];
+    //# Arr<str>
+    get fieldNames () {
+      return this._fieldNames;
+    }
 
-      /// New valor for rowId. Modified automatically.
-      //- num
-      this.nextId = 0;
+    //# Arr<Arr<*>>
+    get data () {
+      return this._data;
+    }
+
+    /// New valor for rowId. Modified automatically.
+    //- num
+    get nextId () {
+      return this._nextId;
     }
 
     /// Returns MTable row number
@@ -49,7 +59,7 @@
       if (row.length !== this.fieldNames.length) {
         throw ("Field number is not coincident");
       }
-      row.unshift(this.nextId++);
+      row.unshift(this._nextId++);
       this.data.push(row);
     }
 
@@ -192,8 +202,8 @@
   //# Arr<*> - ?(Arr<*> - Arr<*>) - MTable
   MTable.restore = (serial, rowSer) => {
     const r = new MTable(serial[1]);
-    r.nextId = serial[0];
-    r.data = rowSer === undefined
+    r._nextId = serial[0];
+    r._data = rowSer === undefined
       ? serial[2]
       : It.from(serial[2]).map(row => rowSer(row)).to();
     return r;

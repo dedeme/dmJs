@@ -14,22 +14,29 @@
     /// Note: Jan is 1, Dec is 12.
     //# num - num - num - DateDm
     constructor (day, month, year) {
-      var date = new Date(year, month - 1, day, 12, 0, 0);
+      this._date = new Date(year, month - 1, day, 12, 0, 0);
+    }
 
-      //# Date
-      this.date = date;
+    //# Date
+    get date () {
+      return this._date;
+    }
 
-      /// In range 1-31
-      //# num
-      this.day = date.getDate();
+    /// In range 1-31
+    //# num
+    get day () {
+      return this._date.getDate();
+    }
 
-      /// In range 1-12
-      //# num
-      this.month = date.getMonth() + 1;
+    /// In range 1-12
+    //# num
+    get month () {
+      return this._date.getMonth() + 1;
+    }
 
-      ///
-      //# num
-      this.year = date.getFullYear();
+    //# num
+    get year () {
+      return this._date.getFullYear();
     }
 
     //# DateDm - bool

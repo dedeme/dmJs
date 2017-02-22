@@ -7,8 +7,8 @@
 
 (function () {
 
-  //# * - * - Tp
   class Tp {
+    //# * - * - Tp
     constructor (e1, e2) {
       //# *
       this.e1 = e1;
@@ -18,8 +18,8 @@
   }
   dm.Tp = Tp;
 
-  //# * - * - Tp
   class Tp3 extends Tp {
+    //# * - * - Tp
     constructor (e1, e2, e3) {
       super(e1, e2);
       //# *

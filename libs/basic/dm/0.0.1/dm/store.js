@@ -45,7 +45,10 @@
   /// Returns the value of key [key] or <b>null</b> if it does not exists
   /// of local storage
   //# str - ?str
-  store.get = key => window.localStorage.getItem(key);
+  store.get = key => {
+    const r = window.localStorage.getItem(key);
+    return r === "null" ? null : r;
+  };
 
   /// Returns the key in position [ix] of local storage
   //# num - ?str
@@ -88,7 +91,10 @@
   /// Returns the value of key [key] or <b>null</b> if it does not exists
   /// of session storage
   //# str - ?str
-  store.sessionGet = key => window.sessionStorage.getItem(key);
+  store.sessionGet = key => {
+    const r = window.sessionStorage.getItem(key);
+    return r === "null" ? null : r;
+  };
 
   /// Returns the key in position [ix] of session storage
   //# num - ?str

@@ -1,4 +1,0 @@
-/deme/dmjs17/libs/basic/dm/0.0.1
-/deme/dmjs17/libs/java/dm/0.0.1
--
-src/main.js -> scripts/index.js

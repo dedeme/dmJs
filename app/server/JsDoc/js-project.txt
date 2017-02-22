@@ -1,4 +1,8 @@
 /deme/dmjs17/libs/basic/dm/0.0.1
+/deme/dmjs17/libs/jclient/dm/0.0.1
+/deme/dmjs17/libs/jserver/dm/0.0.1
 -
 src/main/main.js -> www/main/index.js
+src/conf/main.js -> www/conf/index.js
+src/auth/main.js -> www/auth/index.js
 
