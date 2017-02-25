@@ -7,7 +7,7 @@
  * Copyright 15-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/* global dm, app, i18nData */
+/* global window, dm, app, i18nData */
 
 (() => {
   const store = dm.store;
@@ -26,7 +26,7 @@
 
     /// Application name
     //# str
-    get app () { return "DmjsDoc"; },
+    get app () { return "JsDoc"; },
 
     /// Application version
     //#str
@@ -67,14 +67,11 @@
   };
 
   /// Create client. If authentication fails, returns 'null'
-  global.client = () => {
-    const c = new Client(global.app);
-    c.user = "admin";
-    if (c.sessionId === "") {
-      return null;
-    }
-    return c;
-  };
+  global.client = () => new Client(
+    global.app,
+    () => { window.location.assign("../auth/index.html"); },
+    () => { window.location.assign("../auth/index.html"); }
+  );
 
 /*
   /// Redirects if hostname is not 'localhost'

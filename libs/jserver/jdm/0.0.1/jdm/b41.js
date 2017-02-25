@@ -1,15 +1,15 @@
-//- dm/dm.js
+//- jdm/jdm.js
 /*
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global dm */
+/*global jdm */
 
 (function () {
   "use strict";
 
-  dm.b41 = {};
-  var b41 = dm.b41;
+  jdm.b41 = {};
+  var b41 = jdm.b41;
 
   var chars = "RSTUVWXYZa" +
               "bcdefghijk" +

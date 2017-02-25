@@ -1,5 +1,5 @@
-//- dm/Test.js
-//- dm/cryp.js
+//- jdm/Test.js
+//- jdm/cryp.js
 /*
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
@@ -8,9 +8,9 @@
 function crypTest() {
   "use strict";
 
-  var cryp = dm.cryp;
+  var cryp = jdm.cryp;
 
-  var t = new dm.Test("cryp");
+  var t = new jdm.Test("cryp");
 
   t.mark("s2b-b2s");
 

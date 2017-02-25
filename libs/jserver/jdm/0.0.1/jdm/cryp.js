@@ -1,19 +1,19 @@
-//- dm/b41.js
-//- dm/It.js
+//- jdm/b41.js
+//- jdm/It.js
 /*
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global dm */
+/*global jdm */
 
 (function () {
   "use strict";
 
-  var b41 = dm.b41;
-  var It = dm.It;
+  var b41 = jdm.b41;
+  var It = jdm.It;
 
-  dm.cryp = {};
-  var cryp = dm.cryp;
+  jdm.cryp = {};
+  var cryp = jdm.cryp;
 
   /// Encodes a string to b41
   //# str - str

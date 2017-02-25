@@ -4,11 +4,14 @@
  * Copyright 22-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global auth */
+/*global auth, app */
 
 (() => {
   const model = {
-    lang : app.global.getLanguage()
+    lang : app.global.getLanguage(),
+    user : "",
+    pass : "",
+    persistent : false
   };
   auth.model = model;
 

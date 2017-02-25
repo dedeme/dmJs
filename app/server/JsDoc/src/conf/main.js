@@ -8,8 +8,8 @@
 
 (() => {
   const global = app.global;
-  const _ = dm.i18n._;
-  const showAllStore = "DmjsDoc__conf_showAll";
+  const _ = dm.i18n._; // eslint-disable-line
+  const showAllStore = "JsDoc__conf_showAll"; // eslint-disable-line
 
   const control = {};
 
@@ -20,10 +20,14 @@
 
   //# -
   function main () {
-    global.language();
-    const client = global.client();
-    if (client) control.run(client);
-    else window.location.assign("../auth/index.html");
+    let client = global.client();
+    client.close();
+    client = global.client();
+
+    client.send("conf/index.js", "start", {
+    }, d => { // eslint-disable-line
+      alert("here"); // eslint-disable-line
+    });
   }
 
   main();

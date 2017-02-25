@@ -1,15 +1,15 @@
-//- dm/dm.js
+//- jdm/jdm.js
 /*
  * Copyright 14-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global dm */
+/*global jdm */
 
 (function () {
   "use strict";
 
   //# * - * - Tp
-  dm.Tp = function (e1, e2) {
+  jdm.Tp = function (e1, e2) {
     //# *
     this.e1 = e1;
     //# *
@@ -17,7 +17,7 @@
   };
 
   //# * - * - Tp
-  dm.Tp3 = function (e1, e2, e3) {
+  jdm.Tp3 = function (e1, e2, e3) {
     //# *
     this.e1 = e1;
     //# *

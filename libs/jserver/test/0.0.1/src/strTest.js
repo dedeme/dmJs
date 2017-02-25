@@ -1,6 +1,6 @@
-//- dm/Test.js
-//- dm/It.js
-//- dm/str.js
+//- jdm/Test.js
+//- jdm/It.js
+//- jdm/str.js
 /*
  * Copyright 11-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
@@ -9,10 +9,10 @@
 function strTest() {
   "use strict";
 
-  var str = dm.str;
-  var It = dm.It;
+  var str = jdm.str;
+  var It = jdm.It;
 
-  var t = new dm.Test("str");
+  var t = new jdm.Test("str");
 
   t.mark("cutLeft");
 

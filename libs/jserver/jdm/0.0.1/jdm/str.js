@@ -1,5 +1,4 @@
-//- dm/dm.js
-//- dm/It.js
+//- jdm/It.js
 /*
  * Copyright 11-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
@@ -11,9 +10,9 @@
 (function () {
   "use strict";
 
-  dm.str = {};
-  var str = dm.str;
-  var It = dm.It;
+  jdm.str = {};
+  var str = jdm.str;
+  var It = jdm.It;
 
   /// Cuts [text] left, returning [width] positions at right.
   //# str - num - str

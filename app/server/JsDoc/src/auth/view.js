@@ -16,9 +16,10 @@
 
   const view = {};
   auth.view = view;
-  auth.user = ui.field("pass");
-  auth.pass = ui.field("accept", [ui.att("id", "pass")]);
-  auth.persistent = $("input", [
+
+  const user = ui.field("pass");
+  const pass = ui.pass("accept").att("id", "pass");
+  const persistent = $("input", [
     ui.att("type", "checkbox"),
     ui.style("vertical-align: middle")
   ]);
@@ -29,8 +30,11 @@
     ui.att("id", "accept")
   ]);
   accept.o.onclick = () => {
-    alert("accept");
-  }
+    model.user = user.value().trim();
+    model.pass = pass.value().trim();
+    model.persistent = persistent.o.checked;
+    auth.control.accept();
+  };
 
 
   const body = () => {
@@ -42,12 +46,12 @@
         $("td", [
           ui.style("padding: 10px 0px 0px 10px;text-align:right;"),
           ui.html(_("User"))]),
-        $("td", [ui.style("padding: 10px 10px 0px 10px;")], [auth.user])]),
+        $("td", [ui.style("padding: 10px 10px 0px 10px;")], [user])]),
       $("tr", [], [
         $("td", [
           ui.style("padding: 10px 0px 0px 10px;text-align:right;"),
           ui.html(_("Password"))]),
-        $("td", [ui.style("padding: 10px 10px 5px 10px;")], [auth.pass])]),
+        $("td", [ui.style("padding: 10px 10px 5px 10px;")], [pass])]),
       $("tr", [], [
         $("td", [
           ui.att("colspan", 2),
@@ -66,7 +70,7 @@
                 ui.att("align", "center"),
                 ui.att("colspan", 2)
               ], [
-                auth.persistent,
+                persistent,
                 $("span", [ui.html("&nbsp;" + _("Keep connected"))])
               ])]),
             $("tr", [], [

@@ -1,15 +1,15 @@
-//- dm/Test.js
-//- dm/It.js
+//- jdm/Test.js
+//- jdm/It.js
 /*
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global dm */
+/*global jdm */
 
 function itTest() {
-  var It = dm.It;
+  var It = jdm.It;
 
-  var t = new dm.Test("It");
+  var t = new jdm.Test("It");
 
   var aN1 = [1, 2, 3];
   var itN1 = It.from(aN1);
@@ -55,7 +55,7 @@ function itTest() {
   t.eq("[a]", It.fromStr("a").toString());
   t.eq("[a, b, c]", It.fromStr("abc").toString());
 
-  var ik = dm.It.keys({"one" : 1, "two" : 2});
+  var ik = It.keys({"one" : 1, "two" : 2});
   t.eq("one", ik.next().toString());
   t.eq("two", ik.next().toString());
   t.yes(!ik.hasNext());

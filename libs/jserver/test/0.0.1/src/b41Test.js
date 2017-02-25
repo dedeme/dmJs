@@ -1,5 +1,5 @@
-//- dm/Test.js
-//- dm/b41.js
+//- jdm/Test.js
+//- jdm/b41.js
 /*
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
@@ -8,9 +8,9 @@
 function b41Test() {
   "use strict";
 
-  var b41 = dm.b41;
+  var b41 = jdm.b41;
 
-  var t = new dm.Test("b41");
+  var t = new jdm.Test("b41");
 
   t.mark("b2n-n2b");
   t.eq("R", b41.n2b(b41.b2n("R")));

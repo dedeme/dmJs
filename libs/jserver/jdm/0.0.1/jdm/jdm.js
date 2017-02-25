@@ -3,4 +3,4 @@
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
 
-var dm = {}; // eslint-disable-line
+var jdm = {}; // eslint-disable-line

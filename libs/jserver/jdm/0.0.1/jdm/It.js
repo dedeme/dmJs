@@ -1,23 +1,23 @@
-//- dm/dm.js
+//- jdm/jdm.js
 /*
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global dm */
+/*global jdm */
 
 (function () {
   "use strict";
-  var Tp = dm.Tp;
+  var Tp = jdm.Tp;
 
   //# T :: ( - bool) - ( - T) - It
-  dm.It = function (hasNext, next) {
+  jdm.It = function (hasNext, next) {
     //#  - bool
     this.hasNext = hasNext;
     //# T :: - T
     this.next = next;
   };
 
-  var It = dm.It;
+  var It = jdm.It;
   var it = It.prototype;
 
   /// Returns [this] with [element] added at end or at [i] if [i] is
@@ -196,7 +196,7 @@
    * Filters [this], returning a subset of collection.
    *   f      : Function to select values
    */
-  //# (T - bool) - !It<T>
+  //# (T - bool) - It<T>
   it.filter = function (f) {
     var self = this;
     var last = null;
@@ -372,7 +372,7 @@
   };
 
   /// Returns the first elements of [it] whish give <b>true</b> with [f]
-  //# (T - bool) - !It<T>
+  //# (T - bool) - It<T>
   it.takeWhile = function (f) {
     var self = this;
     var last = null;
@@ -397,12 +397,12 @@
   };
 
   /// Returns the n first elements of [it] whish give <b>false</b> with [f]
-  //# (T - bool) - !It<T>
+  //# (T - bool) - It<T>
   it.takeUntil = function (f) {
     return this.takeWhile(function (e) { return !f(e); });
   };
 
-  //# - !Arr<T>
+  //# - Arr<T>
   it.to = function () {
     var a = [];
     this.each(function (o) { a.push(o); });
@@ -414,7 +414,7 @@
 
 // ----------------------------------------------- //
 
-  //# - !It<?>
+  //# - It<?>
   It.empty = function () {
     return new It(
       function () { return false; },
@@ -517,7 +517,7 @@
   //# !It<str> - !It<str>
   It.sortl = function (i) {
     var a = i.map(function (e) { return e.replace(/ /g, " ! "); }).to();
-    return dm.It.from(
+    return It.from(
       a.sort(function (e1, e2) { return e1.localeCompare(e2); })
     ).map(function (e) { return e.replace(/ ! /g, " "); });
   };

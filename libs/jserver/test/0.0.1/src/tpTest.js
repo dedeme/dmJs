@@ -1,5 +1,5 @@
-//- dm/Test.js
-//- dm/Tp.js
+//- jdm/Test.js
+//- jdm/Tp.js
 /*
  * Copyright 05-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
@@ -8,10 +8,10 @@
 function tpTest() {
   "use strict";
 
-  var Tp = dm.Tp;
-  var Tp3 = dm.Tp3;
+  var Tp = jdm.Tp;
+  var Tp3 = jdm.Tp3;
 
-  var t = new dm.Test("Tuple");
+  var t = new jdm.Test("Tuple");
 
   t.mark("Tp");
   var tp = new Tp(1, "b");

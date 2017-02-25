@@ -1,9 +1,9 @@
-//- dm/dm.js
+//- jdm/jdm.js
 /*
  * Copyright 17-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global Java, java, dm*/
+/*global Java, java, jdm*/
 
 (function () {
   "use strict";
@@ -121,5 +121,5 @@
     Files.write(p, new java.lang.String(text).getBytes("UTF-8"));
   };
 
-  dm.io = io;
+  jdm.io = io;
 }());

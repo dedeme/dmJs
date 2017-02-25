@@ -13,59 +13,57 @@
 
   class ClientRequest {
     // Data must be a JSONizable object
-    // str - str - str - ? - ClientRequest
-    constructor (user, sessionId, pageId, data) {
-      this.user = user;
+    // str - str - * - ClientRequest
+    constructor (sessionId, data) {
       this.sessionId = sessionId;
-      this.pageId = pageId;
       this.data = data;
     }
     serialize () {
-      return [this.error, this.expired, this.data];
+      return [this.sessionId, this.data];
     }
   }
   ClientRequest.restore = s => new ClientRequest(s[0], s[1], s[2], s[3]);
 
   class ClientResponse {
     // Data must be a JSONizable object
-    // str - bool - * - ClientResponse
-    constructor (error, expired, data) {
+    // str - bool - bool - * - ClientResponse
+    constructor (error, unknown, expired, data) {
       this.error = error;
+      this.unknown = unknown;
       this.expired = expired;
       this.data = data;
     }
     serialize () {
-      return [this.error, this.expired, this.data];
+      return [this.error, this.unknown, this.expired, this.data];
     }
   }
-  ClientResponse.restore = s => new ClientResponse(s[0], s[1], s[2]);
+  ClientResponse.restore = s => new ClientResponse(s[0], s[1], s[2], s[3]);
 
   class AuthResult {
     // Authenticaton response
-    // str - str - str - AuthResult
-    constructor (level, sessionId, pageId) {
+    // str - str - AuthResult
+    constructor (level, sessionId) {
       this.level = level;
       this.sessionId = sessionId;
-      this.pageId = pageId;
     }
     serialize () {
-      return [this.level, this.sessionId, this.pageId];
+      return [this.level, this.sessionId];
     }
   }
-  AuthResult.restore = s => new AuthResult(s[0], s[1], s[2]);
+  AuthResult.restore = s => new AuthResult(s[0], s[1]);
 
   // --------------------------------------------- //
 
   class Client {
-    //# str - Client
-    constructor (app) {
+    //# str - ( - ), ( - ), Client
+    constructor (app, authFail, expired) {
       this._app = app;
+      this._authFail = authFail;
+      this._expired = expired;
       this._user = "_" + this._app + "__" + "user";
       this._sessionId = "_" + this._app + "__" + "sessionId";
       this._level = "_" + this._app + "__" + "level";
       this._locked = false;
-      //# str
-      this.pageId = "";
     }
 
     //# str
@@ -127,14 +125,13 @@
      *   func   : Function to execute in server (e.g. "session").
      *   data   : Array result of an object serialization. Data that will be
      *            past to func through a ClientRequest serialized.
-     *   expired: Session expired callback function
      *   action : Normal callback function. Data is received through a
      *            ClientResponse serialized. Client manage fields error and
      *            expired and send field data to callback. Field data is an
      *            array resultant of a serialization.
      */
-    //# str - str - Arr<str> - ( - ) - (Arr<str> - ) -
-    send (script, func, data, expired, action) {
+    //# str - str - Arr<str> - (Arr<str> - ) -
+    send (script, func, data, action) {
       if (this._locked) {
         window.console.log(
           "Request cancelled because there is other request in course."
@@ -142,46 +139,15 @@
         return;
       }
       this._locked = true;
-      const rq = new ClientRequest(
-        this.user, this.sessionId, this.pageId, data
-      );
+      const rq = new ClientRequest(this.sessionId, data);
+
       // Arr<*> -
       const f = arr => {
         this._locked = false;
         const d = ClientResponse.restore(arr);
         if (d.error !== null && d.error !== "") window.console.log(d.error);
-        else if (expired !== null && d.expired) expired();
-        else action(d.data);
-      };
-      const pars = {
-        "app_name" : this.app,
-        "script"   : script,
-        "func"     : func,
-        "data"     : rq.serialize()
-      };
-      ajax.send(
-        "http://" + window.location.host + "/cgi-bin/jdmcgi.sh",
-        pars, f
-      );
-    }
-
-    /**
-     * Sends a request for pageId. This function is intended for being used at
-     * the first entry in page.
-     *   script : Script path to read (e.g. "main/index.js")
-     *   func   : Function to execute in server (e.g. "session").
-     *   action : Normal callback function. Field data is a string with a new
-     *            pageId. If user password is not valid returns:
-     *              "init": If is the first time that applications is used
-     *              "": If identification fails
-     */
-    //# str - str - func(str) -
-    startSend (script, func, action) {
-      const rq = new ClientRequest(this.user, this.sessionId, "", []);
-      // Arr<*> -
-      const f = arr => {
-        const d = ClientResponse.restore(arr);
-        if (d.error !== null && d.error !== "") window.console.log(d.error);
+        else if (d.unknown) this._authFail();
+        else if (d.expired) this._expired();
         else action(d.data);
       };
       const pars = {
@@ -200,22 +166,25 @@
      * Sends an authentication request
      *   script : Script path to read (e.g. "main/index.js")
      *   func   : Function to execute in server (e.g. "session").
-     *   pass   : Password 'cryp.key(pass, 120)' encripted
+     *   data   : Record with next fields:
+     *              user: str
+     *              pass: str - Password 'cryp.key(pass, 120)' encripted
+     *              persistent: bool
      *   action : callback
      */
     //# str - str - str - func() -
-    authSend (script, func, pass, action) {
-      const rq = new ClientRequest(this.user, "", "", [pass]);
+    authSend (script, func, data, action) {
+      const rq = new ClientRequest("", data);
       // Arr<*> -
       const f = arr => {
         const d = ClientResponse.restore(arr);
         if (d.error !== null && d.error !== "" ) {
           window.console.log(d.error);
         } else {
-          const ar = AuthResult.restore(d.data);
-          this.level = ar.level;
-          this.sessionId = ar.sessionId;
-          this.pageId = ar.pageId;
+          this.user = data.user;
+          const rp = d.data;
+          this.level = rp.level;
+          this.sessionId = rp.sessionId;
           action();
         }
       };
