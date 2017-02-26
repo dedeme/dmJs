@@ -118,7 +118,9 @@ void append (Arr *roots, Arr *sourcesAdded, char *source, FILE *target) {
       it_each(it_from(roots), find);
 
       if (!*r) {
-        error_generic(str_printf("Js file '%s' not found", l),ERROR_DATA);
+        error_generic(
+          str_printf("Js file '%s' not found in '%s'", l, source),ERROR_DATA
+        );
       }
       return r;
     }_FN

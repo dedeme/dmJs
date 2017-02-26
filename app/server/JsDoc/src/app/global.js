@@ -73,22 +73,6 @@
     () => { window.location.assign("../auth/index.html"); }
   );
 
-/*
-  /// Redirects if hostname is not 'localhost'
-  # -
-  ns.serverControl = ->
-    if location.hostname != "localhost"
-      location.assign "../default.html"
-
-  /// Create a new Client
-  # - !Client
-  ns.client = ->
-    c = new Client ns.app
-    c.user "admin"
-    c.sessionId ns.getSessionId!
-    c
-*/
-
   /// Reads page value from local store. Default global.ConfPage
   //# - str
   global.getPageType = () => {

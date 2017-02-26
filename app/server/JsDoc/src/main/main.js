@@ -10,13 +10,14 @@
 
   //# -
   function main () {
-    switch (global.getPageType()) {
-    case (global.confPage):
-      window.location.assign("../conf/index.html");
-      break;
-    default:
-      throw "Bad page type number.";
-    }
+    var client = global.client();
+    client.send("main/index.js", "pagePath", {}, function (path) {
+      if (path === "@") {
+        window.location.assign("../conf/index.html");
+      } else {
+        throw "Bad page type number.";
+      }
+    });
   }
 
   main();

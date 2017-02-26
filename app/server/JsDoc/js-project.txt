@@ -3,6 +3,7 @@
 /deme/dmjs17/libs/jserver/jdm/0.0.1
 -
 src/main/main.js -> www/main/index.js
+src/main/server/main.js -> scripts/main/index.js
 
 src/conf/main.js -> www/conf/index.js
 src/conf/server/main.js -> scripts/conf/index.js

@@ -150,7 +150,7 @@
       var d = s.split(":");
       var nd = It.from(d).filter(function (e) {
         var us = UserEntry.restore(e);
-        return e.user !== user;
+        return us.user !== user;
       }).to();
       io.write(userDb, nd.join(":"));
     };
@@ -166,8 +166,8 @@
         return false;
       }
       var newUser = new UserEntry(user, cryp.key(newPass, 120), entry.level);
-      delUser(user);
-      writeUser(newUser);
+      this.delUser(user);
+      this.writeUser(newUser);
       return true;
     };
 
@@ -178,8 +178,8 @@
         return false;
       }
       var newUser = new UserEntry(user, entry.pass, level);
-      delUser(user);
-      writeUser(newUser);
+      this.delUser(user);
+      this.writeUser(newUser);
       return true;
     };
 
@@ -209,7 +209,7 @@
         d = io.read(sessionDb).split(":");
         nd = It.from(d).filter(function (e) {
           var ss = SessionEntry.restore(e);
-          return ss.expiration <= t
+          return ss.expiration <= t;
         }).to();
       }
       nd.push(sessionEntry.serialize());
@@ -220,9 +220,11 @@
      * Read client data and send it to 'f'. 'f' has to return an serialized
      * object.
      *   data : JSON value with a ClientRequest (It is row data send by client)
-     *   f : Function to execute. It sends a serializable object (the 'data'
-     *       value of the ClientRequest) and expects another serializable
+     *   f : Function to execute. It sends a JSONizable object (the 'data'
+     *       value of the ClientRequest) and expects another JSONizable
      *       object to send in a ClientResponse.
+     *   return: JSONized serialized ClientResponse whose field data is the
+     *           object resturned by 'f'.
      * Example of use:
      *    function x(data) {
      *        var server = jdm.mkServer();
@@ -238,10 +240,9 @@
 
       var rp;
       if (rq.sessionId === "") {
-        this.init();
         rp = new ClientResponse("", true, true, "Unkown");
       } else {
-        var ss = this.readSession(rq.sessionId);
+        var ss = readSession(rq.sessionId);
         if (ss === null) {
           rp = new ClientResponse("", true, true, "Unkown");
         } else if (ss.expiration < Date.now()) {
@@ -252,16 +253,18 @@
       }
 
       return JSON.stringify(rp.serialize());
-    }
+    };
 
     /**
      * Checks sessionId and sends to client pageId or "" if the check fails.<p>
      * If application has not been initialized, intializes it (making sessionDb
      * and userDb files) and call 'f'
-     *   f : Function to execute for initialization.
+     *   data : JSONized serialized ClientRequest
+     *   return: JSONized serialized ClientResponse whose field data is an
+     *           AuthResult (without serialization).
      */
     //# str - str
-    this.authRq = function (data) {
+    this.authRp = function (data) {
       var dobj = JSON.parse(data);
       var rq = ClientRequest.restore(dobj.data).data;
 
@@ -277,9 +280,8 @@
           uentry.level
         );
         writeSession(sentry);
-        rp = new ClientResponse(
-          "", false, false, new AuthResult(uentry.level, sentry.sessionId)
-        );
+        rp = new ClientResponse("", false, false,
+          new AuthResult(uentry.level, sentry.sessionId));
       } else {
         rp = new ClientResponse("", false, false, new AuthResult("-1", ""));
       }

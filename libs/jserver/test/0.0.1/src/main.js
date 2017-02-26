@@ -5,6 +5,7 @@
 //- b41Test.js
 //- crypTest.js
 //- serverTest.js
+//- noDbTest.js
 /*
  * Copyright 17-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
@@ -17,4 +18,5 @@ itTest();
 b41Test();
 crypTest();
 serverTest();
+noDbTest();
 

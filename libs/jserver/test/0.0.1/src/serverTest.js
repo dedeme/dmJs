@@ -8,6 +8,7 @@
 
 function serverTest() {
   var Server = jdm.Server;
+  var io = jdm.io;
 
   var t = new jdm.Test("Server");
 
@@ -20,6 +21,9 @@ function serverTest() {
   t.yes(server.root.endsWith("dmcgi/test"));
 
   server.init();
+  io.del(io.cat([server.root, "sessions.db"]));
+  io.del(io.cat([server.root, "users.db"]));
+  io.del(server.root);
 
   t.log();
 }

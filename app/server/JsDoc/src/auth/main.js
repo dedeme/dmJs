@@ -7,7 +7,7 @@
  * Copyright 19-Feb-2017 ºDeme
  * GNU General Public License - V3 <http://www.gnu.org/licenses/>
  */
-/*global dm, auth, app, alert */
+/*global window, dm, auth, app, alert */
 
 (() => {
   const model = auth.model;
@@ -46,7 +46,11 @@
         "persistent" : model.persistent
       },
       () => {
-        alert(client.level); // eslint-disable-line
+        if (client.sessionId === "") {
+          window.location.assign("../auth/index.html");
+        } else {
+          window.location.assign("../main/index.html");
+        }
       }
     );
   };

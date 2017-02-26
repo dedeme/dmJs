@@ -5,13 +5,15 @@
  */
 /*global jdm */
 
+var jglobal = {}; // eslint-disable-line
+
 (function () {
   "use strict"; // eslint-disable-line
 
   var Server = jdm.Server;
 
   //# - Server
-  jdm.mkServer = function () {
+  jglobal.mkServer = function () {
     return new Server("JsDoc", 0.5);
   };
 
