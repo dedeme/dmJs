@@ -61,28 +61,30 @@
     this.pass = pass;
     this.level = level;
     this.serialize = function () {
-      return JSON.stringify([user, pass, level]);
+      return cryp.autoCryp(2, JSON.stringify([user, pass, level]));
     };
   };
   UserEntry.restore = function (serial) {
-    var s = JSON.parse(serial);
+    var s = JSON.parse(cryp.autoDecryp(serial));
     return new UserEntry(s[0], s[1], s[2]);
   };
 
   /// Session data response. Expiration is a Date.getTime.
   //# num - str - str - SessionEntry
-  var SessionEntry = function (sessionId, expiration, user, level) {
+  var SessionEntry = function (sessionId, expiration, step, user, level) {
     this.sessionId = sessionId;
     this.expiration = expiration;
+    this.step = step;
     this.user = user;
     this.level = level;
     this.serialize = function () {
-      return JSON.stringify([sessionId, expiration, user, level]);
+      return cryp.autoCryp(
+        2, JSON.stringify([sessionId, expiration, step, user, level]));
     };
   };
   SessionEntry.restore = function (serial) {
-    var s = JSON.parse(serial);
-    return new SessionEntry(s[0], s[1], s[2], s[2]);
+    var s = JSON.parse(cryp.autoDecryp(serial));
+    return new SessionEntry(s[0], s[1], s[2], s[3], s[4]);
   };
 
   /// Params:
@@ -109,7 +111,7 @@
       if (s === "") {
         return null;
       }
-      var d = s.split(":");
+      var d = s.split("\n");
       return It.from(d).map(function (e) {
         return UserEntry.restore(e);
       }).findFirst(function (us) {
@@ -121,7 +123,7 @@
     function writeUser(userEntry) {
       var d = io.read(userDb);
       if (d) {
-        io.write(userDb, d + ":" + userEntry.serialize());
+        io.write(userDb, d + "\n" + userEntry.serialize());
       } else {
         io.write(userDb, userEntry.serialize());
       }
@@ -147,12 +149,12 @@
       if (s === "") {
         return;
       }
-      var d = s.split(":");
+      var d = s.split("\n");
       var nd = It.from(d).filter(function (e) {
         var us = UserEntry.restore(e);
         return us.user !== user;
       }).to();
-      io.write(userDb, nd.join(":"));
+      io.write(userDb, nd.join("\n"));
     };
 
     ///
@@ -191,7 +193,7 @@
       if (s === "") {
         return null;
       }
-      var d = s.split(":");
+      var d = s.split("\n");
       return It.from(d).map(function (e) {
         return SessionEntry.restore(e);
       }).findFirst(function (ss) {
@@ -199,21 +201,21 @@
       });
     }
 
-    // str - !SessionEntry -
+    // str - SessionEntry -
     function writeSession(sessionEntry) {
       var t = Date.now();
       var s = io.read(sessionDb);
       var nd = [];
       var d;
       if (s !== "") {
-        d = io.read(sessionDb).split(":");
+        d = io.read(sessionDb).split("\n");
         nd = It.from(d).filter(function (e) {
           var ss = SessionEntry.restore(e);
-          return ss.expiration <= t;
+          return ss.sessionId !== sessionEntry.sessionId && ss.expiration >= t;
         }).to();
       }
       nd.push(sessionEntry.serialize());
-      io.write(sessionDb, nd.join(":"));
+      io.write(sessionDb, nd.join("\n"));
     }
 
     /**
@@ -243,11 +245,14 @@
         rp = new ClientResponse("", true, true, "Unkown");
       } else {
         var ss = readSession(rq.sessionId);
+        var now = Date.now();
         if (ss === null) {
           rp = new ClientResponse("", true, true, "Unkown");
-        } else if (ss.expiration < Date.now()) {
+        } else if (ss.expiration < now) {
           rp = new ClientResponse("", false, true, "Expired");
         } else {
+          ss.expiration = now + ss.step;
+          writeSession(ss);
           rp = new ClientResponse("", false, false, f(rq.data));
         }
       }
@@ -276,6 +281,7 @@
         var sentry = new SessionEntry(
           cryp.genK(120),
           Date.now() + ex,
+          ex,
           uentry.user,
           uentry.level
         );
