@@ -1,4 +1,5 @@
 /deme/dmjs17/libs/basic/dm/0.0.1
+/deme/dmjs17/libs/widgets/dm/0.0.1
 /deme/dmjs17/libs/jclient/dm/0.0.1
 /deme/dmjs17/libs/jserver/jdm/0.0.1
 -

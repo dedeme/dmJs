@@ -1,17 +1,32 @@
 # File generated file by js17i18n
 
-# src/auth/view.js: 38
+# src/auth/view.js: 93
 Accept = Accept
 
-# src/auth/view.js: 70
+# src/auth/view.js: 167
+Check gray squares = Check gray squares
+
+# src/auth/view.js: 80
+Grey squares checks are wrong = Grey squares checks are wrong
+
+# src/auth/view.js: 125
 Keep connected = Keep connected
 
-# src/auth/view.js: 97
+# src/auth/view.js: 189
 Login = Login
 
-# src/auth/view.js: 49
+# src/auth/view.js: 104
 Password = Password
 
-# src/auth/view.js: 44
+# src/auth/main.js: 37
+Password is missing = Password is missing
+
+# src/auth/view.js: 99
 User = User
+
+# src/auth/main.js: 33
+User name is missing = User name is missing
+
+# src/auth/view.js: 150
+Wrong password = Wrong password
 

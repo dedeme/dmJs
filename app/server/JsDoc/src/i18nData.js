@@ -3,16 +3,26 @@
 const i18nData = { // eslint-disable-line
   "en": {
     "Accept": "Accept",
+    "Check gray squares": "Check gray squares",
+    "Grey squares checks are wrong": "Grey squares checks are wrong",
     "Keep connected": "Keep connected",
     "Login": "Login",
     "Password": "Password",
-    "User": "User"
+    "Password is missing": "Password is missing",
+    "User": "User",
+    "User name is missing": "User name is missing",
+    "Wrong password": "Wrong password"
   },
   "es": {
     "Accept": "Aceptar",
+    "Check gray squares": "Marcar las casillas grises",
+    "Grey squares checks are wrong": "Las casillas grises están mal marcadas",
     "Keep connected": "Mantenerse conectado",
     "Login": "Identificación",
     "Password": "Contraseña",
-    "User": "Usuario"
+    "Password is missing": "No se ha indicado la contraseña",
+    "User": "Usuario",
+    "User name is missing": "No se ha indicado el usuario",
+    "Wrong password": "Contraseña incorrecta"
   }
 };

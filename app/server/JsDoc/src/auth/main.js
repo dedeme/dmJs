@@ -47,8 +47,10 @@
       },
       () => {
         if (client.sessionId === "") {
+          view.incCounter();
           window.location.assign("../auth/index.html");
         } else {
+          view.resetCounter();
           window.location.assign("../main/index.html");
         }
       }
