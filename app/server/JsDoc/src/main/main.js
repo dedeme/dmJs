@@ -12,7 +12,7 @@
   function main () {
     var client = global.client();
     client.send("main/index.js", "pagePath", {}, function (path) {
-      if (path === "@") {
+      if (path === "") {
         window.location.assign("../conf/index.html");
       } else {
         throw "Bad page type number.";

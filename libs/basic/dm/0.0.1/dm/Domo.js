@@ -85,7 +85,7 @@
       return this;
     }
 
-    /// Adds an iterator over rows ("tr") in a table.
+    /// Adds an iterator over elements.
     //# It<Domo> - Domo
     addIt (els) {
       els.each(el => {

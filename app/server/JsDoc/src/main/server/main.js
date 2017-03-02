@@ -18,7 +18,7 @@ function pagePath(data) { // eslint-disable-line
   if (!io.isDirectory(server.root)) {
     server.init();
     conf = new jdm.NoDb(server, "data/conf.db", ConfEntry);
-    conf.add(new ConfEntry("@", true, ""));
+    conf.add(new ConfEntry("", true, "", "en"));
     new jdm.NoDb(server, "data/paths.db", PathsEntry);
   }
 

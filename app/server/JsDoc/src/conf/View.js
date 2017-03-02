@@ -19,7 +19,9 @@
 
     show () {
       const closeSession =  () =>  this.control.closeSession();
-      app.dom0.show(
+      app.dom.show(
+        "",
+        this.control.model.paths,
         ui.link(closeSession).add(
           $("span", [ui.klass("link"), ui.html("close")]))
       );

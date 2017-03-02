@@ -19,7 +19,7 @@
     this.sessionId = sessionId;
     this.data = data;
     this.serialize = function () {
-      return [sessionId, data];
+      return [this.sessionId, this.data];
     };
   };
   ClientRequest.restore = function (s) {
@@ -34,7 +34,7 @@
     this.expired = expired;
     this.data = data;
     this.serialize = function () {
-      return [error, unknown, expired, data];
+      return [this.error, this.unknown, this.expired, this.data];
     };
   };
   ClientResponse.restore = function (s) {
@@ -47,7 +47,7 @@
     this.level = level;
     this.sessionId = sessionId;
     this.serialize = function () {
-      return [level, sessionId];
+      return [this.level, this.sessionId];
     };
   };
   AuthResult.restore = function (s) {
@@ -61,7 +61,9 @@
     this.pass = pass;
     this.level = level;
     this.serialize = function () {
-      return cryp.autoCryp(2, JSON.stringify([user, pass, level]));
+      return cryp.autoCryp(2, JSON.stringify(
+        [this.user, this.pass, this.level]
+      ));
     };
   };
   UserEntry.restore = function (serial) {
@@ -78,8 +80,9 @@
     this.user = user;
     this.level = level;
     this.serialize = function () {
-      return cryp.autoCryp(
-        2, JSON.stringify([sessionId, expiration, step, user, level]));
+      return cryp.autoCryp(2, JSON.stringify(
+        [this.sessionId, this.expiration, this.step, this.user, this.level]
+      ));
     };
   };
   SessionEntry.restore = function (serial) {

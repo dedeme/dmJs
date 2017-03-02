@@ -1,4 +1,5 @@
 //- app/app.js
+//- app/com/fields.js
 //- dm/ui.js
 /*
  * Copyright 20-Feb-2017 ºDeme
@@ -7,6 +8,7 @@
 /* global dm, app */
 
 (() => {
+  const str = dm.str;
   const ui = dm.ui;
   const $ = ui.$;
 
@@ -35,6 +37,64 @@
               ui.html("- © ºDeme. JsDoc (0.0.1) -")])])])])
     );
   };
+
+  //# Obj
+  const dom = {};
+  app.dom = dom;
+
+  //# str - It<fields.PathsData> - Domo -
+  dom.show = (selection, paths, body) => {
+    const mkMenu = () =>
+      $("table", [
+        ui.att("border", 0),
+        ui.att("width", "100%")
+      ], [
+        $("tr", [], [
+          $("td", [], [
+            (selection === ""
+              ? $("a").klass("frame").att("href", "../conf/index.html")
+              : $("a").att("href", "../conf/index.html")
+            ).add(dom.img("asterisk").att("align", "top"))])])
+      ]).addIt(paths.filter(
+        p => p.visible
+      ).map(
+        p => [p.name, p.name.toUpperCase()]
+      ).sort(
+        (ns1, ns2) => str.compare(ns1[1], ns2[1])
+      ).map(
+        ns => ns[0]
+      ).map(
+        n => $("span", [ui.text(" . ")], [
+          (selection === n
+            ?
+            $("span", [
+              ui.klass("frame")
+            ], [
+              $("a", [
+                ui.att("href", "../index/index.html?" + n),
+                ui.text(n)])])
+            :
+            $("a", [
+              ui.att("href", "../index/index.html?" + n),
+              ui.text(n)]))])
+      ));
+
+    dom0.show(
+      $("div", [], [
+        mkMenu(),
+        $("hr"),
+        body])
+    );
+  };
+
+  //# str - !Domo
+  dom.img = name =>
+    $("img").att(
+      "src", "../img/" + (name.endsWith(".gif") ? name : name + ".png")
+    ).att("border", "0");
+
+  //# str - !Domo
+  dom.lightImg = name => dom.img(name).att("style", "opacity:0.4");
 
 })();
 
