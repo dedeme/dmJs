@@ -1,4 +1,0 @@
-/deme/dmjs17/libs/basic/dm/0.0.1
-/deme/dmjs17/app/server/JsDoc/src/app/com
--
-src/main.js -> www/index.js

@@ -1,5 +1,0 @@
-/deme/dmjs17/libs/jserver/jdm/0.0.1
-/deme/dmjs17/app/server/JsDoc/src/app/com
-/deme/dmjs17/app/server/JsDoc/src/app/server
--
-src/main.js -> scripts/index.js

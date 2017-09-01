@@ -1,3 +1,0 @@
-/deme/dmjs17/libs/jserver/jdm/0.0.1
--
-src/main.js -> scripts/index.js
