@@ -1,0 +1,24 @@
+/*
+ * Copyright 04-Sep-2017 ºDeme
+ * GNU General Public License - V3 <http://www.gnu.org/licenses/>
+ */
+
+body {
+	background-color : #f0f1f2;
+	}
+table.menu
+table.main {
+	border-collapse: collapse;
+	border : 0px;
+	}
+table.main {
+	width : 100%
+	}
+
+.title,
+.title td,
+.title p {
+	font-weight : bold;
+	font-size : x-large;
+	color : #763636
+	}
