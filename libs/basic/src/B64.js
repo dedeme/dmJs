@@ -48,4 +48,3 @@ github.dedeme.B64 = class {
     return new Uint8Array(atob(b64).split('').map(c => c.charCodeAt(0)));
   }
 }
-

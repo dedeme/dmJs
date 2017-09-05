@@ -90,7 +90,7 @@ github.dedeme.Domo = class {
   }
 
   /**
-   * @param {? | undefined} v
+   * @param {?=} v
    * @return {!github.dedeme.Domo | ?}
    */
   value (v) {
@@ -157,37 +157,16 @@ github.dedeme.Domo = class {
   }
 
   /**
-   * @param {string} event
+   * @param {string} event It can be one of: "blur", "change", "click",
+   *        "dblclick", "focus", "keydown", "keypress", "keyup", "load",
+   *        "mousedown", "mousemove", "mouseout", "mouseover", "mouseup",
+   *        "mouseweel", "select", "selectstart" or "submit".
    * @param {function (*)} action
    * @return {!github.dedeme.Domo}
    */
   on (event, action) {
     this._e.addEventListener(event, action, false);
     return this;
-  }
-
-  /** @enum {string} */
-  static get event () {
-    return {
-      BLUR: "blur",
-      CHANGE: "change",
-      CLICK: "click",
-      DBLCLICK: "dblclick",
-      FOCUS: "focus",
-      KEYDOWN: "keydown",
-      KEYPRESS: "keypress",
-      KEYUP: "keyup",
-      LOAD: "load",
-      MOUSEDOWN: "mousedown",
-      MOUSEMOVE: "mousemove",
-      MOUSEOUT: "mouseout",
-      MOUSEOVER: "mouseover",
-      MOUSEUP: "mouseup",
-      MOUSEWHEEL: "mouseweel",
-      SELECT: "select",
-      SELECTSTART: "selectstart",
-      SUBMIT: "submit"
-    }
   }
 }
 

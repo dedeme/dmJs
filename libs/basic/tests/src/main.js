@@ -12,7 +12,7 @@ goog.require("B64Test");
 goog.require("CrypTest");
 goog.require("RndTest");
 
-var main = function () {
+main = () => {
 
   TpTest.run();
   HashTest.run();
@@ -26,4 +26,4 @@ var main = function () {
 
 };
 
-window["main"] = main;
+main();

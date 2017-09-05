@@ -215,7 +215,7 @@ github.dedeme.Ui = class {
    */
   static changePoint (input) {
     const el = input.e;
-    return input.on(github.dedeme.Domo.event.KEYDOWN, e => {
+    return input.on("keydown", e => {
       if (e.keyCode == 110) {
         const start = el.selectionStart;
         const end = el.selectionEnd;
@@ -256,7 +256,7 @@ github.dedeme.Ui = class {
    */
   static field (targetId) {
     return github.dedeme.Ui.$("input").att("type", "text")
-      .on(github.dedeme.Domo.event.KEYDOWN, e => {
+      .on("keydown", e => {
         if (e.keyCode === 13) {
           e.preventDefault();
           github.dedeme.Ui.$('#' + targetId).e.focus();
@@ -271,7 +271,7 @@ github.dedeme.Ui = class {
    */
   static pass (targetId) {
     return github.dedeme.Ui.$("input").att("type", "password")
-      .on(github.dedeme.Domo.event.KEYDOWN, e => {
+      .on("keydown", e => {
         if (e.keyCode === 13) {
           e.preventDefault();
           github.dedeme.Ui.$('#' + targetId).e.focus();
