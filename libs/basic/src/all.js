@@ -21,6 +21,7 @@ goog.require("github.dedeme.Rnd");
 goog.require("github.dedeme.Store");
 goog.require("github.dedeme.Domo");
 goog.require("github.dedeme.Ui");
+goog.require("github.dedeme.Tracker");
 
 const Test = github.dedeme.Test;
 
@@ -42,3 +43,5 @@ const Domo = github.dedeme.Domo;
 const Ui = github.dedeme.Ui;
 const $ = Ui.$;
 const $$ = Ui.$$;
+const Tracker = github.dedeme.Tracker;
+

@@ -285,9 +285,8 @@ github.dedeme.Ui = class {
    * @return {!github.dedeme.Domo}
    */
   static link (f) {
-    return github.dedeme.Ui.$("span").att("style", "cursor:pointer").on(o => {
-      o.onclick = f;
-    });
+    return github.dedeme.Ui.$("span").att("style", "cursor:pointer")
+      .on("click", f);
   }
 
   /**
@@ -317,6 +316,17 @@ github.dedeme.Ui = class {
     });
     return r;
   }
+
+  /** Emits a beep */
+  static beep () {
+    let au = new AudioContext();
+    let o = au.createOscillator();
+    o.frequency.value = 990;
+    o.connect(au.destination);
+    o.start(0);
+    setTimeout(() => {o.stop(0);}, 80);
+  }
+
 
   /**
    * Returns x position of mouse in browser window

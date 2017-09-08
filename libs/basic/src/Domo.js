@@ -18,7 +18,7 @@ github.dedeme.Domo = class {
 
   /**
    * @param {string=} tx
-   * @return {!github.dedeme.Domo | string}
+   * @return {?}
    */
   html (tx) {
     if (tx === undefined) return this._e.innerHTML;
@@ -28,7 +28,7 @@ github.dedeme.Domo = class {
 
   /**
    * @param {string=} tx
-   * @return {!github.dedeme.Domo | string}
+   * @return {?}
    */
   text (tx) {
     if (tx === undefined) return this._e.textContent;
@@ -38,7 +38,7 @@ github.dedeme.Domo = class {
 
   /**
    * @param {string=} tx
-   * @return {!github.dedeme.Domo | string}
+   * @return {?}
    */
   klass (tx) {
     if (tx === undefined) return this._e.className;
@@ -48,20 +48,27 @@ github.dedeme.Domo = class {
 
   /**
    * @param {string=} s
-   * @return {!github.dedeme.Domo | string}
+   * @return {?}
    */
   style (s) {
     if (s === undefined) return this._e.getAttribute("style");
     this._e.setAttribute("style", s);
     return this;
   }
-  ///
 
-  //# str - * - Domo || str -  - *
+  /**
+   * @param {string} tx
+   * @return {!Domo}
+   */
+  addStyle(tx) {
+    this._e.setAttribute("style", this.style() + ";" + tx);
+    return this;
+  }
+
   /**
    * @param {string} key
    * @param {? | undefined} value
-   * @return {!github.dedeme.Domo | ?}
+   * @return {?}
    */
   att (key, value) {
     if (value === undefined) return this._e.getAttribute(key);
@@ -71,7 +78,7 @@ github.dedeme.Domo = class {
 
   /**
    * @param {boolean=} value
-   * @return {!github.dedeme.Domo | boolean}
+   * @return {?}
    */
   disabled (value) {
     if (value === undefined) return this._e.disabled;
@@ -81,7 +88,7 @@ github.dedeme.Domo = class {
 
   /**
    * @param {boolean=} value
-   * @return {!github.dedeme.Domo | boolean}
+   * @return {?}
    */
   checked (value) {
     if (value === undefined) return this._e.checked;
@@ -91,7 +98,7 @@ github.dedeme.Domo = class {
 
   /**
    * @param {?=} v
-   * @return {!github.dedeme.Domo | ?}
+   * @return {?}
    */
   value (v) {
     if (v === undefined) return this._e.value;
