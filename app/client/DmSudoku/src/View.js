@@ -162,6 +162,7 @@ View = class {
   }
 
   static mkEndMenu () {
+    let tm = Model.convertScs(Model.last.time);
     menu.removeAll().add(
       $("table").att("align", "center").add($("tr")
         .add($("td").klass("menu")
@@ -170,7 +171,7 @@ View = class {
           .add($("span").klass("menu")
             .html(_args(
               _("<br>View-mkEndMenu.%0%1%2<br>"),
-              Model.convertScs(Model.last.time))))
+              tm[0], tm[1], tm[2])))
           .add($("button").text(_("Continue")).on("click", main.newSudoku))
           .add($("span").style("padding-right:5px;"))
         )
