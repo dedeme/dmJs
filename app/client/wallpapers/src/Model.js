@@ -27,61 +27,86 @@ Model = class {
     canvasSize,
     lastCoor
   ) {
+    /** @private */
     this._language = language;
+    /** @private */
     this._precodeShow = precodeShow;
-    /** @const {!Array<string>} */
-    this.precode = precode;
-    /** @const {!Array<!Array<string>>} */
-    this.fcs = fcs;
-    /** @const {!Array<string>} */
-    this.fcs2 = It.range(3).map(i => this.fcNormalize(fcs[i][0])).to();
+    /** @private */
+    this._precode = precode;
+    /** @private */
+    this._fcs = fcs;
+    /** @private */
+    this._fcs2 = It.range(3).map(i => this.fcNormalize(fcs[i][0])).to();
 
+    /** @private */
     this._canvasSize = canvasSize;
+    /** @private */
     this._canvaspx = 0;
+    /** @private */
     this._canvaspy = 0;
+    /** @private */
     this._canvaspw = 0;
+    /** @private */
     this._canvasph = 0;
+    /** @private */
     this._canvasw = 0;
+    /** @private */
     this._canvash = 0;
 
-    this._lastx = lastCoor.e1;
-    this._lasty = lastCoor.e2;
-
+    /** @private */
+    this._lastx = lastCoor.e1();
+    /** @private */
+    this._lasty = lastCoor.e2();
 
     this.canvasSizeCalc();
   }
 
+  /** @return {!Array<string>} */
+  precode () {
+    return this._precode;
+  }
+
+  /** @return {!Array<!Array<string>>} */
+  fcs () {
+    return this._fcs;
+  }
+
+  /** @return {!Array<string>} */
+  fc2 () {
+    return this._fcs2;
+  }
+
   /** @return {string} */
-  get language () {
+  language () {
     return this._language;
   }
 
   /** @param {string} value */
-  set language (value) {
+  setLanguage (value) {
     this._language = value;
     this.save();
 
   }
 
   /** @return {boolean} */
-  get precodeShow () {
+  precodeShow () {
     return this._precodeShow;
   }
 
   /** @param {boolean} value*/
-  set precodeShow (value) {
+  setPrecodeShow (value) {
     this._precodeShow = value;
     this.save();
 
   }
 
   /** @return {number} */
-  get canvasSize () {
+  canvasSize () {
     return this._canvasSize;
   }
 
   /** @param {number} value */
-  set canvasSize (value) {
+  setCanvasSize (value) {
     this._canvasSize = value;
     this.canvasSizeCalc();
     this.save();
@@ -174,7 +199,7 @@ Model = class {
    * @return {string}
    */
   fcNormalize (tx) {
-    tx = this.precode[0] + tx;
+    tx = this._precode[0] + tx;
     return "(function(){let x = valuex; let y = valuey;\n" +
       tx.split("#").join("Math.").split("·").join("Math.") +
       "\n}())";
@@ -200,9 +225,9 @@ Model = class {
    * @param {string} tx
    */
   precodeSet (tx) {
-    this.precode[0] = tx;
+    this._precode[0] = tx;
     for (let i = 0; i < 3; ++i) {
-      this.fcs2[i] = this.fcNormalize(this.fcs[i][0]);
+      this._fcs2[i] = this.fcNormalize(this._fcs[i][0]);
     }
     this.save();
   }
@@ -213,22 +238,23 @@ Model = class {
    * @param {string} tx
    */
   fcSet (ix, tx) {
-    this.fcs[ix][0] = tx;
-    this.fcs2[ix] = this.fcNormalize(tx);
+    this._fcs[ix][0] = tx;
+    this._fcs2[ix] = this.fcNormalize(tx);
     this.save();
   }
 
   /** Adds precode and fcs to historic */
   fcPush () {
-    if (this.precode[0] !== this.precode[1]) {
+    if (this._precode[0] !== this._precode[1]) {
       for (let i = 1; i < MAX_FUNCTIONS; ++i) {
-        this.precode[MAX_FUNCTIONS - i] = this.precode[MAX_FUNCTIONS - 1 - i];
+        this._precode[MAX_FUNCTIONS - i] = this._precode[MAX_FUNCTIONS - 1 - i];
       }
     }
     for (let ix = 0; ix < 3; ++ix) {
-      if (this.fcs[ix][0] !== this.fcs[ix][1]) {
+      if (this._fcs[ix][0] !== this._fcs[ix][1]) {
         for (let i = 1; i < MAX_FUNCTIONS; ++i) {
-          this.fcs[ix][MAX_FUNCTIONS - i] = this.fcs[ix][MAX_FUNCTIONS - 1 - i];
+          this._fcs[ix][MAX_FUNCTIONS - i] =
+            this._fcs[ix][MAX_FUNCTIONS - 1 - i];
         }
       }
     }
@@ -237,13 +263,13 @@ Model = class {
 
   /** Undo precode */
   precodeUndo () {
-    if (this.precode[0] === this.precode[1]) {
+    if (this._precode[0] === this._precode[1]) {
       for (let i = 0; i < MAX_FUNCTIONS - 1; ++i) {
-        this.precode[i] = this.precode[i + 1];
+        this._precode[i] = this._precode[i + 1];
       }
-      this.precode[MAX_FUNCTIONS - 1] = this.precode[0];
+      this._precode[MAX_FUNCTIONS - 1] = this._precode[0];
     }
-    this.precodeSet(this.precode[1]);
+    this.precodeSet(this._precode[1]);
   }
 
   /**
@@ -251,22 +277,22 @@ Model = class {
    * @param {number} ix
    */
   fcUndo (ix) {
-    if (this.fcs[ix][0] === this.fcs[ix][1]) {
+    if (this._fcs[ix][0] === this._fcs[ix][1]) {
       for (let i = 0; i < MAX_FUNCTIONS - 1; ++i) {
-        this.fcs[ix][i] = this.fcs[ix][i + 1];
+        this._fcs[ix][i] = this._fcs[ix][i + 1];
       }
-      this.fcs[ix][MAX_FUNCTIONS - 1] = this.fcs[ix][0];
+      this._fcs[ix][MAX_FUNCTIONS - 1] = this._fcs[ix][0];
     }
-    this.fcSet(ix, this.fcs[ix][1]);
+    this.fcSet(ix, this._fcs[ix][1]);
   }
 
   /** Redo precode */
   precodeRedo () {
-    this.precode[0] = this.precode[MAX_FUNCTIONS - 1];
+    this._precode[0] = this._precode[MAX_FUNCTIONS - 1];
     for (let i = 1; i < MAX_FUNCTIONS; ++i) {
-      this.precode[MAX_FUNCTIONS - i] = this.precode[MAX_FUNCTIONS - 1- i];
+      this._precode[MAX_FUNCTIONS - i] = this._precode[MAX_FUNCTIONS - 1- i];
     }
-    this.precodeSet(this.precode[1]);
+    this.precodeSet(this._precode[1]);
   }
 
   /**
@@ -274,11 +300,11 @@ Model = class {
    * @param {number} ix
    */
   fcRedo (ix) {
-    this.fcs[ix][0] = this.fcs[ix][MAX_FUNCTIONS - 1];
+    this._fcs[ix][0] = this._fcs[ix][MAX_FUNCTIONS - 1];
     for (let i = 1; i < MAX_FUNCTIONS; ++i) {
-      this.fcs[ix][MAX_FUNCTIONS - i] = this.fcs[ix][MAX_FUNCTIONS - 1- i];
+      this._fcs[ix][MAX_FUNCTIONS - i] = this._fcs[ix][MAX_FUNCTIONS - 1- i];
     }
-    this.fcSet(ix, this.fcs[ix][1]);
+    this.fcSet(ix, this._fcs[ix][1]);
   }
 
   /**
@@ -286,11 +312,11 @@ Model = class {
    * @param {number} target
    */
   fcChange (source, target) {
-    let tmp = this.fcs[source];
-    this.fcs[source] = this.fcs[target];
-    this.fcs[target] = tmp;
-    this.fcSet(source, this.fcs[source][0]);
-    this.fcSet(target, this.fcs[target][0]);
+    let tmp = this._fcs[source];
+    this._fcs[source] = this._fcs[target];
+    this._fcs[target] = tmp;
+    this.fcSet(source, this._fcs[source][0]);
+    this.fcSet(target, this._fcs[target][0]);
   }
 
   /**
@@ -303,7 +329,7 @@ Model = class {
   fCalc (ix, x0, y0) {
     window["valuex"] = x0 / this._canvasw;
     window["valuey"] = y0 / this._canvash;
-    let fr = /** @type {number} */(eval(this.fcs2[ix]));
+    let fr = /** @type {number} */(eval(this._fcs2[ix]));
     if (fr >= 1) {
       return 255;
     }
@@ -316,7 +342,7 @@ Model = class {
   /** @return {string} */
   saveFs () {
     return B64.encode(JSON.stringify([
-      this.precode[0], this.fcs[0][0], this.fcs[1][0], this.fcs[2][0]
+      this._precode[0], this._fcs[0][0], this._fcs[1][0], this._fcs[2][0]
     ]));
   }
 
@@ -337,8 +363,8 @@ Model = class {
     return [
       this._language,
       this._precodeShow,
-      this.precode,
-      this.fcs,
+      this._precode,
+      this._fcs,
       this._canvasSize,
       this._lastx,
       this._lasty
@@ -357,7 +383,7 @@ Model = class {
   static mk () {
 //    Store.del(StorePrefix + "data");
 
-    let data = Store.take(StorePrefix + "data");
+    let data = Store.get(StorePrefix + "data");
     if (data === null) {
       let language = "es";
       let precodeShow = false;

@@ -1,6 +1,8 @@
 // Copyright 02-Sep-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
+/** Iterator */
+
 goog.provide("github.dedeme.It");
 goog.require("github.dedeme.List");
 goog.require("github.dedeme.Tp");
@@ -115,7 +117,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns <b>true</b> if all elements give <b>true</b> with [f]
+   * Returns true if all elements give true with [f]
    * @param {function (T):boolean} f
    * @return {boolean}
    */
@@ -126,7 +128,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns <b>true</b> if any element of [this] is equals (===) to [e]
+   * Returns true if any element of [this] is equals (===) to [e]
    * @param {T} e
    * @return {boolean}
    */
@@ -137,7 +139,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns <b>true</b> if any element of [this] returns true with [f]
+   * Returns true if any element of [this] returns true with [f]
    * @param {function (T):boolean} f
    * @return {boolean}
    */
@@ -148,7 +150,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns the number of elements whish give <b>true</b> with [f] <p>
+   * Returns the number of elements whish give true with [f]
    * Number of all the elements is returned by [size()]
    * @param {function (T):boolean} f
    * @return {number}
@@ -274,7 +276,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns those elements that gives <b>true</b> with [f].
+   * Returns those elements that gives true with [f].
    * @param {function (T):boolean} f
    * @return {!Array<T>}
    */
@@ -287,7 +289,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns the first element that gives <b>true</b> with [f] or undefined
+   * Returns the first element that gives true with [f] or undefined
    * @param {function (T):boolean} f
    * @return {T | null | undefined}
    */
@@ -300,7 +302,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns the last element that gives <b>true</b> with [f] or undefined
+   * Returns the last element that gives true with [f] or undefined
    * @param {function (T):boolean} f
    * @return {T | null | undefined}
    */
@@ -328,7 +330,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns the index of first element that gives <b>true</b> with [f]
+   * Returns the index of first element that gives true with [f]
    * or -1 if [this] has nothing
    * @param {function (T):boolean} f
    * @return {number}
@@ -358,7 +360,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns the index of last element that gives <b>true</b> with [f]
+   * Returns the index of last element that gives true with [f]
    * or -1 if [this] has nothing
    * @param {function (T):boolean} f
    * @return {number}
@@ -399,8 +401,8 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns [this] in reverse order.<p>
-   * <i>NOTE: This function creates an array!</i>.
+   * Returns [this] in reverse order.
+   * NOTE: This function creates an array!.
    * @return {!github.dedeme.It<T>}
    */
   reverse () {
@@ -421,8 +423,8 @@ github.dedeme.It = class {
 
   /**
    * Sorts [this] in "natural order" (In strings lowercase goes after
-   * uppercase).<p>
-   * <i>NOTE: This function creates an array!.</i>
+   * uppercase).
+   * NOTE: This function creates an array!.
    * @return {!github.dedeme.It<T>}
    */
   sort () {
@@ -430,8 +432,8 @@ github.dedeme.It = class {
   }
 
   /**
-   * Sort [this] conforming [compare] function.<p>
-   * <i>NOTE: This function creates an array!.</i>
+   * Sort [this] conforming [compare] function.
+   * NOTE: This function creates an array!.
    * @param {function (T, T):number} f
    * @return {!github.dedeme.It<T>}
    */
@@ -441,7 +443,7 @@ github.dedeme.It = class {
 
   /**
    * Returns an iterator over elements of [this] mixed.
-   * <i>NOTE: This function creates an array!.</i>
+   * NOTE: This function creates an array!.
    * @return {!github.dedeme.It<T>}
    */
   shuffle () {
@@ -461,11 +463,11 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns n first elements.<p>
-   * If [this] has less elements than 'n' returns all of theirs.<p>
+   * Returns n first elements.
+   * If [this] has less elements than 'n' returns all of theirs.
    * [this] can be used for the rest of data after consume 'take'.
    * @param {number} n
-   * @return  {!github.dedeme.It<T>}
+   * @return {!github.dedeme.It<T>}
    */
   take (n) {
     const self = this;
@@ -479,7 +481,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns the first elements of [it] whish give <b>true</b> with [f]
+   * Returns the first elements of [it] whish give true with [f]
    * @param {function (T):boolean} f
    * @return  {!github.dedeme.It<T>}
    */
@@ -507,7 +509,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns the n first elements of [it] whish give <b>false</b> with [f]
+   * Returns the n first elements of [it] whish give false with [f]
    * @param {function (T):boolean} f
    * @return  {!github.dedeme.It<T>}
    */
@@ -567,10 +569,10 @@ github.dedeme.It = class {
    */
   static fromList (l) {
     return new github.dedeme.It(
-      () => l.tail !== null,
+      () => l.tail() !== null,
       () => {
-        let r = l.head;
-        l = l.tail || l;
+        let r = l.head();
+        l = l.tail() || l;
         return r;
       }
     );
@@ -604,12 +606,12 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns an iterator over an Hash keys
-   * @param {!github.dedeme.Hash<?>} h
+   * Returns an iterator over an Object whose keys are strings.
+   * @param {!Object<string, ?>} o
    * @return {!github.dedeme.It<string>}
    */
-  static keys (h) {
-    return github.dedeme.It.from(h.keys());
+  static keys (o) {
+    return github.dedeme.It.from(Object.keys(o));
   }
 
   /**
@@ -629,8 +631,8 @@ github.dedeme.It = class {
   }
 
   /**
-   * Sorts an It of strings in locale and returns it..<p>
-   * <i>NOTE: This function creates an array!.</i>
+   * Sorts an It of strings in locale and returns it..
+   * NOTE: This function creates an array!.
    * @param {!github.dedeme.It<string>} i
    * @return {!github.dedeme.It<string>}
    */
@@ -640,7 +642,7 @@ github.dedeme.It = class {
 
   /**
    * Returns two iterators from one It<Tp>.
-   * <i>NOTE: This function creates two arrays!.</i>
+   * NOTE: This function creates two arrays!.
    * @template A
    * @template B
    * @param {!github.dedeme.It<!github.dedeme.Tp<A, B>>} i
@@ -651,8 +653,8 @@ github.dedeme.It = class {
     let a1 = [];
     let a2 = [];
     i.each(tp => {
-      a1.push(tp.e1);
-      a2.push(tp.e2);
+      a1.push(tp.e1());
+      a2.push(tp.e2());
     });
     return new github.dedeme.Tp(
       github.dedeme.It.from(a1),
@@ -662,7 +664,7 @@ github.dedeme.It = class {
 
   /**
    * Returns three iterators from one It<Tp3>
-   * <i>NOTE: This function creates three arrays!.</i>
+   * NOTE: This function creates three arrays!.
    * @template A
    * @template B
    * @template C
@@ -676,9 +678,9 @@ github.dedeme.It = class {
     let a2 = [];
     let a3 = [];
     i.each(tp => {
-      a1.push(tp.e1);
-      a2.push(tp.e2);
-      a3.push(tp.e3);
+      a1.push(tp.e1());
+      a2.push(tp.e2());
+      a3.push(tp.e3());
     });
     return new github.dedeme.Tp3(
       github.dedeme.It.from(a1),
@@ -688,7 +690,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns a iterator with elements of [it1] and [it2].<p>
+   * Returns a iterator with elements of [it1] and [it2].
    * The number of elements of resultant iterator is the least of both ones.
    * @template A
    * @template B
@@ -704,7 +706,7 @@ github.dedeme.It = class {
   }
 
   /**
-   * Returns a iterator with elements of [it1], [it2] and [it3].<p>
+   * Returns a iterator with elements of [it1], [it2] and [it3].
    * The number of elements of resultant iterator is the least of three ones.
    * @template A
    * @template B

@@ -29,7 +29,7 @@ Big = class {
               .html(n === -1 ? "&nbsp;" : "" + n);
 
             if (data.root()[row][col] === -1) {
-              td.on("click", () => main.sudokuClick(row, col));
+              td.on("click", () => Main.sudokuClick(row, col));
             }
             self._cells[row][col] = td;
             return td;
@@ -38,7 +38,7 @@ Big = class {
   }
 
   /** @return {!Domo} */
-  get element () {
+  element () {
     return this._element;
   }
 
@@ -78,14 +78,14 @@ Big = class {
   cursor (dir, row, col) {
     let move = (go, r, c) => {
       if (go) Ui.beep();
-      else if (this._data.root()[r][c] == -1) main.sudokuClick(r, c);
+      else if (this._data.root()[r][c] == -1) Main.sudokuClick(r, c);
       else this.cursor(dir, r, c);
     }
     switch (dir) {
-      case Model.CursorMove.CursorUp: move(row === 0, row - 1, col);break;
-      case Model.CursorMove.CursorDown: move(row === 8, row + 1, col);break;
-      case Model.CursorMove.CursorLeft: move(col === 0, row, col - 1);break;
-      case Model.CursorMove.CursorRight: move(col === 8, row, col + 1);break;
+      case Model.CursorUp(): move(row === 0, row - 1, col);break;
+      case Model.CursorDown(): move(row === 8, row + 1, col);break;
+      case Model.CursorLeft(): move(col === 0, row, col - 1);break;
+      case Model.CursorRight(): move(col === 8, row, col + 1);break;
     }
   }
 
@@ -95,16 +95,16 @@ Big = class {
    * @param {number} n
    */
   put (row, col, n) {
-    Model.last.pencil()[row][col] = Model.data.pencil;
+    Model.last().pencil()[row][col] = Model.mdata().pencil();
     this._data.user()[row][col] = n;
-    main.sudokuClick(row, col);
+    Main.sudokuClick(row, col);
   }
 
   clear () {
     for (let r = 0; r < 9; ++r) {
       for (let c = 0; c < 9; ++c) {
-        let del = this._data.root()[r][c] === -1 && (Model.data.pencil
-          ? Model.last.pencil()[r][c]
+        let del = this._data.root()[r][c] === -1 && (Model.mdata().pencil()
+          ? Model.last().pencil()[r][c]
           : true);
         if (del) {
           this._data.user()[r][c] = -1;
@@ -153,37 +153,37 @@ Big = class {
     }
   }
 
+  /**
+   * @private
+   * @param {number} row
+   * @param {number} col
+   * @return {string}
+   */
+  static findBorder (row, col) {
+    let top = "border-top : 2px solid rgb(110,130,150);";
+    let bottom = "border-bottom : 2px solid rgb(110,130,150);";
+    let left = "border-left : 2px solid rgb(110,130,150);";
+    let right = "border-right : 2px solid rgb(110,130,150);";
+    let row3 = row - Math.floor(row / 3) * 3;
+    let col3 = col - Math.floor(col / 3) * 3;
+    return  row3 === 0
+      ? col3 === 0
+        ? top + left
+        : col === 8
+          ? top + right
+          : top
+      : row === 8
+        ? col3 === 0
+          ? bottom + left
+          : col === 8
+            ? bottom + right
+            : bottom
+        : col3 === 0
+          ? left
+          : col === 8
+            ? right
+            : ""
+    ;
+  }
 }
 
-/**
- * @private
- * @param {number} row
- * @param {number} col
- * @return {string}
- */
-Big.findBorder = (row, col) => {
-  let top = "border-top : 2px solid rgb(110,130,150);";
-  let bottom = "border-bottom : 2px solid rgb(110,130,150);";
-  let left = "border-left : 2px solid rgb(110,130,150);";
-  let right = "border-right : 2px solid rgb(110,130,150);";
-  let row3 = row - Math.floor(row / 3) * 3;
-  let col3 = col - Math.floor(col / 3) * 3;
-  return  row3 === 0
-    ? col3 === 0
-      ? top + left
-      : col === 8
-        ? top + right
-        : top
-    : row === 8
-      ? col3 === 0
-        ? bottom + left
-        : col === 8
-          ? bottom + right
-          : bottom
-      : col3 === 0
-        ? left
-        : col === 8
-          ? right
-          : ""
-  ;
-}

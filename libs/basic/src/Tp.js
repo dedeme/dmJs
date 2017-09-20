@@ -1,32 +1,40 @@
 // Copyright 1-Sep-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-/// Tuples
+/// Tuple of two elemens
 
 goog.provide("github.dedeme.Tp")
-goog.provide("github.dedeme.Tp3")
 
-/// Tuple of two elements
+/** @template A, B */
 github.dedeme.Tp = class {
   /**
-   * @param {?} e1
-   * @param {?} e2
+   * @param {A} e1
+   * @param {B} e2
    */
   constructor (e1, e2) {
-    this.e1 = e1;
-    this.e2 = e2;
+    /** @private */
+    this._e1 = e1;
+    /** @private */
+    this._e2 = e2;
   }
-}
 
-/// Tuple of three elements
-github.dedeme.Tp3 = class extends github.dedeme.Tp {
-  /**
-   * @param {?} e1
-   * @param {?} e2
-   * @param {?} e3
-   */
-  constructor (e1, e2, e3) {
-    super(e1, e2);
-    this.e3 = e3;
+  /** @return {A} */
+  e1 () {
+    return this._e1;
+  }
+
+  /** @param {A} value */
+  setE1 (value) {
+    this._e1 = value
+  }
+
+  /** @return {B} */
+  e2 () {
+    return this._e2;
+  }
+
+  /** @param {B} value */
+  setE2 (value) {
+    this._e2 = value
   }
 }

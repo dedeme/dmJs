@@ -7,21 +7,21 @@ goog.require("View");
 
 Control = class {
 
-  static get group () {
-    let group = Store.take("unicodedm_group");
+  static group () {
+    let group = Store.get("unicodedm_group");
     return group == null ? "00" : group;
   }
 
-  static set group (g) {
+  static setGroup (g) {
     Store.put("unicodedm_group", g);
   }
 
-  static get code () {
-    let code = Store.take("unicodedm_code");
+  static code () {
+    let code = Store.get("unicodedm_code");
     return code == null ? "51" : code;
   }
 
-  static set code (c) {
+  static setCode (c) {
     Store.put("unicodedm_code", c);
   }
 

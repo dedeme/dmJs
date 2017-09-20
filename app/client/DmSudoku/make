@@ -21,7 +21,7 @@ compile () {
     --warning_level VERBOSE \
     --dependency_mode=STRICT \
     $SS \
-    --entry_point main \
+    --entry_point Main \
     --js_output_file www/index.js \
     $PRETTY
 

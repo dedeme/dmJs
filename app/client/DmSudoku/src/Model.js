@@ -80,8 +80,8 @@ SudokuData = class {
     this._id = id;
     /** @private */
     this._date = date;
-    /** @type {number}} */
-    this.time = time;
+    /** @private */
+    this._time = time;
     /** @private */
     this._cell = cell;
     /** @private */
@@ -102,6 +102,16 @@ SudokuData = class {
   /** @return {!Array<number>} */
   date () {
     return this._date;
+  }
+
+  /** @return {number} */
+  time () {
+    return this._time;
+  }
+
+  /** @param {number} value */
+  setTime (value) {
+    this._time = value
   }
 
   /** @return {!Array<number>} */
@@ -134,7 +144,7 @@ SudokuData = class {
     return [
       this._id,
       this._date,
-      this.time,
+      this._time,
       this._cell,
       this._sudoku,
       this._root,
@@ -176,26 +186,76 @@ Data = class {
     level,
     pencil
   ) {
-    /** @type {!Array<SudokuDef>} */
-    this.cache = cache;
-    /** @type  {!Array<!SudokuData>} */
-    this.memo = memo;
-    /** @type {string} */
-    this.lang = lang;
-    /** @type {number} */
-    this.level = level;
-    /** @type  {boolean} */
-    this.pencil = pencil;
+    /** @private */
+    this._cache = cache;
+    /** @private */
+    this._memo = memo;
+    /** @private */
+    this._lang = lang;
+    /** @private */
+    this._level = level;
+    /** @private */
+    this._pencil = pencil;
+  }
+
+  /** @return {!Array<SudokuDef>} */
+  cache () {
+    return this._cache;
+  }
+
+  /** @param {!Array<SudokuDef>} value */
+  setCache (value) {
+    this._cache = value;
+  }
+
+  /** @return {!Array<!SudokuData>} */
+  memo () {
+    return this._memo;
+  }
+
+  /** @param {!Array<!SudokuData>} value */
+  setMemo (value) {
+    this._memo = value;
+  }
+
+  /** @return {string} */
+  lang () {
+    return this._lang;
+  }
+
+  /** @param {string} value */
+  setLang (value) {
+    this._lang = value;
+  }
+
+  /** @return {number} */
+  level () {
+    return this._level;
+  }
+
+  /** @param {number} value */
+  setLevel (value) {
+    this._level = value;
+  }
+
+  /** @return {boolean} */
+  pencil () {
+    return this._pencil;
+  }
+
+  /** @param {boolean} value */
+  setPencil (value) {
+    this._pencil = value;
   }
 
   /** @return {!Array<?>} */
   serialize () {
     return [
-      It.from(this.cache).map(sd => sd === null ? sd : sd.serialize()).to(),
-      It.from(this.memo).map(sd => sd.serialize()).to(),
-      this.lang,
-      this.level,
-      this.pencil
+      It.from(this._cache).map(sd => sd === null ? sd : sd.serialize()).to(),
+      It.from(this._memo).map(sd => sd.serialize()).to(),
+      this._lang,
+      this._level,
+      this._pencil
     ];
   }
 
@@ -315,6 +375,40 @@ WorkerResponse = class {
   }
 }
 
+{
+  let data = new Data(
+    [null, null, null, null, null],
+    [],
+    "es",
+    5,    // Conected with initial definition of Model.last
+    false
+  );
+  let last = Sudoku.mkDef(new SudokuDef(
+    [
+      [2,8,5,6,3,9,1,4,7],
+      [9,1,7,4,2,8,6,3,5],
+      [3,6,4,5,1,7,8,2,9],
+      [8,9,6,2,4,5,3,7,1],
+      [1,4,2,7,8,3,9,5,6],
+      [5,7,3,1,9,6,2,8,4],
+      [4,3,8,9,7,1,5,6,2],
+      [6,2,9,8,5,4,7,1,3],
+      [7,5,1,3,6,2,4,9,8]],
+    [
+      [-1,-1,-1,-1,3,-1,-1,-1,7],
+      [9,-1,-1,4,-1,-1,6,-1,-1],
+      [-1,-1,-1,-1,-1,7,-1,-1,-1],
+      [8,-1,-1,-1,-1,5,3,-1,1],
+      [1,-1,-1,-1,8,-1,9,5,-1],
+      [5,7,-1,1,-1,-1,-1,8,-1],
+      [-1,3,-1,9,-1,-1,5,6,-1],
+      [6,-1,9,8,-1,-1,-1,-1,3],
+      [-1,5,1,3,-1,2,-1,-1,-1]]
+  ));
+  let copy = SudokuData.restore(last.serialize());
+  let page = 0; // Model.PageMain()
+  let correction = false;
+
 Model = class {
   /**
    * Sequence steps according to next rules:
@@ -392,13 +486,13 @@ Model = class {
     if (lang === "es") {
       return d.format("%D-%b-%Y");
     }
-    let months = DateDm.months;
-    DateDm.months = [
+    let months = DateDm.months();
+    DateDm.setMonths([
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
+    ]);
     let r = d.format("%D-%b-%Y");
-    DateDm.months = months;
+    DateDm.setMonths(months);
     return r;
   }
 
@@ -427,64 +521,107 @@ Model = class {
     return ["" + h, n2(m - h * 60), n2(s - m * 60)];
   }
 
-}
-/** @enum */
-Model.PageType = {
-  MainPage : 0,
-  CopyPage : 1,
-  LoadPage : 2,
-  SolvePage: 3,
-  WinPagex : 4
-}
-/** @enum */
-Model.CursorMove = {
-  CursorUp   : 0,
-  CursorDown : 1,
-  CursorLeft : 2,
-  CursorRight: 3
-}
+  /** @return {number} */
+  static PageMain () {
+    return 0;
+  }
 
-/**
- * @type {!Data}
- */
-Model.data = new Data(
-  [null, null, null, null, null],
-  [],
-  "es",
-  5,    // Conected with initial definition of Model.last
-  false
-);
+  /** @return {number} */
+  static PageCopy () {
+    return Model.PageMain() + 1;
+  }
 
-/**
- * @type {!SudokuData}
- */
-Model.last = Sudoku.mkDef(new SudokuDef(
-  [
-    [2,8,5,6,3,9,1,4,7],
-    [9,1,7,4,2,8,6,3,5],
-    [3,6,4,5,1,7,8,2,9],
-    [8,9,6,2,4,5,3,7,1],
-    [1,4,2,7,8,3,9,5,6],
-    [5,7,3,1,9,6,2,8,4],
-    [4,3,8,9,7,1,5,6,2],
-    [6,2,9,8,5,4,7,1,3],
-    [7,5,1,3,6,2,4,9,8]],
-  [
-    [-1,-1,-1,-1,3,-1,-1,-1,7],
-    [9,-1,-1,4,-1,-1,6,-1,-1],
-    [-1,-1,-1,-1,-1,7,-1,-1,-1],
-    [8,-1,-1,-1,-1,5,3,-1,1],
-    [1,-1,-1,-1,8,-1,9,5,-1],
-    [5,7,-1,1,-1,-1,-1,8,-1],
-    [-1,3,-1,9,-1,-1,5,6,-1],
-    [6,-1,9,8,-1,-1,-1,-1,3],
-    [-1,5,1,3,-1,2,-1,-1,-1]]
-));
+  /** @return {number} */
+  static PageSolve () {
+    return Model.PageCopy() + 1;
+  }
 
-/**
- * @type {!SudokuData}
- */
-Model.copy = SudokuData.restore(Model.last.serialize());
+  /** @return {number} */
+  static CursorUp () {
+    return 0;
+  }
+
+  /** @return {number} */
+  static CursorDown () {
+    return Model.CursorUp() + 1;
+  }
+
+  /** @return {number} */
+  static CursorLeft () {
+    return Model.CursorDown() + 1;
+  }
+
+  /** @return {number} */
+  static CursorRight () {
+    return Model.CursorLeft() + 1;
+  }
+
+  /**
+   * Saved in store
+   * @return {!Data}
+   */
+  static mdata () {
+    return data;
+  }
+
+  /** @param {!Data} value */
+  static setMdata (value) {
+    data = value;
+  }
+
+  /**
+   * Saved in store
+   * @return {!SudokuData}
+   */
+  static last () {
+    return last;
+  }
+
+  /** @param {!SudokuData} value */
+  static setLast (value) {
+    last = value;
+  }
+
+  /**
+   * User definied new sudoku
+   * @return {!SudokuData}
+   */
+  static copy () {
+    return copy;
+  }
+
+  /** @param {!SudokuData} value */
+  static setCopy (value) {
+    copy = value;
+  }
+
+  /**
+   * Page in which the program is.
+   * @return {number}
+   */
+  static page () {
+    return page;
+  }
+
+  /** @param {number} value */
+  static setPage (value) {
+    page = value;
+  }
+
+  /**
+   * If its value is 'true' sudoku has wrong numbers on red.
+   * @return {boolean}
+   */
+  static correction () {
+    return correction;
+  }
+
+  /** @param {boolean} value */
+  static setCorrection (value) {
+    correction = value;
+  }
+
+}}
 
 /// Counter for bidimentsional arrays
 class BiCounter {

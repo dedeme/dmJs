@@ -4,6 +4,32 @@
 /// Some mathematical functions, rounding and numeric formats
 goog.provide("github.dedeme.Dec")
 
+{
+
+  /**
+   * @type function(!github.dedeme.Dec, string, string):string
+   */
+  const format = (d, thousand, decimal) => {
+    const scale = d._scale;
+    let left = "" + d._intValue;
+    let right = "";
+    if (scale > 0) {
+      while (left.length < scale + 1) {
+        left = "0" + left;
+      }
+      let ix = left.length - scale;
+      right = decimal + left.substring(ix);
+      left = left.substring(0, ix);
+    }
+    let size = 3;
+    while (left.length > size) {
+      let ix = left.length - size;
+      left = left.substring(0, ix) + thousand + left.substring(ix);
+      size += 4;
+    }
+    return ((d._sign == 1)? "" : "-") + left + right;
+  }
+
 github.dedeme.Dec = class {
   /**
    * @param {number=} value A float value.
@@ -39,7 +65,7 @@ github.dedeme.Dec = class {
   }
 
   /** @return {number} */
-  get value () {
+  value () {
     return this._value;
   }
 
@@ -47,7 +73,7 @@ github.dedeme.Dec = class {
    * Number of decimal positions.
    * @return {number}
    */
-  get scale () {
+  scale () {
     return this._scale;
   }
 
@@ -71,7 +97,7 @@ github.dedeme.Dec = class {
   eqValue (d) {
     return (this._scale > d._scale)
       ? this.eq (new github.dedeme.Dec (d._value, this._scale))
-      : (this.scale < d._scale)
+      : (this._scale < d._scale)
         ? new github.dedeme.Dec (this._value, d._scale).eq(d)
         : this._intValue * this._sign == d._intValue * d._sign;
 
@@ -97,7 +123,7 @@ github.dedeme.Dec = class {
    * @return {string}
    */
   toEs () {
-    return github.dedeme.Dec.format(this, ".", ",");
+    return format(this, ".", ",");
   }
 
   /**
@@ -105,7 +131,7 @@ github.dedeme.Dec = class {
    * @return {string}
    */
   toEn () {
-    return github.dedeme.Dec.format(this, ",", ".");
+    return format(this, ",", ".");
   }
 
   /**
@@ -231,7 +257,7 @@ github.dedeme.Dec = class {
   static rnd (n1, n2) {
     let sc = (n1._scale > n2._scale) ? n1._scale : n2._scale;
     let dif = n2._value - n1._value;
-    return new github.dedeme.Dec (n1.value + Math.random() * dif, sc)
+    return new github.dedeme.Dec (n1._value + Math.random() * dif, sc)
   }
 
   /**
@@ -242,31 +268,5 @@ github.dedeme.Dec = class {
     return new github.dedeme.Dec(serial[0], serial[1]);
   }
 
-}
-
-/**
- * @private
- * @type function(!github.dedeme.Dec, string, string):string
- */
-github.dedeme.Dec.format = (d, thousand, decimal) => {
-  const scale = d._scale;
-  let left = "" + d._intValue;
-  let right = "";
-  if (scale > 0) {
-    while (left.length < scale + 1) {
-      left = "0" + left;
-    }
-    let ix = left.length - scale;
-    right = decimal + left.substring(ix);
-    left = left.substring(0, ix);
-  }
-  let size = 3;
-  while (left.length > size) {
-    let ix = left.length - size;
-    left = left.substring(0, ix) + thousand + left.substring(ix);
-    size += 4;
-  }
-  return ((d._sign == 1)? "" : "-") + left + right;
-}
-
+}}
 

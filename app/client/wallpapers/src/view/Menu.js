@@ -6,13 +6,14 @@ goog.provide("Menu");
 {
   /** @const {!Domo} */
   const coorDiv = $("div");
+
 Menu = class {
   /** @param {!Control} control */
   constructor (control) {
     /** @const {!Control} */
-    this.control = control;
+    this._control = control;
     /** @const {!Model} */
-    this.model = control.model;
+    this._model = control.model();
   }
 
   setCoor () {
@@ -21,14 +22,14 @@ Menu = class {
       return (x < 0 ? "-= " : "+= ") + (v.length > 6 ? v.substring(0, 6) : v);
     }
 
-    let x = "x " + format(this.model.lastx() - 0.5) + ";";
-    let y = "y " + format(this.model.lasty() - 0.5) + ";";
+    let x = "x " + format(this._model.lastx() - 0.5) + ";";
+    let y = "y " + format(this._model.lasty() - 0.5) + ";";
 
     coorDiv.removeAll().add($("span").html(`<code>${x}<br>${y}</code>`));
   }
 
   mk () {
-    const control = this.control;
+    const control = this._control;
 
     let mkTd = () => $("td").style("text-align:left;white-space: nowrap;");
 
@@ -61,7 +62,7 @@ Menu = class {
       .add(Ui.link(e => { control.draw();}).klass("link").html(_("Draw")));
 
     let mkCanvasSize = () => {
-      let act = " " + this.model.canvasSize + " ";
+      let act = " " + this._model.canvasSize() + " ";
       return mkOptions(act, [" 1 ", " 2 ", " 3 ", " 4 ", " 5 "], v => {
         control.canvasSize(parseInt(v, 10));
       });
@@ -94,7 +95,7 @@ Menu = class {
     }
 
     let mkPrecode = () => {
-      let act = this.model.precodeShow
+      let act = this._model.precodeShow()
         ? _("On")
         : _("Off");
       return mkOptions(act, [_("On"), _("Off")], v => {
@@ -127,15 +128,15 @@ Menu = class {
       }
 
       let dropbox = $("div").klass("frame").style("width:120px;height:40px;");
-      dropbox.e.addEventListener("dragenter", drag, false);
-      dropbox.e.addEventListener("dragover", drag, false);
-      dropbox.e.addEventListener("drop", drop, false);
+      dropbox.e().addEventListener("dragenter", drag, false);
+      dropbox.e().addEventListener("dragover", drag, false);
+      dropbox.e().addEventListener("drop", drop, false);
 
       return $("td").style("text-align:center;").add(dropbox);
     }
 
     let mkLang = () => {
-      let act = this.model.language.toUpperCase();
+      let act = this._model.language().toUpperCase();
       return mkOptions(act, ["EN", "ES"], v => {
         control.language(v.toLowerCase());
       });

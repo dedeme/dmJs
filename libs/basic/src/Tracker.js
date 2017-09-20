@@ -26,20 +26,15 @@ github.dedeme.Tracker = class {
     dir = dir + "/";
     /**
      * @private
-     * @type {!Hash<!Domo>}
+     * @type {!Object<string, !Domo>}
      */
-    this.imgs = new Hash();
-    github.dedeme.It.from(imgs).each(name => {
-      let ix = name.indexOf(".");
+    this._imgs = {};
+    github.dedeme.It.from(imgs).each(id => {
+      let ix = id.indexOf(".");
       return (ix == -1)
-        ? this.imgs.put(
-            name,
-            new Domo(new Image()).att("src", dir + name + ".png")
-          )
-        : this.imgs.put(
-            name.substring(0, ix),
-            new Domo(new Image()).att("src", dir + name)
-          );
+        ? this._imgs[id] = new Domo(new Image()).att("src", dir + id + ".png")
+        : this._imgs[id.substring(0, ix)] =
+            new Domo(new Image()).att("src", dir + id);
     });
   }
 
@@ -48,8 +43,8 @@ github.dedeme.Tracker = class {
    * @param {string} id
    * @return {Domo}
    */
-  take (id) {
-    return this.imgs.take(id);
+  get (id) {
+    return this._imgs[id];
   }
 
   /**
@@ -58,7 +53,7 @@ github.dedeme.Tracker = class {
    * @return {Domo}
    */
   light (id) {
-    let r = this.imgs.take(id);
+    let r = this._imgs[id];
     return r === null ? null : /** @type {!Domo} */(r.style("opacity:0.4"));
   }
 
@@ -68,7 +63,7 @@ github.dedeme.Tracker = class {
    * @return {Domo}
    */
   grey (id) {
-    let r = this.imgs.take(id);
+    let r = this._imgs[id];
     return r === null
       ? null
       : /** @type {!Domo} */(r.style("filter: grayscale(100%)"));

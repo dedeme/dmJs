@@ -24,11 +24,11 @@ goog.require("Dom");
   }
 
   let putSymbol = () => {
-    hexval.text(Control.group + Control.code);
-    decval.text(parseInt("0x" + Control.group + Control.code, 16));
-    cvalue.text("\\u" + Control.group + Control.code);
-    symbol.html("&#x" + Control.group + Control.code + ";");
-    hvalue.text("&#x" + Control.group + Control.code + ";");
+    hexval.text(Control.group() + Control.code());
+    decval.text(parseInt("0x" + Control.group() + Control.code(), 16));
+    cvalue.text("\\u" + Control.group() + Control.code());
+    symbol.html("&#x" + Control.group() + Control.code() + ";");
+    hvalue.text("&#x" + Control.group() + Control.code() + ";");
   }
 
   let put2tables = () => {
@@ -54,13 +54,13 @@ goog.require("Dom");
     It.from(hexa.split("")).each((y) => {
       let tr = $("tr");
       It.from(hexa.split("")).each((x) => {
-        if (Control.group === y + x) {
+        if (Control.group() === y + x) {
           tr.add(makeTdSel().text(y + x));
         } else {
           tr.add(makeTd().add(
-            makeHexaBt().text(y + x).on(Domo.event.CLICK, () => {
-              Control.group = y + x;
-              Store.put("unicodedm_group", Control.group);
+            makeHexaBt().text(y + x).on("click", () => {
+              Control.setGroup(y + x);
+              Store.put("unicodedm_group", Control.group());
               refresh();
             })
           ));
@@ -79,14 +79,14 @@ goog.require("Dom");
     It.from(hexa.split("")).each((y) => {
       var tr = $("tr");
       It.from(hexa.split("")).each((x) => {
-        if (Control.code === y + x) {
-          tr.add(makeTdSel().html(sym(Control.group, y + x)));
+        if (Control.code() === y + x) {
+          tr.add(makeTdSel().html(sym(Control.group(), y + x)));
         } else {
           tr.add(makeTd().add(makeSymBt()
-            .html(sym(Control.group, y + x))
-            .on(Domo.event.CLICK, () => {
-              Control.code = y + x;
-              Store.put("unicodedm_code", Control.code);
+            .html(sym(Control.group(), y + x))
+            .on("click", () => {
+              Control.setCode(y + x);
+              Store.put("unicodedm_code", Control.code());
               refresh();
             })
           ));
@@ -143,7 +143,7 @@ View = class {
 
   static show () {
     Dom.show();
-    Dom.bodyDiv.removeAll()
+    Dom.bodyDiv().removeAll()
     .add($("table").att("width", "100%").add($("tr").add($("td")
       .add($("table").att("align", "center").add($("tr")
         .add($("td").add(Ui.img("world")))

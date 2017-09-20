@@ -7,11 +7,11 @@ Formulae = class {
   /** @param {!Control} control */
   constructor (control) {
     /** @const {!Model} */
-    this.model = control.model;
+    this._model = control.model();
   }
 
   mk () {
-    let model = this.model;
+    let model = this._model;
 
     let mkTextEntry = () => $("textarea").att("rows", 15).att("cols", "30");
 
@@ -19,7 +19,7 @@ Formulae = class {
       .style("text-align:center;vertical-align:top;width:10px;");
 
     let fcs = It.range(3).map(i => mkTextEntry()
-      .value(model.fcs[i][0])
+      .value(model.fcs()[i][0])
       .on("change", ev => { model.fcSet(i, fcs[i].value()); })
     ).to();
 

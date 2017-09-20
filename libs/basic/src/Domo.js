@@ -8,11 +8,12 @@ goog.require("github.dedeme.It");
 github.dedeme.Domo = class {
   /** @param {*} e */
   constructor (e) {
+    /** @private */
     this._e = e;
   }
 
   /** @return {*} */
-  get e () {
+  e () {
     return this._e;
   }
 
@@ -123,7 +124,7 @@ github.dedeme.Domo = class {
    */
   addIt (els) {
     els.each(el => {
-      this._e.appendChild(el.e);
+      this._e.appendChild(el._e);
     });
     return this;
   }
@@ -134,7 +135,7 @@ github.dedeme.Domo = class {
    * @return {!github.dedeme.Domo}
    */
   remove (el) {
-    this._e.removeChild(el.e);
+    this._e.removeChild(el._e);
     return this;
   }
 
@@ -151,7 +152,7 @@ github.dedeme.Domo = class {
    * Iterator over child elements.
    * @return {github.dedeme.It<!github.dedeme.Domo>}
    */
-  nodes () {
+  get nodes () {
     let nextNode = this._e.firstChild;
     return new github.dedeme.It(
       () => nextNode !== null,
@@ -161,6 +162,14 @@ github.dedeme.Domo = class {
         return new github.dedeme.Domo(r);
       }
     );
+  }
+
+  /**
+   * @private
+   * @param {github.dedeme.It<!github.dedeme.Domo>} value
+   */
+  set nodes (value) {
+    throw("nodes is read only");
   }
 
   /**

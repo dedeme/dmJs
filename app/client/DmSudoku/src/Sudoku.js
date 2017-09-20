@@ -13,7 +13,7 @@ Sudoku = class {
   }
 
   /** @return {!Array<!Array<number>>} */
-  get board () {
+  board () {
     return this._board;
   }
 
@@ -65,7 +65,7 @@ Sudoku = class {
         if (n == -1) {
           return It.from([1, 2, 3, 4, 5, 6, 7, 8, 9]);
         } else {
-          su.board[row][col] = n;
+          su.board()[row][col] = n;
           return It.from([n]);
         }
       }).to()
@@ -76,7 +76,7 @@ Sudoku = class {
       let row = c.row();
       let col = c.col();
       let n = this._board[row][col];
-      su.board[row][col] = n;
+      su.board()[row][col] = n;
       boxes[row][col] = n === -1
         ? It.from([1, 2, 3, 4, 5, 6, 7, 8, 9])
         : It.from([n]);
@@ -92,7 +92,7 @@ Sudoku = class {
         let nx = it.next();
         let r = su.isRightValue(row, col, nx);
         if (r) {
-          su.board[row][col] = nx;
+          su.board()[row][col] = nx;
           return true;
         }
       }
@@ -124,7 +124,7 @@ Sudoku = class {
         if (n == -1) {
           return It.from([1, 2, 3, 4, 5, 6, 7, 8, 9]);
         } else {
-          su.board[row][col] = n;
+          su.board()[row][col] = n;
           return It.from([n]);
         }
       }).to()
@@ -135,7 +135,7 @@ Sudoku = class {
       let row = c.row();
       let col = c.col();
       let n = this._board[row][col];
-      su.board[row][col] = n;
+      su.board()[row][col] = n;
       boxes[row][col] = n === -1
         ? It.from([1, 2, 3, 4, 5, 6, 7, 8, 9])
         : It.from([n]);
@@ -151,7 +151,7 @@ Sudoku = class {
         var nx = it.next();
         var r = su.isRightValue(row, col, nx);
         if (r) {
-          su.board[row][col] = nx;
+          su.board()[row][col] = nx;
           return true;
         }
       }
@@ -270,7 +270,7 @@ Sudoku = class {
     let backward = () => {
       let row = c.row();
       let col = c.col();
-      su.board[row][col] = -1;
+      su.board()[row][col] = -1;
       boxes[row][col] = It.from([1, 2, 3, 4, 5, 6, 7, 8, 9]).shuffle();
       return c.dec();
     }
@@ -317,9 +317,9 @@ Sudoku = class {
         let ixBox = new Box([0, 1, 2, 3, 4, 5, 6, 7, 8]);
         for (let i = 0; i < 4; ++i) {
           let c = ixBox.next();
-          let n = s.board[r][c];
-          base.board[r][c] = n;
-          user.board[r][c] = n;
+          let n = s.board()[r][c];
+          base.board()[r][c] = n;
+          user.board()[r][c] = n;
         }
       }
       if (base.solutions() === 1) break;
@@ -330,15 +330,15 @@ Sudoku = class {
     let i = 36;
     for (let r = 0; r < 9; ++r) {
       for (let c = 0; c < 9; ++c) {
-        let v = base.board[r][c];
+        let v = base.board()[r][c];
         if (v !== -1) {
-          base.board[r][c] = -1;
+          base.board()[r][c] = -1;
           if (base.solutions() === 1) {
-            user.board[r][c] = -1;
+            user.board()[r][c] = -1;
             --i;
             if (i === limit) break;
           } else {
-            base.board[r][c] = v;
+            base.board()[r][c] = v;
           }
         }
       }
@@ -354,9 +354,9 @@ Sudoku = class {
       let part = pbox.next();
       for (let j = 0; j < 3; ++j) {
         let row = rbox.next();
-        s0.push(s.board[part * 3 + row]);
-        b0.push(base.board[part * 3 + row]);
-        u0.push(user.board[part * 3 + row]);
+        s0.push(s.board()[part * 3 + row]);
+        b0.push(base.board()[part * 3 + row]);
+        u0.push(user.board()[part * 3 + row]);
       }
     }
     s = new Sudoku(s0);
@@ -364,7 +364,7 @@ Sudoku = class {
     user = new Sudoku(u0);
 
     let ix = 0;
-    while (base.board[0][ix] !== -1) {
+    while (base.board()[0][ix] !== -1) {
       ++ix;
     }
     return new SudokuData(
@@ -372,9 +372,9 @@ Sudoku = class {
       DateDm.now().serialize(),
       0,
       [0, ix],
-      s.board,
-      base.board,
-      user.board,
+      s.board(),
+      base.board(),
+      user.board(),
       It.range(9).map(i => It.range(9).map(j => false).to()).to()
     )
   }

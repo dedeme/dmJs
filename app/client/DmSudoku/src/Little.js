@@ -22,7 +22,7 @@ Little = class {
   }
 
   /** @return {!Domo} */
-  get element () {
+  element () {
     return this._element;
   }
 

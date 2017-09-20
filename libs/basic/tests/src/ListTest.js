@@ -10,14 +10,14 @@ ListTest = class {
 
     /** @type List<number> */
     let l = new List();
-    t.eq(l.head, undefined);
-    t.eq(l.tail, null);
+    t.eq(l.head(), undefined);
+    t.eq(l.tail(), null);
     l = l.cons(1);
     l = l.cons(2);
     let s = 0;
-    while (l.tail !== null) {
-      s += l.head;
-      l = l.tail;
+    while (l.tail() !== null) {
+      s += l.head();
+      l = l.tail();
     }
     t.eq(s, 3);
 

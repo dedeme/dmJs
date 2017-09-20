@@ -55,15 +55,15 @@ DateDmTest = class {
 
     t.mark("day-month-year");
 
-    t.eq(d1.day, 1);
-    t.eq(d2.day, 6);
-    t.eq(d3.day, 30);
-    t.eq(d1.month, 3);
-    t.eq(d2.month, 3);
-    t.eq(d3.month, 4);
-    t.eq(d1.year, 2013);
-    t.eq(d2.year, 2013);
-    t.eq(d3.year, 2013);
+    t.eq(d1.day(), 1);
+    t.eq(d2.day(), 6);
+    t.eq(d3.day(), 30);
+    t.eq(d1.month(), 3);
+    t.eq(d2.month(), 3);
+    t.eq(d3.month(), 4);
+    t.eq(d1.year(), 2013);
+    t.eq(d2.year(), 2013);
+    t.eq(d3.year(), 2013);
 
     t.mark("serialize-restore");
 

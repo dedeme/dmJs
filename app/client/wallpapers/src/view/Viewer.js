@@ -10,26 +10,26 @@ Viewer = class {
   /** @param {!Control} control */
   constructor (control) {
     /** @const {!Control} */
-    this.control = control;
+    this._control = control;
     /** @const {!Model} */
-    this.model = control.model;
+    this._model = control.model();
 
     /** @const {!Domo} */
-    this.canvas = $("canvas");
-    let cv = this.canvas.e;
-    cv.width = this.model.canvasw();
-    cv.height = this.model.canvash();
+    this._canvas = $("canvas");
+    let cv = this._canvas.e();
+    cv.width = this._model.canvasw();
+    cv.height = this._model.canvash();
     cv.onclick = ev => {
       let rect = cv.getBoundingClientRect();
-      this.control.setCoor(ev.clientX - rect.left, ev.clientY - rect.top);
+      this._control.setCoor(ev.clientX - rect.left, ev.clientY - rect.top);
     }
 
   }
 
   /** @return {!Domo} */
   mk () {
-    let canvas = this.canvas;
-    let cv = canvas.e;
+    let canvas = this._canvas;
+    let cv = canvas.e();
     divCanvas.removeAll()
       .add($("table").att("align", "center").add($("tr")
         .add($("td").style(
@@ -42,8 +42,8 @@ Viewer = class {
 
   /** @return {void} */
   draw () {
-    let model = this.model;
-    let cv = this.canvas.e;
+    let model = this._model;
+    let cv = this._canvas.e();
     let ctx = cv.getContext("2d");
     let w = model.canvaspw();
     let h = model.canvasph();

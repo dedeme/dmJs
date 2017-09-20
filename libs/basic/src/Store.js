@@ -1,6 +1,7 @@
 // Copyright 04-Sep-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
+/** Management of local and session store */
 goog.provide("github.dedeme.Store")
 goog.require("github.dedeme.It")
 
@@ -28,7 +29,7 @@ github.dedeme.Store = class {
    */
   static expires (tKey, keys, time) {
     const dt = new Date(Date.now()).getTime();
-    const ks = github.dedeme.Store.take(tKey);
+    const ks = github.dedeme.Store.get(tKey);
     if (ks === null || dt > +ks) {
       github.dedeme.It.from(keys).each(k => {
         github.dedeme.Store.del(k);
@@ -43,7 +44,7 @@ github.dedeme.Store = class {
    * @param {string} key
    * @return {?string}
    */
-  static take (key) {
+  static get (key) {
     const r = window.localStorage.getItem(key);
     return r === "null" ? null : r;
   }
@@ -92,10 +93,13 @@ github.dedeme.Store = class {
    * @return {!github.dedeme.It<string>}
    */
   static values () {
-    return github.dedeme.Store.keys().map(e => github.dedeme.Store.take(e));
+    return github.dedeme.Store.keys().map(e => github.dedeme.Store.get(e));
   }
 
-  /** Removes all keys of session storage */
+  /**
+   * Removes all keys of session storage
+   * @return {void}
+   */
   static sessionClear () {
     window.sessionStorage.clear();
   }
@@ -103,6 +107,7 @@ github.dedeme.Store = class {
   /**
    * Removes the key [key]  of session storage
    * @param {string} key
+   * @return {void}
    */
   static sessionDel (key) {
     window.sessionStorage.removeItem(key);
@@ -133,7 +138,7 @@ github.dedeme.Store = class {
    * @return {!github.dedeme.It<string>}
    */
   static sessionKeys () {
-    const sz = github.dedeme.Store.size();
+    const sz = github.dedeme.Store.sessionSize();
     let c = 0;
     return new github.dedeme.It(
       () => c < sz,
@@ -167,5 +172,6 @@ github.dedeme.Store = class {
       github.dedeme.Store.sessionTake(e)
     );
   }
+
 }
 

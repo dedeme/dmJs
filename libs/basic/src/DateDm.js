@@ -1,13 +1,22 @@
 // Copyright 03-Sep-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
+/** Date management */
 goog.provide("github.dedeme.DateDm");
+
+{
+  let months = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
+      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+
+  let week = ["domingo", "lunes", "martes", "miércoles", "jueves",
+      "viernes", "sábado"];
+
+  let week1 = "DLMXJVS";
 
 github.dedeme.DateDm = class {
   /**
-   * Note: Jan is 1, Dec is 12.
    * @param {number} day
-   * @param {number} month
+   * @param {number} month Jan is 1, Dec is 12.
    * @param {number} year
    */
   constructor (day, month, year) {
@@ -16,18 +25,18 @@ github.dedeme.DateDm = class {
      * @type {!Date}
      */
     this._date = new Date(year, month - 1, day, 12, 0, 0);
-  }
+ }
 
   /** @return {!Date} */
-  get date () {
+  date () {
     return this._date;
   }
 
   /**
-   *  In range 1-31
+   * In range 1-31
    * @return {number}
    */
-  get day () {
+  day () {
     return this._date.getDate();
   }
 
@@ -35,12 +44,12 @@ github.dedeme.DateDm = class {
    *  In range 1-12
    * @return {number}
    */
-  get month () {
+  month () {
     return this._date.getMonth() + 1;
   }
 
   /** @return {number} */
-  get year () {
+  year () {
     return this._date.getFullYear();
   }
 
@@ -49,9 +58,9 @@ github.dedeme.DateDm = class {
    * @return {boolean}
    */
   eq (d) {
-    return this.day === d.day &&
-           this.month === d.month &&
-           this.year === d.year;
+    return this.day() === d.day() &&
+           this.month() === d.month() &&
+           this.year() === d.year();
   }
 
   /**
@@ -59,11 +68,11 @@ github.dedeme.DateDm = class {
    * @return {number}
    */
   compare (d) {
-    return this.year === d.year
-      ? this.month === d.month
-        ? this.day - d.day
-        : this.month - d.month
-      : this.year - d.year;
+    return this.year() === d.year()
+      ? this.month() === d.month()
+        ? this.day() - d.day()
+        : this.month() - d.month()
+      : this.year() - d.year();
   }
 
   /**
@@ -98,7 +107,7 @@ github.dedeme.DateDm = class {
    *   %B  Month with all characters.
    *   %1  Week day with one character: L M X J V S D
    *   %a  Week day with tree characters.
-   *   %A  Week day withd all characters.
+   *   %A  Week day with all characters.
    *   %%  The sign %
    * @param {string} template
    * @return {string}
@@ -108,13 +117,13 @@ github.dedeme.DateDm = class {
       template = template.split(code).join(value);
     };
 
-    const d = "" + this.day;
-    const dw = this.date.getDay();
-    const w = github.dedeme.DateDm.week[dw];
-    const mn = this.date.getMonth();
+    const d = "" + this.day();
+    const dw = this.date().getDay();
+    const w = github.dedeme.DateDm.week()[dw];
+    const mn = this.date().getMonth();
     const m = "" + (mn + 1);
-    const ms = github.dedeme.DateDm.months[mn];
-    const y = "0000" + this.year;
+    const ms = github.dedeme.DateDm.months()[mn];
+    const y = "0000" + this.year();
 
     r("%d", d);
     r("%D", d.length === 1 ? "0" + d : d);
@@ -124,7 +133,7 @@ github.dedeme.DateDm = class {
     r("%Y", y.substring(y.length -4));
     r("%b", ms.substring(0, 3));
     r("%B", ms);
-    r("%1", github.dedeme.DateDm.week1.charAt(dw));
+    r("%1", github.dedeme.DateDm.week1().charAt(dw));
     r("%a", w.substring(0, 3));
     r("%A", w);
     r("%%", "%");
@@ -137,9 +146,9 @@ github.dedeme.DateDm = class {
    * @return {string}
    */
   toBase () {
-    let y = "0000" + this.year;
-    let m = "00" + this.month;
-    let d = "00" + this.day;
+    let y = "0000" + this.year();
+    let m = "00" + this.month();
+    let d = "00" + this.day();
     return y.substring(y.length - 4) +
       m.substring(m.length - 2) +
       d.substring(d.length - 2);
@@ -147,7 +156,7 @@ github.dedeme.DateDm = class {
 
   /** @return {number} */
   toTime () {
-    return this.date.getTime();
+    return this.date().getTime();
   }
 
   /**
@@ -155,9 +164,9 @@ github.dedeme.DateDm = class {
    * @return {string}
    */
   toString () {
-    let y = "0000" + this.year;
-    let m = "00" + this.month;
-    let d = "00" + this.day;
+    let y = "0000" + this.year();
+    let m = "00" + this.month();
+    let d = "00" + this.day();
     return d.substring(d.length - 2) + "/" +
       m.substring(m.length - 2) + "/" +
       y.substring(y.length - 4);
@@ -165,7 +174,7 @@ github.dedeme.DateDm = class {
 
   /** @return {!Array<?>} */
   serialize () {
-    return [this.day, this.month, this.year];
+    return [this.day(), this.month(), this.year()];
   }
 
   /**
@@ -173,9 +182,13 @@ github.dedeme.DateDm = class {
    * "julio", "agosto", "septiembre", "octubre", "noviembre",  "diciembre"]
    * @return {!Array<string>}
    */
-  static get months () {
-    return ["enero", "febrero", "marzo", "abril", "mayo", "junio",
-      "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  static months () {
+    return months;
+  }
+
+  /** @param {!Array<string>} value */
+  static setMonths (value) {
+    months = value;
   }
 
   /**
@@ -183,14 +196,23 @@ github.dedeme.DateDm = class {
    * "viernes", "sábado"]
    * @return {!Array<string>}
    */
-  static get week () {
-    return ["domingo", "lunes", "martes", "miércoles", "jueves",
-      "viernes", "sábado"];
+  static week () {
+    return week;
+  }
+
+  /** @param {!Array<string>} value */
+  static setWeek (value) {
+    week = value;
   }
 
   /** @return {string} */
-  static get week1 () {
-    return "DLMXJVS";
+  static week1 () {
+    return week1;
+  }
+
+  /** @param {string} value */
+  static setWeek1 (value) {
+    week1 = value;
   }
 
   /**
@@ -278,4 +300,4 @@ github.dedeme.DateDm = class {
   }
 
 }
-
+}

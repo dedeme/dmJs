@@ -1,8 +1,7 @@
 // Copyright 03-Sep-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-/// B64 encode y decode
-
+/** B64 encode y decode */
 goog.provide("github.dedeme.B64")
 
 github.dedeme.B64 = class {

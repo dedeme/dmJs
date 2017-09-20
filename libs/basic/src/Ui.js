@@ -162,9 +162,9 @@ github.dedeme.Ui = class {
       .att("href", "data:text/plain;plain," + text)
       .att("download", fileName);
     let body = document.body;
-    body.appendChild(a.e);
-    a.e.click();
-    body.removeChild(a.e);
+    body.appendChild(a.e());
+    a.e().click();
+    body.removeChild(a.e());
   }
 
   /**
@@ -188,9 +188,9 @@ github.dedeme.Ui = class {
       evt.dataTransfer.dropEffect = 'copy';
     };
 
-    o.e.addEventListener("dragover", handleDragOver, false);
+    o.e().addEventListener("dragover", handleDragOver, false);
 
-    o.e.addEventListener(
+    o.e().addEventListener(
       "dragleave",
       () => { o.style(style); },
       false
@@ -203,7 +203,7 @@ github.dedeme.Ui = class {
       action(evt.dataTransfer.files);
     };
 
-    o.e.addEventListener("drop", handleDrop, false);
+    o.e().addEventListener("drop", handleDrop, false);
 
     return o;
   }
@@ -214,7 +214,7 @@ github.dedeme.Ui = class {
    * @return {!github.dedeme.Domo} The same object 'input'
    */
   static changePoint (input) {
-    const el = input.e;
+    const el = input.e();
     return input.on("keydown", e => {
       if (e.keyCode == 110) {
         const start = el.selectionStart;
@@ -236,7 +236,7 @@ github.dedeme.Ui = class {
    * @return {!github.dedeme.Domo}
    */
   static img (id) {
-    return github.dedeme.Ui.$("img").att("src", `img/${id}.png`);
+    return github.dedeme.Ui.$("img").att("src", "img/" + id + ".png");
   }
 
   /**
@@ -259,7 +259,7 @@ github.dedeme.Ui = class {
       .on("keydown", e => {
         if (e.keyCode === 13) {
           e.preventDefault();
-          github.dedeme.Ui.$('#' + targetId).e.focus();
+          github.dedeme.Ui.$('#' + targetId).e().focus();
         }
       });
   }
@@ -274,7 +274,7 @@ github.dedeme.Ui = class {
       .on("keydown", e => {
         if (e.keyCode === 13) {
           e.preventDefault();
-          github.dedeme.Ui.$('#' + targetId).e.focus();
+          github.dedeme.Ui.$('#' + targetId).e().focus();
         }
       });
   }
@@ -312,7 +312,7 @@ github.dedeme.Ui = class {
       op.text(tx)
         .att("name", idPrefix)
         .att("id", idPrefix + "_" + tx);
-      r.e.add(op.e);
+      r.e().add(op.e());
     });
     return r;
   }

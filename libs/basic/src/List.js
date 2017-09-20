@@ -8,7 +8,9 @@ goog.provide("github.dedeme.List");
 /** @template T */
 github.dedeme.List = class {
   constructor () {
+    /** @private */
     this._head = undefined;
+    /** @private */
     this._tail = null;
   }
 
@@ -18,7 +20,7 @@ github.dedeme.List = class {
    * @template T
    * @return {T | null | undefined}
    */
-  get head () {
+  head () {
     return this._head;
   }
 
@@ -28,7 +30,7 @@ github.dedeme.List = class {
    * @template T
    * @return {?github.dedeme.List<T>}
    */
-  get tail () {
+  tail () {
     return this._tail;
   }
 
@@ -48,9 +50,9 @@ github.dedeme.List = class {
   reverse () {
     let r = new github.dedeme.List;
     let l = this;
-    while (l.tail !== null) {
-      r = r.cons(l.head);
-      l = l.tail;
+    while (l._tail !== null) {
+      r = r.cons(l._head);
+      l = l._tail;
     }
     return r;
   }

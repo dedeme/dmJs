@@ -9,18 +9,33 @@ goog.require("View");
 
 Control = class {
   constructor () {
-    /** @constant {!Model} */
-    this.model = Model.mk();
-    /** @type {View} */
-    this.view = null;
+    /** @private */
+    this._model = Model.mk();
+    /** @private */
+    this._view = null;
 
-    I18n.lang = this.model.language === "es" ? I18n.es : I18n.en;
+    if (this._model.language() === "es") I18n.es(); else I18n.en();
+  }
+
+  /** @return {!Model} */
+  model () {
+    return this._model;
+  }
+
+  /** @return {View} */
+  view () {
+    return this._view;
+  }
+
+  /** @param {View} value */
+  setView (value) {
+    this._view = value;
   }
 
   /** @return {void} */
   run () {
-    this.view = new View(this);
-    this.view.show();
+    this._view = new View(this);
+    this._view.show();
     this.draw();
   }
 
@@ -29,8 +44,8 @@ Control = class {
    * @return {void}
    */
   language(lang) {
-    this.model.language = lang;
-    I18n.lang = this.model.language === "es" ? I18n.es : I18n.en;
+    this._model.setLanguage(lang);
+    if (this._model.language() === "es") I18n.es(); else I18n.en();
     this.run();
   }
 
@@ -39,14 +54,14 @@ Control = class {
    * @return {void}
    */
   setPrecodeShow (value) {
-    this.model.precodeShow = value;
+    this._model.setPrecodeShow(value);
     this.run();
   }
 
   /** @return {void} */
   draw () {
-    this.view.viewer.draw();
-    this.model.fcPush();
+    this._view.viewer().draw();
+    this._model.fcPush();
   }
 
   /**
@@ -54,7 +69,7 @@ Control = class {
    * @return {void}
    */
   canvasSize (size) {
-    this.model.canvasSize = size;
+    this._model.setCanvasSize(size);
     this.run();
   }
 
@@ -63,10 +78,10 @@ Control = class {
     let file = prompt(_("File name") + ":", "");
     if (file !== null && file !== "") {
       let hidden = $("a")
-        .att("href", "data:text/csv;charset=utf-8," + this.model.saveFs())
+        .att("href", "data:text/csv;charset=utf-8," + this._model.saveFs())
         .att("download", file)
         .att("target", "_blank");
-      hidden.e.click();
+      hidden.e().click();
     }
   }
 
@@ -76,7 +91,7 @@ Control = class {
    */
   load (files) {
     let self = this;
-    let model = this.model;
+    let model = this._model;
 
     if (files.length != 1) {
       alert(_("Only can be uploaded one file"));
@@ -93,7 +108,7 @@ Control = class {
 
   /** @return {void} */
   redoPrecode () {
-    this.model.precodeRedo();
+    this._model.precodeRedo();
     this.run();
   }
 
@@ -103,13 +118,13 @@ Control = class {
    * @return {void}
    */
   redoColor (color) {
-    this.model.fcRedo(color);
+    this._model.fcRedo(color);
     this.run();
   }
 
   /** @return {void} */
   undoPrecode () {
-    this.model.precodeUndo();
+    this._model.precodeUndo();
     this.run();
   }
 
@@ -119,7 +134,7 @@ Control = class {
    * @return {void}
    */
   undoColor (color) {
-    this.model.fcUndo(color);
+    this._model.fcUndo(color);
     this.run();
   }
 
@@ -130,7 +145,7 @@ Control = class {
    * @return {void}
    */
   changeColor (source, target) {
-    this.model.fcChange(source, target);
+    this._model.fcChange(source, target);
     this.run();
   }
 
@@ -140,8 +155,8 @@ Control = class {
    * @param {number} y
    */
   setCoor (x, y) {
-    this.model.setCoor(x, y);
-    this.view.menu.setCoor();
+    this._model.setCoor(x, y);
+    this._view.menu().setCoor();
   }
 
   /**
@@ -149,7 +164,7 @@ Control = class {
    * @return {void}
    */
   gallery () {
-    this.view.showGallery();
+    this._view.showGallery();
   }
 
   /**
@@ -160,7 +175,7 @@ Control = class {
   getGallery (path) {
     let self = this;
     Ui.upload(path, data => {
-      self.model.loadFs(data);
+      self._model.loadFs(data);
       self.run();
     });
   }

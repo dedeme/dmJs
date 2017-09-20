@@ -11,14 +11,14 @@ Precode = class {
   /** @param {!Control} control */
   constructor (control) {
     /** @const {!Control} */
-    this.control = control;
+    this._control = control;
     /** @const {!Model} */
-    this.model = control.model;
+    this._model = control.model();
   }
 
   /** @return {!Domo} */
   mkButtons () {
-    let control = this.control;
+    let control = this._control;
 
     let separator = () => $("span").html("&nbsp;");
 
@@ -29,7 +29,7 @@ Precode = class {
       Ui.link(ev => { control.redoPrecode(); }).add(Ui.img("redo"));
 
     buttonsDiv.removeAll();
-    if (this.model.precodeShow) {
+    if (this._model.precodeShow()) {
       buttonsDiv.add(mkUndo()).add(separator()).add(mkRedo());
     }
 
@@ -38,12 +38,12 @@ Precode = class {
 
   /** @return {!Domo}*/
   mkCode () {
-    let model = this.model;
+    let model = this._model;
     let mkTextEntry = () => $("textarea").att("rows", 15).att("cols", "30");
 
     codeDiv.removeAll();
-    if (model.precodeShow) {
-      let entry = mkTextEntry().value(model.precode[0]);
+    if (model.precodeShow()) {
+      let entry = mkTextEntry().value(model.precode()[0]);
       entry.on("change", ev => { model.precodeSet(entry.value()); });
       codeDiv.add(entry);
     }

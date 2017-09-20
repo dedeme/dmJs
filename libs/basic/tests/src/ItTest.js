@@ -52,7 +52,7 @@ ItTest = class {
     t.eq(It.fromList(It.from(i1).toList()).toString(), "[1]");
     t.eq(It.fromList(It.from(i2).toList()).toString(), "[1, 2, 3]");
 
-    let ik = It.keys(Hash.from({"one" : 1, "two" : 2}));
+    let ik = It.keys({"one" : 1, "two" : 2});
     t.eq(ik.next().toString(), "one");
     t.eq(ik.next().toString(), "two");
     t.yes(!ik.hasNext());
@@ -267,21 +267,21 @@ ItTest = class {
 
     t.eq(It.zip(It.from(s0), It.from(s2)).toString(), "[]");
     let its = It.unzip(It.zip(It.from(s1), It.from(s2)));
-    t.yes(its.e1.eq(It.from(s1)));
-    t.yes(its.e2.eq(It.from(s1)));
+    t.yes(its.e1().eq(It.from(s1)));
+    t.yes(its.e2().eq(It.from(s1)));
     its = It.unzip(It.zip(It.from(i1), It.from(i2)));
-    t.yes(its.e1.eq(It.from(i1)));
-    t.yes(its.e2.eq(It.from(i1)));
+    t.yes(its.e1().eq(It.from(i1)));
+    t.yes(its.e2().eq(It.from(i1)));
 
     t.eq(It.zip3(It.from(s0), It.from(s2), It.from(s1)).toString(), "[]");
     let its3 = It.unzip3(It.zip3(It.from(s1), It.from(s2), It.from(s2)));
-    t.yes(its3.e1.eq(It.from(s1)));
-    t.yes(its3.e2.eq(It.from(s1)));
-    t.yes(its3.e3.eq(It.from(s1)));
+    t.yes(its3.e1().eq(It.from(s1)));
+    t.yes(its3.e2().eq(It.from(s1)));
+    t.yes(its3.e3().eq(It.from(s1)));
     its3 = It.unzip3(It.zip3(It.from(i1), It.from(i2), It.from(i1)));
-    t.yes(its3.e1.eq(It.from(i1)));
-    t.yes(its3.e2.eq(It.from(i1)));
-    t.yes(its3.e3.eq(It.from(i1)));
+    t.yes(its3.e1().eq(It.from(i1)));
+    t.yes(its3.e2().eq(It.from(i1)));
+    t.yes(its3.e3().eq(It.from(i1)));
 
     t.log();
   }

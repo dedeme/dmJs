@@ -15,26 +15,53 @@ goog.require("Gallery");
     .html("Wallpapers");
 
 View = class {
-  /** @param {!Control} control */
+  /**
+   * @param {!Control} control
+   */
   constructor (control) {
-    /** @const {!Control} */
-    this.control = control;
-    /** @const {!Model} */
-    this.model = control.model;
-    /** @const {!Viewer} */
-    this.viewer = new Viewer(control);
-    /** @const {!Menu} */
-    this.menu = new Menu(control);
-    /** @const {!Precode} */
-    this.precode = new Precode(control);
+    /** @private */
+    this._control = control;
+    /** @private */
+    this._model = control.model();
+    /** @private */
+    this._viewer = new Viewer(control);
+    /** @private */
+    this._menu = new Menu(control);
+    /** @private */
+    this._precode = new Precode(control);
+  }
+
+  /** @return {!Control} */
+  control () {
+    return this._control;
+  }
+
+  /** @return {!Model} */
+  model () {
+    return this._model;
+  }
+
+  /** @return {!Viewer} */
+  viewer () {
+    return this._viewer;
+  }
+
+  /** @return {!Menu} */
+  menu () {
+    return this._menu;
+  }
+
+  /** @return {!Precode} */
+  precode () {
+    return this._precode;
   }
 
   /** @return {void} */
   show () {
-    let control = this.control;
-    let precode = this.precode;
-    let viewer = this.viewer;
-    let menu = this.menu.mk();
+    let control = this._control;
+    let precode = this._precode;
+    let viewer = this._viewer;
+    let menu = this._menu.mk();
     let buttons = new Buttons(control).mk();
     let formulae = new Formulae(control).mk();
     $$("body").next().removeAll().add($("table").klass("main")
@@ -60,7 +87,7 @@ View = class {
 
   /** @return {void} */
   showGallery () {
-    let gallery = new Gallery(this.control);
+    let gallery = new Gallery(this._control);
     Ui.$$("body").next().removeAll().add($("table").klass("main")
       .add($("tr").add($("td").add(title)))
       .add($("tr").add($("td").html("<hr>")))

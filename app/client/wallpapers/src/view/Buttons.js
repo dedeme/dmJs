@@ -7,7 +7,7 @@ Buttons = class {
   /** @param {!Control} control */
   constructor (control) {
     /** @const {!Control} */
-    this.control = control;
+    this._control = control;
   }
 
   /** @return {!Array<!Domo>} */
@@ -17,7 +17,7 @@ Buttons = class {
      * @return {!Domo}
      */
     let mkTd = c => {
-      let control = this.control;
+      const control = this._control;
 
       let separator = () => $("span").html("&nbsp;");
 
@@ -33,7 +33,7 @@ Buttons = class {
 
       let mkLed = (source, target) =>
         Ui.link(ev => {
-            this.control.changeColor(source, target);
+            control.changeColor(source, target);
           }).add(Ui.img(
             target == 0 ? "redPin" : target == 1 ? "greenPin" : "bluePin"
           ));

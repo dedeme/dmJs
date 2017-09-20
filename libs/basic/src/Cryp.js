@@ -23,40 +23,52 @@ github.dedeme.Cryp = class {
 
   /**
    * Returns 'k' codified in irreversible way, using 'lg' B64 digits.
-   * @param {string} k String to codify
+   * @param {string} key String to codify
    * @param {number} lg Length of result
    * @return {string} 'lg' B64 digits
    */
-  static key (k, lg) {
-    /** @type {number} */
-    let lg2 = k.length * 2;
-    if (lg2 < lg * 2) {
-      lg2 = lg * 2;
-    }
-
-    k = k + "codified in irreversibleDeme is good, very good!\n\r8@@";
-    while (k.length < lg2) {
-      k += k;
-    }
-
+  static key (key, lg) {
     /** @type {!Uint8Array} */
-    let dt = github.dedeme.B64.decodeBytes(github.dedeme.B64.encode(k));
-    lg2 = dt.length;
+    let k = github.dedeme.B64.decodeBytes(github.dedeme.B64.encode(
+      key + "codified in irreversibleDeme is good, very good!\n\r8@@"
+    ));
 
+    let lenk = k.length;
     let sum = 0;
-    let i = 0;
-    while (i < lg2) {
-      sum = (sum + dt[i]) % 256;
-      dt[i] = (sum + i + dt[i]);
-      ++i;
-    }
-    while (i > 0) {
-      --i;
-      sum = (sum + dt[i]) % 256;
-      dt[i] = (sum + i + dt[i]);
+    for (let i = 0; i < lenk; ++i) {
+      sum += k[i];
     }
 
-    return github.dedeme.B64.encodeBytes(dt).substring(0, lg);
+    let lg2 = lg + lenk;
+    let r = new Uint8Array(lg2);
+    let r1 = new Uint8Array(lg2);
+    let r2 = new Uint8Array(lg2);
+    let ik = 0;
+    for (let i = 0; i < lg2; ++i) {
+      let v1 = k[ik];
+      let v2 = v1 + k[v1 % lenk];
+      let v3 = v2 + k[v2 % lenk];
+      let v4 = v3 + k[v3 % lenk];
+      sum = (sum + i + v4) % 256;
+      r1[i] = sum;
+      r2[i] = sum;
+      ++ik;
+      if (ik === lenk) {
+        ik = 0
+      }
+    }
+
+    for (let i = 0; i < lg2; ++i) {
+      let v1 = r2[i];
+      let v2 = v1 + r2[v1 % lg2];
+      let v3 = v2 + r2[v2 % lg2];
+      let v4 = v3 + r2[v3 % lg2];
+      sum = (sum + v4) % 256;
+      r2[i] = sum;
+      r[i] = (sum + r1[i]) % 256;
+    }
+
+    return github.dedeme.B64.encodeBytes(r).substring(0, lg);
   }
 
   /**

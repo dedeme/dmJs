@@ -3,7 +3,6 @@
 
 goog.provide("main")
 goog.require("TpTest");
-goog.require("HashTest");
 goog.require("ListTest");
 goog.require("ItTest");
 goog.require("DateDmTest");
@@ -15,7 +14,6 @@ goog.require("RndTest");
 main = () => {
 
   TpTest.run();
-  HashTest.run();
   ItTest.run();
   ListTest.run();
   DateDmTest.run();

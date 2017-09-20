@@ -2,44 +2,65 @@
 
 goog.provide("I18n");
 
-I18n.en = {
-	"Coordinates":  "Coordinates",
-	"Download":  "Download",
-	"Draw":  "Draw",
-	"File name":  "File name",
-	"Gallery":  "Gallery",
-	"Go back":  "Go Back",
-	"Language":  "Language",
-	"Load Functions":  "Load Functions",
-	"Off":  "Off",
-	"On":  "On",
-	"Only can be uploaded one file":  "Only can be uploaded one file",
-	"Precode":  "Precode",
-	"Preview":  "Preview",
-	"Save Functions":  "Save Functions"
-};
+{
+  let lang = {};
 
-I18n.es = {
-	"Coordinates":  "Coordenadas",
-	"Download":  "Descargar",
-	"Draw":  "Dibujar",
-	"File name":  "Nombre del archivo",
-	"Gallery":  "Galería",
-	"Go back":  "Volver",
-	"Language":  "Lenguaje",
-	"Load Functions":  "Cargar Funciones",
-	"Off":  "Off",
-	"On":  "On",
-	"Only can be uploaded one file":  "Solo se puede subir un arhivo",
-	"Precode":  "Precódigo",
-	"Preview":  "Vista Previa",
-	"Save Functions":  "Guardar funciones"
-};
+  const en = {
+    "Coordinates":  "Coordinates",
+    "Download":  "Download",
+    "Draw":  "Draw",
+    "File name":  "File name",
+    "Gallery":  "Gallery",
+    "Go back":  "Go Back",
+    "Language":  "Language",
+    "Load Functions":  "Load Functions",
+    "Off":  "Off",
+    "On":  "On",
+    "Only can be uploaded one file":  "Only can be uploaded one file",
+    "Precode":  "Precode",
+    "Preview":  "Preview",
+    "Save Functions":  "Save Functions"
+  };
 
-I18n.lang = {};
+  const es = {
+    "Coordinates":  "Coordenadas",
+    "Download":  "Descargar",
+    "Draw":  "Dibujar",
+    "File name":  "Nombre del archivo",
+    "Gallery":  "Galería",
+    "Go back":  "Volver",
+    "Language":  "Lenguaje",
+    "Load Functions":  "Cargar Funciones",
+    "Off":  "Off",
+    "On":  "On",
+    "Only can be uploaded one file":  "Solo se puede subir un arhivo",
+    "Precode":  "Precódigo",
+    "Preview":  "Vista Previa",
+    "Save Functions":  "Guardar funciones"
+  };
+
+I18n = class {
+  /** @return {void} */
+  static en () {
+    lang = en;
+  }
+
+  /** @return {void} */
+  static es () {
+    lang = es;
+  }
+
+  /**
+   * @private
+   * @return {!Object<string, string>}
+   */
+  static lang () {
+    return lang;
+  }
+}}
 
 function _(key) {
-  let v = I18n.lang[key];
+  let v = I18n.lang()[key];
   if (v !== undefined) {
     return v;
   }

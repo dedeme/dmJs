@@ -111,7 +111,7 @@ var main = function () {
             .add($("td"))
             .add($("td").att("align", "right").add(accept)))
       ));
-    user.e.focus();
+    user.e().focus();
   });
 };
 
