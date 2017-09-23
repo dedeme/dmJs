@@ -15,8 +15,7 @@ goog.require("github.dedeme");
   const client = new Client(
     app,
     () => {
-  //    location.assign("../Expired/index.html");
-      alert("Global. Fail pageId");
+      location.assign("../Expired/index.html");
     }
   );
 

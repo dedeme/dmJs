@@ -17,7 +17,7 @@ do
 done
 
 compile () {
-  PAGES="Main Auth Paths Logout Chpass Index Module Code"
+  PAGES="Main Auth Paths Logout Chpass Index Module Code Expired"
 
   for PAGE in $PAGES
   do
