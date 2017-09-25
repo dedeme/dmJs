@@ -99,8 +99,8 @@ Control = class {
     }
 
     let reader = new FileReader();
-    reader.onload = e => {
-      model.loadFs(/** @type {string} */(reader.result));
+    reader.onload/**/ = e => {
+      model.loadFs(/** @type {string} */(reader.result/**/));
       self.run();
     };
     reader.readAsText(files[0]);

@@ -2,7 +2,6 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Consts declarations to short imports from this library
-
 goog.provide("github.dedeme");
 
 goog.require("github.dedeme.Test");
@@ -43,8 +42,8 @@ const Rnd = github.dedeme.Rnd;
 const Store = github.dedeme.Store;
 const Domo = github.dedeme.Domo;
 const Ui = github.dedeme.Ui;
-const $ = Ui.$;
-const $$ = Ui.$$;
+const $ = Ui.$/**/;
+const $$ = Ui.$$/**/;
 const Tracker = github.dedeme.Tracker;
 
 const Client = github.dedeme.Client;

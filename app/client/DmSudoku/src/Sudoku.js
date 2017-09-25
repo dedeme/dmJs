@@ -314,7 +314,7 @@ Sudoku = class {
     let limit = l === 1 ? 0 : 25 + l;
     while (true) {
       for (let r = 0; r < 9; ++r) {
-        let ixBox = new Box([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+        let ixBox = new Rbox([0, 1, 2, 3, 4, 5, 6, 7, 8]);
         for (let i = 0; i < 4; ++i) {
           let c = ixBox.next();
           let n = s.board()[r][c];
@@ -345,8 +345,8 @@ Sudoku = class {
       if (i === limit) break;
     }
 
-    let pbox = new Box([0, 1, 2]);
-    let rbox = new Box([0, 1, 2]);
+    let pbox = new Rbox([0, 1, 2]);
+    let rbox = new Rbox([0, 1, 2]);
     let s0 = [];
     let b0 = [];
     let u0 = [];

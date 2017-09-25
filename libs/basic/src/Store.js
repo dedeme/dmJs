@@ -9,7 +9,7 @@ github.dedeme.Store = class {
 
   /** Removes all keys of local storage */
   static clear () {
-    window.localStorage.clear();
+    window.localStorage/**/.clear();
   }
 
   /**
@@ -17,7 +17,7 @@ github.dedeme.Store = class {
    * @param {string} key
    */
   static del (key) {
-    window.localStorage.removeItem(key);
+    window.localStorage/**/.removeItem(key);
   }
 
   /**
@@ -45,7 +45,7 @@ github.dedeme.Store = class {
    * @return {?string}
    */
   static get (key) {
-    const r = window.localStorage.getItem(key);
+    const r = window.localStorage/**/.getItem(key);
     return r === "null" ? null : r;
   }
 
@@ -55,7 +55,7 @@ github.dedeme.Store = class {
    * @return {?string}
    */
   static key (ix) {
-    return window.localStorage.key(ix);
+    return window.localStorage/**/.key(ix);
   }
 
   /**
@@ -67,7 +67,7 @@ github.dedeme.Store = class {
     let c = 0;
     return new github.dedeme.It(
       () => c < sz,
-      () => window.localStorage.key(c++)
+      () => window.localStorage/**/.key(c++)
     );
   }
 
@@ -77,7 +77,7 @@ github.dedeme.Store = class {
    * @param {string} value
    */
   static put (key, value) {
-    window.localStorage.setItem(key, value);
+    window.localStorage/**/.setItem(key, value);
   }
 
   /**
@@ -85,7 +85,7 @@ github.dedeme.Store = class {
    * @return {number}
    */
   static size () {
-    return window.localStorage.length;
+    return window.localStorage/**/.length;
   }
 
   /**
@@ -101,7 +101,7 @@ github.dedeme.Store = class {
    * @return {void}
    */
   static sessionClear () {
-    window.sessionStorage.clear();
+    window.sessionStorage/**/.clear();
   }
 
   /**
@@ -110,7 +110,7 @@ github.dedeme.Store = class {
    * @return {void}
    */
   static sessionDel (key) {
-    window.sessionStorage.removeItem(key);
+    window.sessionStorage/**/.removeItem(key);
   }
 
   /**
@@ -120,7 +120,7 @@ github.dedeme.Store = class {
    * @return {?string}
    */
   static sessionTake (key) {
-    const r = window.sessionStorage.getItem(key);
+    const r = window.sessionStorage/**/.getItem(key);
     return r === "null" ? null : r;
   }
 
@@ -130,7 +130,7 @@ github.dedeme.Store = class {
    * @return {?string}
    */
   static sessionKey (ix) {
-    return window.sessionStorage.key(ix);
+    return window.sessionStorage/**/.key(ix);
   }
 
   /**
@@ -142,7 +142,7 @@ github.dedeme.Store = class {
     let c = 0;
     return new github.dedeme.It(
       () => c < sz,
-      () => window.sessionStorage.key(c++)
+      () => window.sessionStorage/**/.key(c++)
     );
   }
 
@@ -152,7 +152,7 @@ github.dedeme.Store = class {
    * @param {string} value
    */
   static sessionPut (key, value) {
-    window.sessionStorage.setItem(key, value);
+    window.sessionStorage/**/.setItem(key, value);
   }
 
   /**
@@ -160,7 +160,7 @@ github.dedeme.Store = class {
    * @return {number}
    */
   static sessionSize () {
-    return window.sessionStorage.length;
+    return window.sessionStorage/**/.length;
   }
 
   /**

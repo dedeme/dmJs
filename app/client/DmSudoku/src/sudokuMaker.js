@@ -8,7 +8,7 @@ goog.require("Sudoku");
 
 /** @suppress {globalThis} */
 this["onmessage"] = function (e) {
-  let rq  = WorkerRequest.restore(e.data);
+  let rq  = WorkerRequest.restore(e.data/**/);
   var rp = new WorkerResponse (
     rq.isCache(), rq.level(), Sudoku.mkLevel(rq.level())
   )

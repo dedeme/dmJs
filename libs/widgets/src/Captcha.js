@@ -24,7 +24,7 @@ goog.require("github.dedeme");
     match () {
       let selection = () =>
         It.join(It.from(this._checks).map(c =>
-          c.e().checked() ? "1" : "0"
+          c.checked() ? "1" : "0"
         ));
 
       return selection() == this._value;

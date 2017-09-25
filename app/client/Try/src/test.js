@@ -3,7 +3,7 @@
 
 goog.provide("dm.Test");
 
-dm.Test = class {
+dm.Test/**/ = class {
   /**
    * @param {string} variable
    */

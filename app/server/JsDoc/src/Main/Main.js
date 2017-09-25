@@ -1,4 +1,4 @@
-// Copyright 09-Sep-2017 ºDeme
+// Copyright 23-Sep-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("Main");

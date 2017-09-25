@@ -70,19 +70,19 @@ Main = class {
 //  Store.del(lastId);Store.del(dataId);
     if (Model.mdata().lang() === "es") I18n.es(); else I18n.en();
 
-    View.newLink().removeAll().add(Ui.link(Main.newSudoku)
+    View.newLink().removeAll().add(Ui.link(Main.newSudoku/**/)
       .add(View.imgMenu("filenew", _("New"))));
     View.dom();
 
-    Main.sudokuMaker().onmessage = e => {
-      let rp = WorkerResponse.restore(e.data);
+    Main.sudokuMaker().onmessage/**/ = e => {
+      let rp = WorkerResponse.restore(e.data/**/);
       if (rp.isCache()) {
         Model.mdata().cache()[rp.level() - 1] = new SudokuDef (
           rp.sudokuData().sudoku(),
           rp.sudokuData().root()
         );
         saveData();
-        View.newLink().removeAll().add(Ui.link(Main.newSudoku)
+        View.newLink().removeAll().add(Ui.link(Main.newSudoku/**/)
           .add(View.imgMenu("filenew", _("New"))));
       } else {
         Model.setLast(rp.sudokuData());
@@ -91,7 +91,7 @@ Main = class {
       }
     };
 
-    window.document.addEventListener('keydown', event => {
+    window.document/**/.addEventListener('keydown', event => {
       /** @type {SudokuData} */
       let sData = Model.page() === Model.PageMain() ? Model.last()
         : Model.page() === Model.PageCopy() ? Model.copy()
@@ -100,7 +100,7 @@ Main = class {
       if (sData != null) {
         let cell = sData.cell();
         let board = View.board();
-        switch (event.keyCode) {
+        switch (event.keyCode/**/) {
           case 37:
             board.cursor(
               Model.CursorLeft(), cell[0], cell[1]
@@ -120,7 +120,7 @@ Main = class {
           case 8 | 32 | 46:
             board.put(cell[0], cell[1], -1); break;
           default: {
-            let k = event.keyCode;
+            let k = event.keyCode/**/;
             if (k > 96 && k < 106) {
               board.put(cell[0], cell[1], k - 96);
             } else if (k > 48 && k < 58) {
@@ -236,7 +236,7 @@ Main = class {
     if (Model.mdata().cache()[Model.mdata().level() - 1] == null) {
       View.newLink().removeAll().add(View.imgMenu("filenew", _("New"), true));
     } else {
-      View.newLink().removeAll().add(Ui.link(Main.newSudoku)
+      View.newLink().removeAll().add(Ui.link(Main.newSudoku/**/)
         .add(View.imgMenu("filenew", _("New"))));
     }
     View.mkMainMenu();
@@ -255,7 +255,7 @@ Main = class {
     if (Model.mdata().cache()[Model.mdata().level() - 1] == null) {
       View.newLink().removeAll().add(View.imgMenu("filenew", _("New"), true));
     } else {
-      View.newLink().removeAll().add(Ui.link(Main.newSudoku)
+      View.newLink().removeAll().add(Ui.link(Main.newSudoku/**/)
         .add(View.imgMenu("filenew", _("New"))));
     }
     View.mkMainMenu();

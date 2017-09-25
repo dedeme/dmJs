@@ -17,11 +17,13 @@ Viewer = class {
     /** @const {!Domo} */
     this._canvas = $("canvas");
     let cv = this._canvas.e();
-    cv.width = this._model.canvasw();
-    cv.height = this._model.canvash();
-    cv.onclick = ev => {
+    cv.width/**/ = this._model.canvasw();
+    cv.height/**/ = this._model.canvash();
+    cv.onclick/**/ = ev => {
       let rect = cv.getBoundingClientRect();
-      this._control.setCoor(ev.clientX - rect.left, ev.clientY - rect.top);
+      this._control.setCoor(
+        ev.clientX/**/ - rect.left/**/, ev.clientY/**/ - rect.top/**/
+      );
     }
 
   }
@@ -51,7 +53,7 @@ Viewer = class {
 
     let plot = (partx, party) => {
       let idata = ctx.createImageData(w, h);
-      let data = idata.data;
+      let data = idata.data/**/;
       for (let y = 0; y < h; ++y) {
         let y2 = maxy - party * h - y;
         for (let x = 0; x < w; ++x) {

@@ -12,11 +12,11 @@ goog.require("TxCode");
     const headers = document.getElementsByTagName('h3');
     for (let i = 0; i < headers.length; ++i) {
       const span = document.createElement('span');
-      span.className = 'navtop';
+      span.className/**/ = 'navtop';
       const link = document.createElement("a");
       span.appendChild(link);
-      link.href = "#top";
-      link.className ="navtop";
+      link.href/**/ = "#top";
+      link.className/**/ ="navtop";
       const textNode = document.createTextNode('[Top]');
       link.appendChild(textNode);
       headers[i].appendChild(link);
@@ -52,7 +52,7 @@ ModuleV = class {
 
     const index = "<table border=0 width='100%'><tr>" +
       "<td valign='top' style='width:5px;white-space:nowrap'>" +
-      It.from(methods).sortf(TxMethod.sortf).reduce("", (s, m) =>
+      It.from(methods).sortf(TxMethod.sortf/**/).reduce("", (s, m) =>
         s += "<a href='#help:" + m.id() + "'>" + (
           m.id() === ""
             ? "()"
@@ -72,7 +72,7 @@ ModuleV = class {
       modPath + ".js" + "</a>" +
       "</p><hr>";
 
-    let body = It.from(methods).sortf(TxMethod.sortf).reduce("", (s, m) =>
+    let body = It.from(methods).sortf(TxMethod.sortf/**/).reduce("", (s, m) =>
       s += "<h3 id='help:" + m.id() + "'>" +
         "<a href='../Code/index.html?" + selected + "@" + modPath +
         "&help:" + m.id() + "'>" + (
@@ -107,10 +107,10 @@ ModuleV = class {
       (ix == -1 ? modPath : modPath.substring(ix + 1))
     );
 
-    if (navigator.vendor.indexOf("Google") != -1) {
-      const hash = location.hash;
-      location.hash = "";
-      location.hash = hash;
+    if (navigator.vendor/**/.indexOf("Google") != -1) {
+      const hash = location.hash/**/;
+      location.hash/**/ = "";
+      location.hash/**/ = hash;
     }
   }
 }}

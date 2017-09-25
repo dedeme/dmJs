@@ -91,7 +91,7 @@ AuthV = class {
                 .add($("span").html("&nbsp;" + _("Keep connected")))))
             .add($("tr")
               .add($("td")
-                .add(Ui.link(auth.changeLanguage).att("class", "link")
+                .add(Ui.link(auth.changeLanguage/**/).att("class", "link")
                   .html(Global.language() === "en" ? "ES" : "EN")))
               .add($("td").att("align", "right").add(accept)))))
     ];

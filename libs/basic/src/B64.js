@@ -35,7 +35,7 @@ github.dedeme.B64 = class {
    * @return {string}
    */
   static encodeBytes (bs) {
-    return btoa(String.fromCharCode.apply(null, bs));
+    return btoa(String.fromCharCode/**/.apply(null, bs));
   }
 
   /**

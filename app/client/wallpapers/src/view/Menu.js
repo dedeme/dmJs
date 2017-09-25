@@ -121,8 +121,8 @@ Menu = class {
         e.stopPropagation();
         e.preventDefault();
 
-        let dt = e.dataTransfer;
-        let files = dt.files;
+        let dt = e.dataTransfer/**/;
+        let files = dt.files/**/;
 
         control.load(files);
       }

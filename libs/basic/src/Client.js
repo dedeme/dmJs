@@ -132,14 +132,14 @@ github.dedeme.Client = class {
    */
   sendServer(rq, f) {
     let request = new XMLHttpRequest();
-    request.onreadystatechange = function (e) {
-      if (request.readyState === 4) {
-        f(request.responseText.trim())
+    request.onreadystatechange/**/ = function (e) {
+      if (request.readyState/**/ === 4) {
+        f(request.responseText/**/.trim())
       }
     };
     request.open(
       "POST",
-      "http://" + location.host + "/cgi-bin/gocgi.sh",
+      "http://" + location.host/**/ + "/cgi-bin/gocgi.sh",
       true
     );
     request.setRequestHeader(

@@ -1,0 +1,28 @@
+// Copyright 24-Sep-2017 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+goog.provide("view_Bye");
+
+view_Bye = class {
+  /**
+   * @return {void}
+   */
+  static show () {
+    Dom.showRoot(
+      $("div")
+        .add($("div").klass("title")
+          .html("&nbsp;<br>" + Main.app() + "<br>&nbsp;"))
+        .add($("div")
+          .add($("table")
+            .att("class", "border")
+            .att("width", "100%")
+            .att("style",
+              "background-color: #f8f8f8;" +
+              "border-collapse: collapse;")
+            .add($("tr")
+              .add($("td")
+                .att("style", "padding:0px 10px 0px 10px;")
+                .html(_args(_("Logout-message"), Main.app()))))))
+    );
+  }
+}

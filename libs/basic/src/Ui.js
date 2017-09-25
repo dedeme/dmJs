@@ -71,7 +71,7 @@ github.dedeme.Ui = class {
    * @return {!Object<string, string>}
    */
   static url () {
-    const search = window.location.search;
+    const search = window.location/**/.search/**/;
     if (search === "") return {};
 
     let r = {};
@@ -112,7 +112,7 @@ github.dedeme.Ui = class {
     } else throw "'#path' is not a .js or .css file";
 
     head.appendChild(element);
-    element.onload = () => {
+    element.onload/**/ = () => {
       action();
     };
   };
@@ -140,12 +140,12 @@ github.dedeme.Ui = class {
    */
   static upload (path, action) {
     let url = path.charAt(0) === "/"
-      ? "http://" + location.host + path
+      ? "http://" + location.host/**/ + path
       : path;
     let request = new XMLHttpRequest();
-    request.onreadystatechange = e => {
-      if (request.readyState === 4) {
-        action(request.responseText);
+    request.onreadystatechange/**/ = e => {
+      if (request.readyState/**/ === 4) {
+        action(request.responseText/**/);
       }
     };
     request.open("GET", url, true);
@@ -161,7 +161,7 @@ github.dedeme.Ui = class {
     let a = github.dedeme.Ui.$("a")
       .att("href", "data:text/plain;plain," + text)
       .att("download", fileName);
-    let body = document.body;
+    let body = document.body/**/;
     body.appendChild(a.e());
     a.e().click();
     body.removeChild(a.e());
@@ -185,7 +185,7 @@ github.dedeme.Ui = class {
       o.style(style + `;background-color: ${back} ;`);
       evt.stopPropagation();
       evt.preventDefault();
-      evt.dataTransfer.dropEffect = 'copy';
+      evt.dataTransfer/**/.dropEffect/**/ = 'copy';
     };
 
     o.e().addEventListener("dragover", handleDragOver, false);
@@ -200,7 +200,7 @@ github.dedeme.Ui = class {
       o.style(style);
       evt.stopPropagation();
       evt.preventDefault();
-      action(evt.dataTransfer.files);
+      action(evt.dataTransfer/**/.files/**/);
     };
 
     o.e().addEventListener("drop", handleDrop, false);
@@ -216,13 +216,13 @@ github.dedeme.Ui = class {
   static changePoint (input) {
     const el = input.e();
     return input.on("keydown", e => {
-      if (e.keyCode == 110) {
-        const start = el.selectionStart;
-        const end = el.selectionEnd;
-        const text = el.value;
-        el.value = text.substring(0, start) + "," + text.substring(end);
-        el.selectionStart = start + 1;
-        el.selectionEnd = start + 1;
+      if (e.keyCode/**/ == 110) {
+        const start = el.selectionStart/**/;
+        const end = el.selectionEnd/**/;
+        const text = el.value/**/;
+        el.value/**/ = text.substring(0, start) + "," + text.substring(end);
+        el.selectionStart/**/ = start + 1;
+        el.selectionEnd/**/ = start + 1;
         return false;
       }
       return true;
@@ -257,7 +257,7 @@ github.dedeme.Ui = class {
   static field (targetId) {
     return github.dedeme.Ui.$("input").att("type", "text")
       .on("keydown", e => {
-        if (e.keyCode === 13) {
+        if (e.keyCode/**/ === 13) {
           e.preventDefault();
           github.dedeme.Ui.$('#' + targetId).e().focus();
         }
@@ -272,7 +272,7 @@ github.dedeme.Ui = class {
   static pass (targetId) {
     return github.dedeme.Ui.$("input").att("type", "password")
       .on("keydown", e => {
-        if (e.keyCode === 13) {
+        if (e.keyCode/**/ === 13) {
           e.preventDefault();
           github.dedeme.Ui.$('#' + targetId).e().focus();
         }
@@ -321,8 +321,8 @@ github.dedeme.Ui = class {
   static beep () {
     let au = new AudioContext();
     let o = au.createOscillator();
-    o.frequency.value = 990;
-    o.connect(au.destination);
+    o.frequency/**/.value/**/ = 990;
+    o.connect(au.destination/**/);
     o.start(0);
     setTimeout(() => {o.stop(0);}, 80);
   }
@@ -334,9 +334,9 @@ github.dedeme.Ui = class {
    * @return {number}
    */
   static winX (evt){
-    return  document.documentElement.scrollLeft +
-      document.body.scrollLeft +
-      evt.clientX;
+    return  document.documentElement/**/.scrollLeft/**/ +
+      document.body/**/.scrollLeft/**/ +
+      evt.clientX/**/;
   }
 
   /**
@@ -345,9 +345,9 @@ github.dedeme.Ui = class {
    * @return {number}
    */
   static winY (evt) {
-    return document.documentElement.scrollTop +
-      document.body.scrollTop +
-      evt.clientY;
+    return document.documentElement/**/.scrollTop/**/ +
+      document.body/**/.scrollTop/**/ +
+      evt.clientY/**/;
   }
 
 }}

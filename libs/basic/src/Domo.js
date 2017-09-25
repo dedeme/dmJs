@@ -22,8 +22,8 @@ github.dedeme.Domo = class {
    * @return {?}
    */
   html (tx) {
-    if (tx === undefined) return this._e.innerHTML;
-    this._e.innerHTML = tx;
+    if (tx === undefined) return this._e.innerHTML/**/;
+    this._e.innerHTML/**/ = tx;
     return this;
   }
 
@@ -32,8 +32,8 @@ github.dedeme.Domo = class {
    * @return {?}
    */
   text (tx) {
-    if (tx === undefined) return this._e.textContent;
-    this._e.textContent = tx;
+    if (tx === undefined) return this._e.textContent/**/;
+    this._e.textContent/**/ = tx;
     return this;
   }
 
@@ -42,8 +42,8 @@ github.dedeme.Domo = class {
    * @return {?}
    */
   klass (tx) {
-    if (tx === undefined) return this._e.className;
-    this._e.className = tx;
+    if (tx === undefined) return this._e.className/**/;
+    this._e.className/**/ = tx;
     return this;
   }
 
@@ -82,8 +82,8 @@ github.dedeme.Domo = class {
    * @return {?}
    */
   disabled (value) {
-    if (value === undefined) return this._e.disabled;
-    this._e.disabled = value;
+    if (value === undefined) return this._e.disabled/**/;
+    this._e.disabled/**/ = value;
     return this;
   }
 
@@ -92,8 +92,8 @@ github.dedeme.Domo = class {
    * @return {?}
    */
   checked (value) {
-    if (value === undefined) return this._e.checked;
-    this._e.checked = value;
+    if (value === undefined) return this._e.checked/**/;
+    this._e.checked/**/ = value;
     return this;
   }
 
@@ -102,8 +102,8 @@ github.dedeme.Domo = class {
    * @return {?}
    */
   value (v) {
-    if (v === undefined) return this._e.value;
-    this._e.value = v;
+    if (v === undefined) return this._e.value/**/;
+    this._e.value/**/ = v;
     return this;
   }
 
@@ -144,7 +144,7 @@ github.dedeme.Domo = class {
    * @return {!github.dedeme.Domo}
    */
   removeAll () {
-    this._e.innerHTML = "";
+    this._e.innerHTML/**/ = "";
     return this;
   }
 
@@ -153,12 +153,12 @@ github.dedeme.Domo = class {
    * @return {github.dedeme.It<!github.dedeme.Domo>}
    */
   get nodes () {
-    let nextNode = this._e.firstChild;
+    let nextNode = this._e.firstChild/**/;
     return new github.dedeme.It(
       () => nextNode !== null,
       () => {
         const r = nextNode;
-        nextNode = nextNode.nextSibling;
+        nextNode = nextNode.nextSibling/**/;
         return new github.dedeme.Domo(r);
       }
     );
