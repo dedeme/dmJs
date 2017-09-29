@@ -50,18 +50,18 @@
  *                           field returned is expired with value true.
  *     Data.error string for debugging only.
  */
-goog.provide("github.dedeme.Client");
+goog.provide("github_dedeme.Client");
 
-goog.require("github.dedeme.Store");
-goog.require("github.dedeme.Cryp");
+goog.require("github_dedeme.Store");
+goog.require("github_dedeme.Cryp");
 
 {
   const Klen = 300;
-  const Store = github.dedeme.Store;
-  const Cryp = github.dedeme.Cryp;
-  const B64 = github.dedeme.B64;
+  const Store = github_dedeme.Store/**/;
+  const Cryp = github_dedeme.Cryp/**/;
+  const B64 = github_dedeme.B64/**/;
 
-github.dedeme.Client = class {
+github_dedeme.Client/**/ = class {
   /**
    * @param {string} appName Used to customize LocalStore
    * @param {function ():void} fexpired Function to launch expired page

@@ -2,10 +2,10 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /** Class for envelopping DOM objects */
-goog.provide("github.dedeme.Domo");
-goog.require("github.dedeme.It");
+goog.provide("github_dedeme.Domo");
+goog.require("github_dedeme.It");
 
-github.dedeme.Domo = class {
+github_dedeme.Domo/**/ = class {
   /** @param {*} e */
   constructor (e) {
     /** @private */
@@ -109,8 +109,8 @@ github.dedeme.Domo = class {
 
   /**
    * Appends a child element.
-   * @param {!github.dedeme.Domo} el
-   * @return {!github.dedeme.Domo}
+   * @param {!github_dedeme.Domo} el
+   * @return {!github_dedeme.Domo}
    */
   add (el) {
     this._e.appendChild(el._e);
@@ -119,8 +119,8 @@ github.dedeme.Domo = class {
 
   /**
    * Adds an iterator over elements.
-   * @param {github.dedeme.It<!github.dedeme.Domo>} els
-   * @return {!github.dedeme.Domo}
+   * @param {github_dedeme.It<!github_dedeme.Domo>} els
+   * @return {!github_dedeme.Domo}
    */
   addIt (els) {
     els.each(el => {
@@ -131,8 +131,8 @@ github.dedeme.Domo = class {
 
   /**
    * Removes a child element.
-   * @param {!github.dedeme.Domo} el
-   * @return {!github.dedeme.Domo}
+   * @param {!github_dedeme.Domo} el
+   * @return {!github_dedeme.Domo}
    */
   remove (el) {
     this._e.removeChild(el._e);
@@ -141,7 +141,7 @@ github.dedeme.Domo = class {
 
   /**
    * Removes every child element.
-   * @return {!github.dedeme.Domo}
+   * @return {!github_dedeme.Domo}
    */
   removeAll () {
     this._e.innerHTML/**/ = "";
@@ -150,23 +150,23 @@ github.dedeme.Domo = class {
 
   /**
    * Iterator over child elements.
-   * @return {github.dedeme.It<!github.dedeme.Domo>}
+   * @return {github_dedeme.It<!github_dedeme.Domo>}
    */
   get nodes () {
     let nextNode = this._e.firstChild/**/;
-    return new github.dedeme.It(
+    return new github_dedeme.It(
       () => nextNode !== null,
       () => {
         const r = nextNode;
         nextNode = nextNode.nextSibling/**/;
-        return new github.dedeme.Domo(r);
+        return new github_dedeme.Domo(r);
       }
     );
   }
 
   /**
    * @private
-   * @param {github.dedeme.It<!github.dedeme.Domo>} value
+   * @param {github_dedeme.It<!github_dedeme.Domo>} value
    */
   set nodes (value) {
     throw("nodes is read only");
@@ -178,7 +178,7 @@ github.dedeme.Domo = class {
    *        "mousedown", "mousemove", "mouseout", "mouseover", "mouseup",
    *        "mouseweel", "select", "selectstart" or "submit".
    * @param {function (*)} action
-   * @return {!github.dedeme.Domo}
+   * @return {!github_dedeme.Domo}
    */
   on (event, action) {
     this._e.addEventListener(event, action, false);

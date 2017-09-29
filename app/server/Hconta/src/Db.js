@@ -3,48 +3,22 @@
 
 goog.provide("Db");
 
-goog.require("db_Action");
-
-{
-  /** @const {!Array<!Array<string>>} */
-  const groups = [
-    ["1", "Financiación básica"],
-    ["2", "Inmovilizado"],
-    ["3", "Existencias"],
-    ["4", "Acreedores y deudores"],
-    ["5", "Cuentas financieras"],
-    ["6", "Compras y gastos"],
-    ["7", "Ventas e ingresos"],
-    ["8", "Gastos del patrimonio neto"],
-    ["9", "Ingresos del patrimonio neto"]
-  ];
-  /** @type {Array<!Array<string>>} */
-  let subgroups = null;
-  /** @type {Array<!Array<string>>} */
-  let accounts = null;
-  /** @type {Array<!Array<string>>} */
-  let subaccounts = null;
-  /** @type {Array<!db_Dentry>} */
-  let diary = null;
-  /** @type {Array<string>} */
-  let actions = null;
-  /** @type {number} */
-  let diaryId = 0;
-
-
 Db = class {
-
   /**
-   * Fields:
-   *   id: 1 digit
-   *   description
-   * @return {!Array<!Array<string>>}
+   * @param {!Array<!Array<string>>} subgroups
+   * @param {!Array<!Array<string>>} accounts
+   * @param {!Array<!Array<string>>} subaccounts
+   * @param {!Array<!db_Dentry>} diary
    */
-  static groups () {
-    if (groups === null) {
-      throw("groups is null");
-    }
-    return groups;
+  constructor (subgroups, accounts, subaccounts, diary) {
+    /** @private */
+    this._subgroups = subgroups;
+    /** @private */
+    this._accounts = accounts;
+    /** @private */
+    this._subaccounts = subaccounts;
+    /** @private */
+    this._diary = diary;
   }
 
   /**
@@ -53,62 +27,111 @@ Db = class {
    *   description
    * @return {!Array<!Array<string>>}
    */
-  static subgroups () {
-    if (subgroups === null) {
-      throw("subgroups is null");
-    }
-    return subgroups;
+  static groups () {
+    return [
+      ["1", "Financiación básica"],
+      ["2", "Inmovilizado"],
+      ["3", "Existencias"],
+      ["4", "Acreedores y deudores"],
+      ["5", "Cuentas financieras"],
+      ["6", "Compras y gastos"],
+      ["7", "Ventas e ingresos"],
+      ["8", "Gastos del patrimonio neto"],
+      ["9", "Ingresos del patrimonio neto"]
+    ];
   }
 
   /**
-   * @param {!Array<string>} row
+   * Fields:
+   *   id: 2 digits
+   *   description
+   * @return {!Array<!Array<string>>}
+   */
+  subgroups () {
+    return this._subgroups;
+  }
+
+  /**
+   * @param {string} id
+   * @param {string} description
    * @return {void}
    */
-  static subgroupsAdd (row) {
-    subgroups.push(row);
+  subgroupsAdd (id, description) {
+    this._subgroups.push([id, description]);
   }
 
   /**
    * @param {string} id
    * @return {void}
    */
-  static subgroupsDel (id) {
-    subgroups = It.from(Db.subgroups()).filter(e => e[0] !== id).to();
-    accounts = It.from(Db.accounts()).filter(e => !e[0].startsWith(id)).to();
-    subaccounts = It.from(Db.subaccounts())
-      .filter(e => !e[0].startsWith(id)).to();
+  subgroupsDel (id) {
+    this.accountsDel(id);
+    this._subgroups = It.from(this._subgroups).filter(e => e[0] !== id).to();
+  }
+
+  /**
+   * @param {string} modifyId
+   * @param {string} id
+   * @param {string} description
+   * @return {void}
+   */
+  subgroupsMod (modifyId, id, description) {
+    if (modifyId !== id) {
+      this.accountsMod(modifyId, id);
+    }
+    this._subgroups = It.from(this._subgroups)
+      .map(e => e[0] === modifyId ? [id, description] : e).to();
   }
 
   /**
    * Fields:
    *   id: 3 digits
-   *   summary: Place in Balance or PyG
    *   description
+   *   summary: Place in Balance or PyG
    * @return {!Array<!Array<string>>}
    */
-  static accounts () {
-    if (accounts === null) {
-      throw("accounts is null");
-    }
-    return accounts;
+  accounts () {
+    return this._accounts;
   }
 
   /**
-   * @param {!Array<string>} row
+   * @param {string} id
+   * @param {string} description
+   * @param {string} summary
    * @return {void}
    */
-  static accountsAdd (row) {
-    accounts.push(row);
+  accountsAdd (id, description, summary) {
+    this._accounts.push([id, description, summary]);
   }
 
   /**
    * @param {string} id
    * @return {void}
    */
-  static accountsDel (id) {
-    accounts = It.from(Db.accounts()).filter(e => e[0] !== id).to();
-    subaccounts = It.from(Db.subaccounts())
+  accountsDel (id) {
+    this.subaccountsDel(id);
+    this._accounts = It.from(this._accounts)
       .filter(e => !e[0].startsWith(id)).to();
+  }
+
+  /**
+   * @param {string} modifyId
+   * @param {string} id
+   * @param {string=} description
+   * @param {string=} summary
+   * @return {void}
+   */
+  accountsMod(modifyId, id, description, summary) {
+    if (modifyId !== id) {
+      this.subaccountsMod(modifyId, id);
+    }
+    this._accounts = It.from(this._accounts)
+      .map(e => e[0].startsWith(modifyId)
+        ? description === undefined
+          ? [id + e[0].substring(id.length), e[1], e[2]]
+          : [id + e[0].substring(id.length), description, summary]
+        : e
+      ).to();
   }
 
   /**
@@ -117,98 +140,116 @@ Db = class {
    *   description
    * @return {!Array<!Array<string>>}
    */
-  static subaccounts () {
-    if (subaccounts === null) {
-      throw("subaccounts is null");
-    }
-    return subaccounts;
+  subaccounts () {
+    return this._subaccounts;
   }
 
   /**
-   * @param {!Array<string>} row
+   * @param {string} id
+   * @param {string} description
    * @return {void}
    */
-  static subaccountsAdd (row) {
-    subaccounts.push(row);
+  subaccountsAdd (id, description) {
+    this._subaccounts.push([id, description]);
   }
 
   /**
    * @param {string} id
    * @return {void}
    */
-  static subaccountsDel (id) {
-    subaccounts = It.from(Db.subaccounts()).filter(e => e[0] !== id).to();
+  subaccountsDel (id) {
+    this._subaccounts = It.from(this._subaccounts)
+      .filter(e => !e[0].startsWith(id)).to();
   }
+
+  /**
+   * @param {string} modifyId
+   * @param {string} id
+   * @param {string=} description
+   * @return {void}
+   */
+  subaccountsMod (modifyId, id, description) {
+    this._subaccounts = It.from(this._subaccounts)
+      .map(e => e[0].startsWith(modifyId)
+        ? [
+            id + e[0].substring(id.length),
+            description === undefined ? e[1] : description
+          ]
+        : e
+      ).to();
+    if (modifyId !== id) {
+      this.planChangeAcc(modifyId, id);
+    }
+  }
+
 
   /** @return {!Array<!db_Dentry>} */
-  static diary () {
-    if (diary === null) {
-      throw("diary is null");
-    }
-    return diary;
-  }
-
-  /** @return {!Array<string>} */
-  static actions () {
-    if (actions === null) {
-      throw("actions is null");
-    }
-    return actions;
-  }
-
-  /** @return {number} */
-  static diaryId () {
-    return diaryId;
+  diary () {
+    return this._diary;
   }
 
   /**
-   * @param {number} value
-   * @return {void}
-   */
-  static setDiaryId (value) {
-    diaryId = value;
-  }
-
-  /**
-   * Incrementes diaryId and returns the result.
+   * Returns annotations number with entry plan 'entryPlan'
+   * @param {string} entryPlan
    * @return {number}
    */
-  static incDiaryId () {
-    ++diaryId;
-    return diaryId;
+  planAnnotations (entryPlan) {
+    return It.from(this._diary).reduce(0, (s, e) =>
+      It.from(e.debits()).containsf(d => d.e1().startsWith(entryPlan)) ||
+      It.from(e.credits()).containsf(c => c.e1().startsWith(entryPlan))
+        ? s + 1 : s
+    );
   }
 
   /**
-   * Serializes actions.
-   * @return {string}
-   */
-  static serialize () {
-    return actions.join("\n");
-  }
-
-  /**
-   * Restores actions
-   * @param {string} serial
+   * Changes an account/group id by other
+   * @param {string} id
+   * @param {string} newId
    * @return {void}
    */
-  static restore (serial) {
-    subgroups = [];
-    accounts = [];
-    subaccounts = [];
-    diary = [];
-    diaryId = 0;
-
-    if (serial !== "") {
-      actions = serial.split("\n");
-    } else {
-      actions = [
-        db_Action.mkAddSubgroup("57", "Tesorería"),
-        db_Action.mkAddAccount(
-          "572", "BABVI", "Bancos, cuentas de ahorro, euros"),
-        db_Action.mkAddSubaccount("57201", "Bankia")
-      ];
-    }
-    It.from(Db.actions()).each(a => { db_Action.process(a); });
+  planChangeAcc (id, newId) {
+    It.from(this._diary).each(e => {
+      It.from(e.debits()).each(d => {
+        if (d.e1().startsWith(id)) {
+          d.e1(newId + d.e1().substring(id.length));
+        }
+      });
+      It.from(e.credits()).each(c => {
+        if (c.e1().startsWith(id)) {
+          c.e1(newId + c.e1().substring(id.length));
+        }
+      });
+    });
   }
 
-}}
+  /** @return {string} */
+  serialize () {
+    return JSON.stringify([
+      this._subgroups,
+      this._accounts,
+      this._subaccounts,
+      this._diary
+    ]);
+  }
+
+  /**
+   * @param {string} serial
+   * @return {!Db}
+   */
+  static restore (serial) {
+    if (serial === "") {
+      const db = new Db([], [], [], []);
+      db.subgroupsAdd("57", "Tesorería");
+      db.accountsAdd("572", "Bancos, cuentas de ahorro, euros", "BABVI");
+      db.subaccountsAdd("57201", "Bankia");
+      return db;
+    }
+    const pars = /** @type {!Array<?>} */(JSON.parse(serial));
+    return new Db (
+      pars[0],
+      pars[1],
+      pars[2],
+      pars[3]
+    );
+  }
+}

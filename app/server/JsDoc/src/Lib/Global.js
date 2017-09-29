@@ -3,7 +3,7 @@
 
 goog.provide("Global");
 
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 
 {
   // Store keys

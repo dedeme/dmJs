@@ -2,12 +2,12 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Some mathematical functions, rounding and numeric formats
-goog.provide("github.dedeme.Dec")
+goog.provide("github_dedeme.Dec")
 
 {
 
   /**
-   * @type function(!github.dedeme.Dec, string, string):string
+   * @type function(!github_dedeme.Dec, string, string):string
    */
   const format = (d, thousand, decimal) => {
     const scale = d._scale;
@@ -30,7 +30,7 @@ goog.provide("github.dedeme.Dec")
     return ((d._sign == 1)? "" : "-") + left + right;
   }
 
-github.dedeme.Dec = class {
+github_dedeme.Dec/**/ = class {
   /**
    * @param {number=} value A float value.
    * @param {number=} scale Number of decimal positions.
@@ -79,7 +79,7 @@ github.dedeme.Dec = class {
 
   /**
    * Returns if [this] and [d] have the same value and scale
-   * @param {!github.dedeme.Dec} d
+   * @param {!github_dedeme.Dec} d
    * @return {boolean}
    */
   eq (d){
@@ -91,14 +91,14 @@ github.dedeme.Dec = class {
   /**
    * Returns if [this] and [d] have the same value. (Doesn't pay attention to
    * their scales)
-   * @param {!github.dedeme.Dec} d
+   * @param {!github_dedeme.Dec} d
    * @return {boolean}
    */
   eqValue (d) {
     return (this._scale > d._scale)
-      ? this.eq (new github.dedeme.Dec (d._value, this._scale))
+      ? this.eq (new github_dedeme.Dec (d._value, this._scale))
       : (this._scale < d._scale)
-        ? new github.dedeme.Dec (this._value, d._scale).eq(d)
+        ? new github_dedeme.Dec (this._value, d._scale).eq(d)
         : this._intValue * this._sign == d._intValue * d._sign;
 
   }
@@ -106,14 +106,14 @@ github.dedeme.Dec = class {
   /**
    * Returns 1, 0 or -1 depending on [this] was greater, equal or lesser than
    * [d]. (Doesn't take into account their scales)
-   * @param {!github.dedeme.Dec} d
+   * @param {!github_dedeme.Dec} d
    * @return {number}
    */
   compare (d) {
     return (this._scale > d._scale)
-    ? this.compare (new github.dedeme.Dec (d._value, this._scale))
+    ? this.compare (new github_dedeme.Dec (d._value, this._scale))
     : (this._scale < d._scale)
-      ? new github.dedeme.Dec (this._value, d._scale).compare(d)
+      ? new github_dedeme.Dec (this._value, d._scale).compare(d)
       : this._intValue * this._sign - d._intValue * d._sign
     ;
   }
@@ -168,7 +168,7 @@ github.dedeme.Dec = class {
    * @return {boolean}
    */
   static isNumberEn (s) {
-    return github.dedeme.Dec.isNumber(s.split(",").join(""));
+    return github_dedeme.Dec/**/.isNumber(s.split(",").join(""));
   }
 
   /**
@@ -177,7 +177,7 @@ github.dedeme.Dec = class {
    * @return {boolean}
    */
   static isNumberEu (s) {
-    return github.dedeme.Dec.isNumber(
+    return github_dedeme.Dec/**/.isNumber(
       s.split(".").join("").split(",").join(".")
     );
   }
@@ -189,7 +189,7 @@ github.dedeme.Dec = class {
    * @return {number | null}
    */
   static toFloat (s) {
-    return  github.dedeme.Dec.isNumber(s) ? parseFloat(s) : null;
+    return  github_dedeme.Dec/**/.isNumber(s) ? parseFloat(s) : null;
   }
 
   /**
@@ -200,7 +200,7 @@ github.dedeme.Dec = class {
    */
   static toFloatEn (s) {
     s = s.split(",").join("");
-    return  github.dedeme.Dec.isNumber(s) ? parseFloat(s) : null;
+    return  github_dedeme.Dec/**/.isNumber(s) ? parseFloat(s) : null;
   }
 
   /**
@@ -211,27 +211,27 @@ github.dedeme.Dec = class {
    */
   static toFloatEu (s) {
     s = s.split(".").join("").split(",").join(".");
-    return  github.dedeme.Dec.isNumber(s) ? parseFloat(s) : null;
+    return  github_dedeme.Dec/**/.isNumber(s) ? parseFloat(s) : null;
   };
 
   /**
    * [s] must be in English format.
    * @param {string} s
    * @param {number} scale
-   * @return {!github.dedeme.Dec}
+   * @return {!github_dedeme.Dec}
    */
   static newEn (s, scale) {
-    return new github.dedeme.Dec(parseFloat(s.split(",").join("")), scale);
+    return new github_dedeme.Dec(parseFloat(s.split(",").join("")), scale);
   }
 
   /**
    * [s] must be in European format.
    * @param {string} s
    * @param {number} scale
-   * @return {!github.dedeme.Dec}
+   * @return {!github_dedeme.Dec}
    */
   static newEu (s, scale) {
-    return new github.dedeme.Dec(parseFloat (
+    return new github_dedeme.Dec(parseFloat (
       s.split(".").join("").split(",").join(".")
     ), scale);
   }
@@ -240,32 +240,32 @@ github.dedeme.Dec = class {
    * [s] must be in base format.
    * @param {string} s
    * @param {number} scale
-   * @return {!github.dedeme.Dec}
+   * @return {!github_dedeme.Dec}
    */
   static newStr (s, scale) {
-    return new github.dedeme.Dec(parseFloat(s), scale);
+    return new github_dedeme.Dec(parseFloat(s), scale);
   }
 
   /**
    * Returns a random integer between [n1] included and [n2] included. [n1]
    * can be upper or lower than n2.<p>
    * Result has a scale equals to the Dec with it greater.
-   * @param {!github.dedeme.Dec} n1
-   * @param {!github.dedeme.Dec} n2
-   * @return {!github.dedeme.Dec}
+   * @param {!github_dedeme.Dec} n1
+   * @param {!github_dedeme.Dec} n2
+   * @return {!github_dedeme.Dec}
    */
   static rnd (n1, n2) {
     let sc = (n1._scale > n2._scale) ? n1._scale : n2._scale;
     let dif = n2._value - n1._value;
-    return new github.dedeme.Dec (n1._value + Math.random() * dif, sc)
+    return new github_dedeme.Dec (n1._value + Math.random() * dif, sc)
   }
 
   /**
    * @param {!Array<?>} serial
-   * @return {!github.dedeme.Dec}
+   * @return {!github_dedeme.Dec}
    */
   static restore (serial) {
-    return new github.dedeme.Dec(serial[0], serial[1]);
+    return new github_dedeme.Dec(serial[0], serial[1]);
   }
 
 }}

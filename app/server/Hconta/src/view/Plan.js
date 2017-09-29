@@ -8,10 +8,28 @@ goog.require("db_PyG");
 
 view_Plan = class {
   /**
+   * @param {!Main} control
+   */
+  constructor (control) {
+    /** @private */
+    this._control = control;
+    /**
+     * @private
+     * @type {string}
+     */
+    this._keyModify = "";
+  }
+
+  /**
    * @return {void}
    */
-  static show () {
-    const item = Conf.planId();
+  show () {
+    const self = this;
+    const control = self._control;
+    const db = control.db();
+    const conf = control.conf();
+
+    const item = conf.planId();
     const lg = item.length;
 
     let group = "";
@@ -23,19 +41,19 @@ view_Plan = class {
     if (lg > 0) {
       group = item.charAt(0);
       title = _("Subgroups");
-      data = It.from(Db.subgroups()).filter(s => s[0].charAt(0) === item).to();
+      data = It.from(db.subgroups()).filter(s => s[0].charAt(0) === item).to();
     }
     if (lg > 1) {
       subgroup = item.charAt(1);
       title = _("Accounts");
-      data = It.from(Db.accounts()).filter(a =>
+      data = It.from(db.accounts()).filter(a =>
         a[0].substring(0, 2) === item
       ).to();
     }
     if (lg > 2) {
       account = item.charAt(2);
       title = _("Subaccounts");
-      data = It.from(Db.subaccounts()).filter(s =>
+      data = It.from(db.subaccounts()).filter(s =>
         s[0].substring(0, 3) === item
       ).to();
     }
@@ -43,10 +61,8 @@ view_Plan = class {
 
     const isAccount = account === "" && subgroup !== "";
     const isSubaccount = account !== "";
-    const isEditable = lg !== 0 && Conf.isLastYear();
-    let keyModify = "";
-
-    const slotKey = $("div").style("min-width:40px;");
+    const isEditable = lg !== 0 && conf.isLastYear();
+    let keyModify = this._keyModify;
 
     const enterName = Ui.field("newBt");
 
@@ -54,20 +70,17 @@ view_Plan = class {
       .style("width:45px;color:#000000;text-align:center;")
       .disabled(true);
 
-    /**
-     * @param {string} acc
-     * @return {string}
-     */
-    function formatAcc (acc) {
+    /** @type {function(string):string} */
+    const formatAcc = acc => {
       const l = acc.length;
       return l == 5 ? acc.substring(3) : acc.substring(l - 1);
     }
 
-    function mkEmptyTd() {
+    const mkEmptyTd = () => {
       return $("td").style("width:0px;");
     }
 
-    function mkLeftHelp() {
+    const mkLeftHelp = () => {
       function mkBalance() {
         return It.from(db_Balance.groups()).map(gr => {
           const gkey = gr[0];
@@ -90,7 +103,7 @@ view_Plan = class {
         });
       }
 
-      function mkPyg() {
+      const mkPyg = () => {
         return It.from(db_PyG.groups()).map(gr => {
           const gkey = gr[0];
           const gname = gr[1];
@@ -122,17 +135,13 @@ view_Plan = class {
       ;
     }
 
-    function mkSubmenu() {
-      function entry(id, target) {
-        return Ui.link(ev => { Main.planGo(target); })
+    const mkSubmenu = () => {
+      const entry = (id, target) =>
+        Ui.link(ev => { control.planGo(target); })
           .klass("link").html(id);
-      }
-      function separator() {
-        return $("span").html("|");
-      }
-      function blank() {
-        return $("span").html(" ");
-      }
+      const separator = () => $("span").html("|");
+      const blank = () => $("span").html(" ");
+
       var r = $("p").add(separator())
         .add(entry(" * ", ""));
       if (group != "") {
@@ -154,7 +163,6 @@ view_Plan = class {
       ? e[0].substring(e[0].length - 2)
       : e[0].substring(e[0].length - 1)
     ).to();
-    const usedKeys = [];
     const left = isAccount ? mkLeftHelp() : mkEmptyTd();
 
     let cols = 2;
@@ -163,28 +171,25 @@ view_Plan = class {
 
     const selectKey = Ui.select("enterKey",
       (isSubaccount
-        ? It.range(0, 26).map(n => {
+        ? It.range(1, 26).map(n => {
             const r = "0" + n;
             return r.substring(r.length - 2);
           })
-        : It.range(0, 10).map(n => "" + n)
+        : It.range(1, 10).map(n => "" + n)
       ).filter(n =>
-        !It.from(createdKeys).contains(n)
+        (
+          !It.from(createdKeys).contains(n) &&
+          keyModify !== "57" &&
+          keyModify !== "572" &&
+          keyModify !== "57201"
+        ) ||
+        (keyModify !== "" && formatAcc(keyModify) === n)
+      ).map(n =>
+        (keyModify !== "" && formatAcc(keyModify) === n) ? "+" + n : n
       ).to()).on("change", ev => { enterName.e().focus(); });
 
-    if (keyModify !== "") {
-      slotKey.removeAll().add(Ui.link(ev => {
-        enterName.value("");
-        groupField.value("");
-        keyModify = "";
-        view_Plan.show();
-      }).add(Ui.img("cancel")));
-    } else {
-      slotKey.removeAll().add(selectKey);
-    }
-
-    var tds = [];
-    var rows = [];
+    let tds = [];
+    let rows = [];
 
     // Edition row
     if (isEditable) {
@@ -196,7 +201,7 @@ view_Plan = class {
         .add(Ui.img("enter")
           .att("style", "padding:0px;margin:0px;vertical-align:-20%"))
         .on("click", ev => {
-            const key = Conf.planId() + selectKey.value();
+            const key = conf.planId() + selectKey.value();
             let name = enterName.value();
             const group = groupField.value();
             if (name == "") {
@@ -211,12 +216,21 @@ view_Plan = class {
               ? name.substring(0, 32) + "..."
               : name;
             if (keyModify !== "") {
-//              control.planMod(keyModify, name, group);
+              const panns = db.planAnnotations(keyModify);
+              if (
+                panns != 0 &&
+                !confirm(_args(_("change of count %0"), panns))
+              ) {
+                this._keyModify = "";
+                self.show();
+                return;
+              }
+              control.planMod(keyModify, key, name, group);
             } else {
-              Main.planAdd(key, name, group);
+              control.planAdd(key, name, group);
             }
           })));
-      tds.push($("td").add(slotKey));
+      tds.push($("td").add(selectKey));
       tds.push($("td").add(enterName));
       if (isAccount) {
         tds.push($("td").add(groupField));
@@ -230,7 +244,14 @@ view_Plan = class {
     // Title row
     tds = [];
     if (isEditable) {
-      tds.push($("td").att("colspan", 2));
+      const td = $("td").att("colspan", 2);
+      if (keyModify !== "") {
+        td.add(Ui.link(ev => {
+          this._keyModify = "";
+          self.show();
+        }).add(Ui.img("cancel")))
+      }
+      tds.push(td);
     }
     tds.push($("td").html(_("Nº")));
     tds.push($("td").style("text-align:left;").html(_("Description")));
@@ -244,10 +265,9 @@ view_Plan = class {
 
     // Data row
     It.from(data).each(r => {
-      function mkLink(text) {
-        return Ui.link(ev => { Main.planGo(r[0]); })
+      const mkLink = text =>
+        Ui.link(ev => { control.planGo(r[0]); })
           .klass("link").html(text);
-      }
 
       tds = [];
       if (isEditable) {
@@ -257,40 +277,47 @@ view_Plan = class {
             if (isAccount) {
               groupField.value(r[2]);
             }
-            keyModify = r[0];
-            view_Plan.show();
+            this._keyModify = r[0];
+            self.show();
           }).add(Ui.img("edit"))));
-        if (It.from(usedKeys).contains(r[0])) {
-          tds.push($("td")
-            .add(Ui.lightImg("delete")));
-        } else {
-          tds.push($("td")
-            .add(Ui.link(ev => {
-              if (!confirm(
-                _args(_("Delete '%0'?"), r[0] + " - " + r[1])
-              )) {
-                return;
-              }
-              Main.planDel(r[0]);
-            }).add(Ui.img("delete"))));
-        }
+        tds.push($("td")
+          .add(Ui.link(ev => {
+            if (r[0] === "57" || r[0] === "572" || r[0] === "57201") {
+              alert(_args(_("Group/account %0 can not be deleted"), r[0]));
+              return;
+            }
+            if (!confirm(
+              _args(_("Delete '%0'?"), r[0] + " - " + r[1])
+            )) {
+              return;
+            }
+            const panns = db.planAnnotations(r[0]);
+            if (panns > 0) {
+              alert(_args(
+                _("%0 can not be deleted because %1"), r[0], panns));
+              return
+            }
+            control.planDel(r[0]);
+          }).add(Ui.img("delete"))));
       }
       tds.push($("td").style("text-align:right;")
         .html(formatAcc(r[0])));
       if (isSubaccount) {
         tds.push($("td").style("text-align:left;").html(r[1]));
       } else {
-        tds.push($("td").style("text-align:left;").add(mkLink(
-          isAccount ? r[2] : r[1]
-        )));
+        tds.push($("td").style("text-align:left;").add(mkLink(r[1])));
+      }
+      if (keyModify !== "" && r[0] === keyModify) {
+        enterName.value(r[1]);
       }
       if (isAccount) {
-        const isPyG = r[1].charAt(0) === "P";
+        const isPyG = r[2].charAt(0) === "P";
         const idDescription = isPyG
           ? It.from(db_PyG.entries()).findFirst(
-            e => e[0] === r[1].substring(1))
+            e => e[0] === r[2].substring(1))
           : It.from(db_Balance.entries()).findFirst(
-            e => e[0] === r[1].substring(1))
+            e => e[0] === r[2].substring(1))
+
         const id = idDescription[0];
         const description = idDescription[1];
         const group = isPyG
@@ -303,7 +330,11 @@ view_Plan = class {
           .add(Ui.link(ev => {
               alert(group + "\n" + description);
             }).att("title", description)
-            .text(r[1])));
+            .text(r[2])));
+
+        if (keyModify !== "" && r[0] === keyModify) {
+          groupField.value(r[2]);
+        }
       }
       rows.push($("tr").addIt(It.from(tds)));
     });
@@ -317,7 +348,7 @@ view_Plan = class {
     const table = $("table").klass("main").add($("tr")
       .add(left)
       .add(right));
-    Dom.show("plan", table);
+    control.dom().show("plan", table);
     enterName.e().focus();
   }
 }

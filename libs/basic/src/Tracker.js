@@ -2,11 +2,11 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /** Image loader */
-goog.provide("github.dedeme.Tracker");
+goog.provide("github_dedeme.Tracker");
 
-goog.require("github.dedeme.It");
+goog.require("github_dedeme.It");
 
-github.dedeme.Tracker = class {
+github_dedeme.Tracker/**/ = class {
   /**
    * Load images in background. It create a dictionary
    * {id:String, img:DomObject} where 'id' is the name of the image without
@@ -29,7 +29,7 @@ github.dedeme.Tracker = class {
      * @type {!Object<string, !Domo>}
      */
     this._imgs = {};
-    github.dedeme.It.from(imgs).each(id => {
+    github_dedeme.It/**/.from(imgs).each(id => {
       let ix = id.indexOf(".");
       return (ix == -1)
         ? this._imgs[id] = new Domo(new Image()).att("src", dir + id + ".png")

@@ -2,15 +2,15 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// (Extends Tp) Tuple of three elements
-goog.provide("github.dedeme.Tp3")
+goog.provide("github_dedeme.Tp3")
 
-goog.require("github.dedeme.Tp")
+goog.require("github_dedeme.Tp")
 
 /**
- * @extends {github.dedeme.Tp}
+ * @extends {github_dedeme.Tp}
  * @template A, B, C
  */
-github.dedeme.Tp3 = class extends github.dedeme.Tp {
+github_dedeme.Tp3/**/ = class extends github_dedeme.Tp/**/ {
   /**
    * @param {A} e1
    * @param {B} e2

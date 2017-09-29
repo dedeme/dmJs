@@ -3,13 +3,20 @@
 
 goog.provide("Dom");
 
-{
 Dom = class {
+  /**
+   * @param {!Main} control
+   */
+  constructor (control) {
+    /** @private */
+    this._control = control;
+  }
+
   /**
    * @param {!Domo} o
    * @return {void}
    */
-  static showRoot (o) {
+  showRoot (o) {
     $$("body").next().removeAll().add(
       $("div")
         .add(o)
@@ -35,9 +42,11 @@ Dom = class {
    * @param {!Domo} o
    * @return {void}
    */
-  static show (page, o) {
+  show (page, o) {
+    const control = this._control;
+
     function entry(id, target) {
-      return Ui.link(ev => { Main.go(target) })
+      return Ui.link(ev => { control.go(target) })
         .klass(target == page ? "frame" : "link").html(id);
     }
     function separator() {
@@ -54,11 +63,11 @@ Dom = class {
       .add($("td").style("text-align:right")
         .add(entry(_("Settings"), "settings"))
         .add(separator())
-        .add(Ui.link(ev => { Main.bye(); })
+        .add(Ui.link(ev => { control.bye(); })
           .add(Ui.img("cross").style("vertical-align:bottom")))))
     ;
 
-    Dom.showRoot(
+    this.showRoot(
       $("div")
         .add(menu)
         .add($("hr"))
@@ -97,4 +106,4 @@ Dom = class {
     return tx;
   }
 
-}}
+}

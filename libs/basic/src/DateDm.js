@@ -2,7 +2,7 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /** Date management */
-goog.provide("github.dedeme.DateDm");
+goog.provide("github_dedeme.DateDm");
 
 {
   let months = ["enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -13,7 +13,7 @@ goog.provide("github.dedeme.DateDm");
 
   let week1 = "DLMXJVS";
 
-github.dedeme.DateDm = class {
+github_dedeme.DateDm/**/ = class {
   /**
    * @param {number} day
    * @param {number} month Jan is 1, Dec is 12.
@@ -54,7 +54,7 @@ github.dedeme.DateDm = class {
   }
 
   /**
-   * @param {!github.dedeme.DateDm} d
+   * @param {!github_dedeme.DateDm} d
    * @return {boolean}
    */
   eq (d) {
@@ -64,7 +64,7 @@ github.dedeme.DateDm = class {
   }
 
   /**
-   * @param {!github.dedeme.DateDm} d
+   * @param {!github_dedeme.DateDm} d
    * @return {number}
    */
   compare (d) {
@@ -78,15 +78,15 @@ github.dedeme.DateDm = class {
   /**
    * Returns a new DataDm equals to [this] + [days]
    * @param {number} days
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   add (days) {
-    return github.dedeme.DateDm.fromTime(this.toTime() + days * 86400000);
+    return github_dedeme.DateDm/**/.fromTime(this.toTime() + days * 86400000);
   }
 
   /**
    * Returns [this] - [d] in days.
-   * @param {!github.dedeme.DateDm} d
+   * @param {!github_dedeme.DateDm} d
    * @return {number}
    */
   df (d) {
@@ -119,10 +119,10 @@ github.dedeme.DateDm = class {
 
     const d = "" + this.day();
     const dw = this.date().getDay();
-    const w = github.dedeme.DateDm.week()[dw];
+    const w = github_dedeme.DateDm/**/.week()[dw];
     const mn = this.date().getMonth();
     const m = "" + (mn + 1);
-    const ms = github.dedeme.DateDm.months()[mn];
+    const ms = github_dedeme.DateDm/**/.months()[mn];
     const y = "0000" + this.year();
 
     r("%d", d);
@@ -133,7 +133,7 @@ github.dedeme.DateDm = class {
     r("%Y", y.substring(y.length -4));
     r("%b", ms.substring(0, 3));
     r("%B", ms);
-    r("%1", github.dedeme.DateDm.week1().charAt(dw));
+    r("%1", github_dedeme.DateDm/**/.week1().charAt(dw));
     r("%a", w.substring(0, 3));
     r("%A", w);
     r("%%", "%");
@@ -217,20 +217,20 @@ github.dedeme.DateDm = class {
 
   /**
    * @param {!Date} d
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   static fromDate (d) {
-    return new github.dedeme.DateDm(
+    return new github_dedeme.DateDm(
       d.getDate(), d.getMonth() + 1, d.getFullYear());
   }
 
   /**
    * [s] is in format yyyymmdd (mm in range 01-12)
    * @param {string} s
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   static fromStr (s) {
-    return new github.dedeme.DateDm(
+    return new github_dedeme.DateDm(
       +s.substring(6), +s.substring(4, 6), +s.substring(0, 4));
   }
 
@@ -238,7 +238,7 @@ github.dedeme.DateDm = class {
    * [s] is in format dd-mm-yyyy or dd-mm-yy or dd/mm/yyyy or dd/mm/yy
    * (mm in range 01-12)
    * @param {string} s
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   static fromEu (s) {
     let ps = s.split("/");
@@ -246,7 +246,7 @@ github.dedeme.DateDm = class {
       ps = s.split("-");
     }
     const y = +ps[2];
-    return new github.dedeme.DateDm(
+    return new github_dedeme.DateDm(
       +ps[0], +ps[1], ps[2].length === 2 ? 2000 + y : y);
   }
 
@@ -254,7 +254,7 @@ github.dedeme.DateDm = class {
    * [s] is in format mm-dd-yyyy or mm-dd-yy or mm/dd/yyyy or mm/dd/yy
    * (mm in range 01-12)
    * @param {string} s
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   static fromEn (s) {
     let ps = s.split("/");
@@ -262,32 +262,32 @@ github.dedeme.DateDm = class {
       ps = s.split("-");
     }
     const y = +ps[2];
-    return new github.dedeme.DateDm(
+    return new github_dedeme.DateDm(
       +ps[1], +ps[0], ps[2].length === 2 ? 2000 + y : y);
   }
 
   /**
    * @param {number} time
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   static fromTime (time) {
-    return github.dedeme.DateDm.fromDate(new Date(time));
+    return github_dedeme.DateDm/**/.fromDate(new Date(time));
   }
 
   /**
    * Returns the date-hour actual.
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   static now () {
-    return github.dedeme.DateDm.fromTime(Date.now());
+    return github_dedeme.DateDm/**/.fromTime(Date.now());
   }
 
   /**
    * @param {!Array<?>} serial
-   * @return {!github.dedeme.DateDm}
+   * @return {!github_dedeme.DateDm}
    */
   static restore (serial) {
-    return new github.dedeme.DateDm(serial[0], serial[1], serial[2]);
+    return new github_dedeme.DateDm(serial[0], serial[1], serial[2]);
   }
 
   /**

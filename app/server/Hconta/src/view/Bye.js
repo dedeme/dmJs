@@ -5,10 +5,18 @@ goog.provide("view_Bye");
 
 view_Bye = class {
   /**
+   * @param {!Main} control
+   */
+  constructor ( control ) {
+    /** @private */
+    this._control = control;
+  }
+
+  /**
    * @return {void}
    */
-  static show () {
-    Dom.showRoot(
+  show () {
+    this._control.dom().showRoot(
       $("div")
         .add($("div").klass("title")
           .html("&nbsp;<br>" + Main.app() + "<br>&nbsp;"))

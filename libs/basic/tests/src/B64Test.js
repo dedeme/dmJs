@@ -2,7 +2,7 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("B64Test");
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 
 B64Test = class {
   static run() {

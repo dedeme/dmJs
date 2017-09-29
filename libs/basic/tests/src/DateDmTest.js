@@ -2,7 +2,7 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("DateDmTest");
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 
 DateDmTest = class {
   static run() {

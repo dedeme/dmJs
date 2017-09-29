@@ -2,7 +2,7 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("View");
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 
 goog.require("Dom");
 goog.require("Big");

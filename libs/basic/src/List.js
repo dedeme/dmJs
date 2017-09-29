@@ -3,10 +3,10 @@
 
 /// Inmutable container
 
-goog.provide("github.dedeme.List");
+goog.provide("github_dedeme.List");
 
 /** @template T */
-github.dedeme.List = class {
+github_dedeme.List/**/ = class {
   constructor () {
     /** @private */
     this._head = undefined;
@@ -28,7 +28,7 @@ github.dedeme.List = class {
    * Returns all elements of this but the first one or 'null' if 'this' is
    * empty.
    * @template T
-   * @return {?github.dedeme.List<T>}
+   * @return {?github_dedeme.List<T>}
    */
   tail () {
     return this._tail;
@@ -37,18 +37,18 @@ github.dedeme.List = class {
   /**
    * Returns a new List with 'e' adds at the head of 'this'
    * @param {T} e
-   * @return {!github.dedeme.List<T>}
+   * @return {!github_dedeme.List<T>}
    */
   cons (e) {
-    let r = new github.dedeme.List;
+    let r = new github_dedeme.List/**/;
     r._head = e;
     r._tail = this;
     return r;
   }
 
-  /** @return {!github.dedeme.List<T>} */
+  /** @return {!github_dedeme.List<T>} */
   reverse () {
-    let r = new github.dedeme.List;
+    let r = new github_dedeme.List/**/;
     let l = this;
     while (l._tail !== null) {
       r = r.cons(l._head);

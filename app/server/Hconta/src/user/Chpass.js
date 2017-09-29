@@ -3,12 +3,22 @@
 
 goog.provide("user_Chpass");
 
-{
+user_Chpass = class {
   /**
-   * @param {string} captchaStore
+   * @param {!Main} control
+   */
+  constructor (control) {
+    /** @private */
+    this._control = control;
+  }
+
+  /**
    * @return {void}
    */
-  function show (captchaStore) {
+  show () {
+    const control = this._control;
+    const captchaStore = Main.captchaChpassStore();
+
     const pass = Ui.pass("newPass");
     const newPass = Ui.pass("newPass2").att("id", "newPass");
     const newPass2 = Ui.pass("accept").att("id", "newPass2");
@@ -22,7 +32,7 @@ goog.provide("user_Chpass");
       .style("width:90px;")
       .value(_("Cancel"));
 
-    const captcha = new github.dedeme.Captcha(captchaStore, 3);
+    const captcha = new github_dedeme.Captcha(captchaStore, 3);
 
     function body () {
       const counter = captcha.counter();
@@ -63,7 +73,7 @@ goog.provide("user_Chpass");
           return;
         }
 
-        Main.changePass(passv, newPassv, ok => {
+        control.changePass(passv, newPassv, ok => {
           if (ok) {
             captcha.resetCounter();
           } else {
@@ -72,7 +82,7 @@ goog.provide("user_Chpass");
         });
       });
 
-      cancel.on("click", e => { Main.run() });
+      cancel.on("click", e => { control.run() });
 
       let rows = [
         $("tr")
@@ -159,7 +169,7 @@ goog.provide("user_Chpass");
 
     }
 
-    Dom.showRoot(
+    control.dom().showRoot(
       $("div")
         .add($("div").klass("title").html(
           "&nbsp;<br>" + Main.app() + "<br>&nbsp;"))
@@ -167,15 +177,6 @@ goog.provide("user_Chpass");
     );
     pass.e().focus();
   }
-
-user_Chpass = class {
-  /**
-   * @param {string} captchaStore
-   * @return {void}
-   */
-  static show (captchaStore) {
-    show (captchaStore);
-  }
-}}
+}
 
 

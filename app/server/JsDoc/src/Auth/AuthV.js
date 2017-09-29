@@ -5,7 +5,7 @@ goog.provide("AuthV");
 
 goog.require("Global");
 goog.require("Dom0");
-goog.require("github.dedeme.Captcha");
+goog.require("github_dedeme.Captcha");
 
 {
   const user = Ui.field("pass");
@@ -19,7 +19,7 @@ goog.require("github.dedeme.Captcha");
     .att("id", "accept")
     .value(_("Accept"));
 
-  const captcha = new github.dedeme.Captcha("JsDoc_auth", 3);
+  const captcha = new github_dedeme.Captcha("JsDoc_auth", 3);
 
 AuthV = class {
   /** @param {!Auth} auth */
@@ -32,12 +32,12 @@ AuthV = class {
 
     /**
      * @private
-     * @const {!github.dedeme.Captcha}
+     * @const {!github_dedeme.Captcha}
      */
     this._captcha = captcha;
   }
 
-  /** @return {!github.dedeme.Captcha} */
+  /** @return {!github_dedeme.Captcha} */
   captcha () {
     return this._captcha
   }

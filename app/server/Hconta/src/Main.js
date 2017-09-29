@@ -3,7 +3,7 @@
 
 goog.provide("Main");
 
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 goog.require("I18n");
 goog.require("Dom");
 goog.require("user_Expired");
@@ -11,87 +11,108 @@ goog.require("user_Auth");
 goog.require("user_Chpass");
 goog.require("Conf");
 goog.require("Db");
-goog.require("view_Settings");
 goog.require("view_Bye");
+goog.require("view_Diary");
 goog.require("view_Plan");
-
-{
-  /** @const {string} */
-  const app = "Hconta";
-  /** @const {string} */
-  const version = "201709";
-  /** @const {string} */
-  const langStore = app + "__lang";
-  /** @const {string} */
-  const captchaAuthStore = app + "__captcha";
-  /** @const {string} */
-  const captchaChpassStore = app + "__captchaCh";
-
-  /** @type {Client} */
-  let client = null;
+goog.require("view_Settings");
 
 Main = class {
+  constructor () {
+    /**
+     * @private
+     * @type {Db}
+     */
+    this._db = null;
+    /**
+     * @private
+     * @type {Conf}
+     */
+    this._conf = null;
+    /** @private */
+    this._client = new Client(
+      Main.app(),
+      () => { new user_Expired(this).show(); }
+    );
+    /** @private */
+    this._dom = new Dom(this);
+  }
+
   /** @return {string} */
   static app () {
-    return app;
+    return "Hconta";
   }
 
   /** @return {string} */
   static version () {
-    return version;
+    return "201709";
   }
 
   /** @return {string} */
   static langStore () {
-    return langStore;
+    return Main.app() + "__lang";
   }
 
   /** @return {string} */
   static captchaAuthStore () {
-    return captchaAuthStore;
+    return Main.app() + "__captcha";
   }
 
   /** @return {string} */
   static captchaChpassStore () {
-    return captchaChpassStore;
+    return Main.app() + "__captchaCh";
   }
 
-  /** @return {!Client} */
-  static client () {
-    if (client === null) {
-      throw("Client is null");
+  /** @return {!Db} */
+  db () {
+    if (this._db === null) {
+      throw ("db is null");
     }
-    return client;
+    return this._db;
   }
 
-  static run () {
-    client = new Client(
-      app,
-      user_Expired.show/**/
-    );
+  /** @return {!Conf} */
+  conf () {
+    if (this._conf === null) {
+      throw ("conf is null");
+    }
+    return this._conf;
+  }
+
+  /** @return {!Dom} */
+  dom () {
+    return this._dom;
+  }
+
+  run () {
+    const self = this;
+    const client = self._client;
     client.connect(ok => {
       if (ok) {
         let data = {"rq": "getConf"};
         client.send(data, rp => {
-          Conf.restore(rp["conf"]);
-          Conf.language() === "es" ? I18n.es() : I18n.en();
-          let data = {"rq": "getActions", "year": "" + Conf.year()};
+          self._conf = Conf.restore(rp["conf"]);
+          const conf = self._conf;
+          conf.language() === "es" ? I18n.es() : I18n.en();
+          let data = {"rq": "getDb", "year": "" + conf.year()};
           client.send(data, rp => {
-            Db.restore(rp["actions"]);
-            switch(Conf.page()) {
-            case "settings":
-              view_Settings.show();
+            self._db = Db.restore(rp["actions"]);
+            switch(conf.page()) {
+            case "diary":
+              new view_Diary(self).show();
               break;
             case "plan":
-              view_Plan.show();
+              new view_Plan(self).show();
+              break;
+            case "settings":
+              new view_Settings(self).show();
               break;
             default:
-              throw("Page '" + Conf.page() + "' is unknown");
+              throw("Page '" + conf.page() + "' is unknown");
             }
           })
         });
       } else {
-        user_Auth.show(captchaAuthStore);
+        new user_Auth(self, self._client).show();
       }
     });
   }
@@ -102,9 +123,9 @@ Main = class {
    * @param {function():void} f
    * @return {void}
    */
-  static sendConf (f) {
-    const data = {"rq": "setConf", "conf": Conf.serialize()};
-    Main.client().send(data, rp => { f(); });
+  sendConf (f) {
+    const data = {"rq": "setConf", "conf": this.conf().serialize()};
+    this._client.send(data, rp => { f(); });
   }
 
   /**
@@ -112,31 +133,33 @@ Main = class {
    * @param {function():void} f
    * @return {void}
    */
-  static sendActions (f) {
+  sendDb (f) {
     const data = {
-      "rq": "setActions",
-      "year": "" + Conf.year(),
-      "actions": Db.serialize()
+      "rq": "setDb",
+      "year": "" + this.conf().year(),
+      "db": this.db().serialize()
     };
-    Main.client().send(data, rp => { f(); });
+    this._client.send(data, rp => { f(); });
   }
 
   // menu ------------------------------
   /**
    * @return {void}
    */
-  static bye () {
+  bye () {
+    const self = this;
     const data = {"rq": "logout"};
-    Main.client().send(data, rp => { view_Bye.show(); });
+    self._client.send(data, rp => { new view_Bye(self).show(); });
   }
 
   /**
    * @param {string} page
    * @return {void}
    */
-  static go (page) {
-    Conf.setPage(page);
-    Main.sendConf(Main.run/**/);
+  go (page) {
+    const self = this;
+    self.conf().setPage(page);
+    self.sendConf(() => { self.run(); });
   }
 
   // plan ------------------------------
@@ -145,9 +168,10 @@ Main = class {
    * @param {string} id
    * @return {void}
    */
-  static planGo (id) {
-    Conf.setPlanId(id);
-    Main.sendConf(Main.run/**/);
+  planGo (id) {
+    const self = this;
+    self.conf().setPlanId(id);
+    self.sendConf(() => { self.run(); });
   }
 
   /**
@@ -157,24 +181,60 @@ Main = class {
    * @param {string=} summary
    * @return {void}
    */
-  static planAdd (id, description, summary) {
+  planAdd (id, description, summary) {
+    const self = this;
+    const db = self.db();
     const lg = id.length;
-    let action = db_Action.mkAddSubaccount(id, description);
     switch (lg) {
-      case 2 :
-        action = db_Action.mkAddSubgroup(id, description);
+      case 2:
+        db.subgroupsAdd(id, description);
         break;
-      case 3 :
+      case 3:
         if (summary === undefined) {
           throw("summary is undefined");
         }
-        action = db_Action.mkAddAccount(id, summary, description);
+        db.accountsAdd(id, description, summary);
         break;
+      default:
+         db.subaccountsAdd(id, description);
     }
-    Db.actions().push(action);
-    Main.sendActions(() => {
-      db_Action.process(action);
-      view_Plan.show();
+
+    self.sendDb(() => {
+      new view_Plan(self).show();
+    });
+  }
+
+  /**
+   * Adds an entry to plan
+   * @param {string} modifyId
+   * @param {string} id
+   * @param {string} description
+   * @param {string=} summary
+   * @return {void}
+   */
+  planMod (modifyId, id, description, summary) {
+    const self = this;
+    const db = self.db();
+    const lg = id.length;
+
+    db.planChangeAcc(modifyId, id);
+
+    switch (lg) {
+      case 2:
+        db.subgroupsMod(modifyId, id, description);
+        break;
+      case 3:
+        if (summary === undefined) {
+          throw("summary is undefined");
+        }
+        db.accountsMod(modifyId, id, description, summary);
+        break;
+      default:
+         db.subaccountsMod(modifyId, id, description);
+    }
+
+    self.sendDb(() => {
+      new view_Plan(self).show();
     });
   }
 
@@ -183,21 +243,23 @@ Main = class {
    * @param {string} id
    * @return {void}
    */
-  static planDel (id) {
+  planDel (id) {
+    const self = this;
+    const db = self.db();
     const lg = id.length;
-    let action = db_Action.mkDelSubaccount(id)
     switch (lg) {
-      case 2 :
-        action = db_Action.mkDelSubgroup(id);
+      case 2:
+        db.subgroupsDel(id);
         break;
-      case 3 :
-        action = db_Action.mkDelAccount(id);
+      case 3:
+        db.accountsDel(id);
         break;
+      default:
+         db.subaccountsDel(id);
     }
-    Db.actions().push(action);
-    Main.sendActions(() => {
-      db_Action.process(action);
-      view_Plan.show();
+
+    self.sendDb(() => {
+      new view_Plan(self).show();
     });
   }
 
@@ -205,16 +267,17 @@ Main = class {
   /**
    * @return {void}
    */
-  static changeLang () {
-    Conf.setLanguage(Conf.language() === "es" ? "en" : "es");
-    Main.sendConf(Main.run/**/);
+  changeLang () {
+    const self = this;
+    self.conf().setLanguage(self.conf().language() === "es" ? "en" : "es");
+    self.sendConf(() => { self.run(); });
   }
 
   /**
    * @return {void}
    */
-  static changePassPage () {
-    user_Chpass.show(captchaChpassStore);
+  changePassPage () {
+    new user_Chpass(this).show();
   }
 
   /**
@@ -223,25 +286,26 @@ Main = class {
    * @param {function(boolean):void} f Function to manage captcha counter.
    * @return {void}
    */
-  static changePass (pass, newPass, f) {
+  changePass (pass, newPass, f) {
+    const self = this;
     const data = {
       "rq": "chpass",
       "user": "admin",
       "pass": Client.crypPass(pass),
       "newPass": Client.crypPass(newPass)
     };
-    Main.client().send(data, rp => {
+    self._client.send(data, rp => {
       const ok = rp["ok"];
       f(ok);
       if (ok) {
         alert(_("Password successfully changed"));
-        Main.run();
+        self.run();
       } else {
-        Main.changePassPage();
+        self.changePassPage();
       }
     });
   }
 
-}}
-Main.run();
+}
+new Main().run();
 

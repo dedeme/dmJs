@@ -3,7 +3,7 @@
 
 goog.provide("Main");
 
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 goog.require("Data");
 goog.require("I18n");
 goog.require("View");

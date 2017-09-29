@@ -3,7 +3,7 @@
 
 goog.provide("Model");
 
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 
 {
   const StorePrefix = "dm_wallpapers_";

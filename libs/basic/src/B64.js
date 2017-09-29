@@ -2,9 +2,9 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /** B64 encode y decode */
-goog.provide("github.dedeme.B64")
+goog.provide("github_dedeme.B64")
 
-github.dedeme.B64 = class {
+github_dedeme.B64/**/ = class {
 
   /**
    * Encodes a string in B64

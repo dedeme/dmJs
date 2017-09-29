@@ -3,135 +3,114 @@
 
 goog.provide("Conf");
 
-{
-  /** @type {string} */
-  let language = "";
-  /** @type {!Array<number>} */
-  let years = [];
-  /** @type {number} */
-  let year = 0;
-  /** @type {string} */
-  let page = "";
-  /** @type {number} */
-  let diaryId = 0;
-  /** @type {string} */
-  let planId = "";
-
-
 Conf = class {
-
-  /** @return {string} */
-  static language () {
-    return language;
+  /**
+   * @param {string} language
+   * @param {!Array<number>} years
+   * @param {number} year
+   * @param {string} page
+   * @param {string} planId
+   */
+  constructor (language, years, year, page, planId) {
+    /** @private */
+    this._language = language;
+    /** @private */
+    this._years = years;
+    /** @private */
+    this._year = year;
+    /** @private */
+    this._page = page;
+    /** @private */
+    this._planId = planId;
   }
 
-  /**
-   * @param {string} value
-   * @return {void}
-   */
-  static setLanguage (value) {
-    language = value;
+  /** @return {string} */
+  language () {
+    return this._language;
+  }
+
+  /** @param {string} value */
+  setLanguage (value) {
+    this._language = value;
   }
 
   /** @return {!Array<number>} */
-  static years () {
-    return years;
+  years () {
+    return this._years;
+  }
+
+  /** @param {!Array<number>} value */
+  setYears (value) {
+    this._years = value;
   }
 
   /** @return {number} */
-  static year () {
-    return year;
+  year () {
+    return this._year;
   }
 
-  /**
-   * @param {number} value
-   * @return {void}
-   */
-  static setYear (value) {
-    year = value;
+  /** @param {number} value */
+  setYear (value) {
+    this._year = value;
   }
 
   /** @return {string} */
-  static page () {
-    return page;
+  page () {
+    return this._page;
   }
 
-  /**
-   * @param {string} value
-   * @return {void}
-   */
-  static setPage (value) {
-    page = value;
-  }
-
-  /** @return {number} */
-  static diaryId () {
-    return diaryId;
-  }
-
-  /**
-   * @param {number} value
-   * @return {void}
-   */
-  static setDiaryId (value) {
-    diaryId = value;
+  /** @param {string} value */
+  setPage (value) {
+    this._page = value;
   }
 
   /** @return {string} */
-  static planId () {
-    return planId;
+  planId () {
+    return this._planId;
   }
 
-  /**
-   * @param {string} value
-   * @return {void}
-   */
-  static setPlanId (value) {
-    planId = value;
+  /** @param {string} value */
+  setPlanId (value) {
+    this._planId = value;
   }
 
   /** @return {boolean} */
-  static isLastYear () {
-    for (let i = 0; i < years.length; ++i) {
-      if (years[i] > year) {
+  isLastYear () {
+    for (let i = 0; i < this._years.length; ++i) {
+      if (this._years[i] > this._year) {
         return false;
       }
     }
     return true;
   }
 
-  /**
-   * @return {string}
-   */
-  static serialize () {
-    return language + "\n" +
-      JSON.stringify(years) + "\n" +
-      year + "\n" +
-      page + "\n" +
-      diaryId + "\n" +
-      planId;
+  /** @return {string} */
+  serialize () {
+    return JSON.stringify([
+      this._language,
+      this._years,
+      this._year,
+      this._page,
+      this._planId
+    ]);
   }
 
   /**
    * @param {string} serial
-   * @return {void}
+   * @return {!Conf}
    */
   static restore (serial) {
-    if (serial !== "") {
-      const vals = serial.split("\n");
-      language = vals[0];
-      years = /** @type {!Array<number>} */(JSON.parse(vals[1]));
-      year = +vals[2];
-      page = vals[3];
-      diaryId = +vals[4];
-      planId = vals[5];
-    } else {
-      language = "es";
-      page = "settings";
-      year = DateDm.now().year();
-      years = [year];
-      diaryId = 0;
-      planId = "";
+    if (serial === "") {
+      const year = DateDm.now().year();
+      return new Conf("es", [year], year, "settings", "");
     }
+    const pars = /** @type {!Array<?>} */(JSON.parse(serial));
+    return new Conf (
+      pars[0],
+      pars[1],
+      pars[2],
+      pars[3],
+      pars[4]
+    );
   }
-}}
+}

@@ -2,10 +2,13 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /** Management of local and session store */
-goog.provide("github.dedeme.Store")
-goog.require("github.dedeme.It")
+goog.provide("github_dedeme.Store")
+goog.require("github_dedeme.It")
 
-github.dedeme.Store = class {
+{
+  const It = github_dedeme.It/**/;
+
+github_dedeme.Store/**/ = class {
 
   /** Removes all keys of local storage */
   static clear () {
@@ -29,13 +32,13 @@ github.dedeme.Store = class {
    */
   static expires (tKey, keys, time) {
     const dt = new Date(Date.now()).getTime();
-    const ks = github.dedeme.Store.get(tKey);
+    const ks = github_dedeme.Store/**/.get(tKey);
     if (ks === null || dt > +ks) {
-      github.dedeme.It.from(keys).each(k => {
-        github.dedeme.Store.del(k);
+      It.from(keys).each(k => {
+        github_dedeme.Store/**/.del(k);
       });
     }
-    github.dedeme.Store.put(tKey, "" + (dt + time * 3600000));
+    github_dedeme.Store/**/.put(tKey, "" + (dt + time * 3600000));
   }
 
   /**
@@ -60,12 +63,12 @@ github.dedeme.Store = class {
 
   /**
    * Returns a It with all keys of local storage.
-   * @return {!github.dedeme.It<string>}
+   * @return {!github_dedeme.It<string>}
    */
   static keys () {
-    const sz = github.dedeme.Store.size();
+    const sz = github_dedeme.Store/**/.size();
     let c = 0;
-    return new github.dedeme.It(
+    return new github_dedeme.It(
       () => c < sz,
       () => window.localStorage/**/.key(c++)
     );
@@ -90,10 +93,11 @@ github.dedeme.Store = class {
 
   /**
    * Returns a It with all values of local storage.
-   * @return {!github.dedeme.It<string>}
+   * @return {!github_dedeme.It<string>}
    */
   static values () {
-    return github.dedeme.Store.keys().map(e => github.dedeme.Store.get(e));
+    return github_dedeme.Store/**/.keys()
+      .map(e => github_dedeme.Store/**/.get(e));
   }
 
   /**
@@ -135,12 +139,12 @@ github.dedeme.Store = class {
 
   /**
    * Returns a It with all keys of session storage.
-   * @return {!github.dedeme.It<string>}
+   * @return {!github_dedeme.It<string>}
    */
   static sessionKeys () {
-    const sz = github.dedeme.Store.sessionSize();
+    const sz = github_dedeme.Store/**/.sessionSize();
     let c = 0;
-    return new github.dedeme.It(
+    return new github_dedeme.It(
       () => c < sz,
       () => window.sessionStorage/**/.key(c++)
     );
@@ -165,13 +169,12 @@ github.dedeme.Store = class {
 
   /**
    * Returns a It with all values of session storage.
-   * @return {!github.dedeme.It<string>}
+   * @return {!github_dedeme.It<string>}
    */
   static sessionValues  () {
-    return github.dedeme.Store.sessionKeys().map(e =>
-      github.dedeme.Store.sessionTake(e)
-    );
+    return github_dedeme.Store/**/.sessionKeys()
+      .map(e => github_dedeme.Store/**/.sessionTake(e));
   }
 
-}
+}}
 

@@ -3,15 +3,25 @@
 
 goog.provide("user_Auth");
 
-goog.require("github.dedeme.Captcha");
+goog.require("github_dedeme.Captcha");
 
-{
+user_Auth = class {
+  /**
+   * @param {!Main} control
+   */
+  constructor (control, client) {
+    /** @private */
+    this._control = control;
+    /** @private */
+    this._client = client;
+  }
 
   /**
-   * @param {string} captchaStore
    * @return {void}
    */
-  function show (captchaStore) {
+  show () {
+    const control = this._control;
+    const captchaStore = Main.captchaAuthStore();
 
     /** @const {!Domo} */
     const user = Ui.field("pass");
@@ -28,30 +38,26 @@ goog.require("github.dedeme.Captcha");
       .att("id", "accept")
       .value(_("Accept"));
 
-    /** @type {github.dedeme.Captcha} */
-    let captcha = new github.dedeme.Captcha(captchaStore, 3);
+    /** @type {github_dedeme.Captcha} */
+    let captcha = new github_dedeme.Captcha(captchaStore, 3);
 
     /**
      * Change selected language
-     * @private
-     * @return {void}
+     * @type {function(?):void}
      */
-    function changeLanguage (ev) {
+    const changeLanguage = (ev) => {
       Store.put(
         Main.langStore(),
         Store.get(Main.langStore()) === "en" ? "es" : "en"
       );
-      Main.run();
+      control.run();
     }
 
     /**
      * Accept button pressed
-     * @private
-     * @param {string} user
-     * @param {string} pass
-     * @param {boolean} persistent
+     * @type {function(string, string, boolean):void}
      */
-    function faccept (user, pass, persistent) {
+    const faccept = (user, pass, persistent) => {
       if (user == "") {
         alert(_("User name is missing"));
         return;
@@ -60,13 +66,13 @@ goog.require("github.dedeme.Captcha");
         alert(_("Password is missing"));
         return;
       }
-      Main.client().authentication(user, pass, !persistent, (ok) => {
+      this._client.authentication(user, pass, !persistent, (ok) => {
         if (ok) {
           captcha.resetCounter();
         } else {
           captcha.incCounter();
         }
-        Main.run();
+        control.run();
       })
     }
 
@@ -81,7 +87,7 @@ goog.require("github.dedeme.Captcha");
       accept.on("click", e => {
         if (counter > counterLimit && !captcha.match()) {
           alert(_("Grey squares checks are wrong"));
-          Main.run();
+          control.run();
           return;
         }
         faccept(
@@ -119,7 +125,8 @@ goog.require("github.dedeme.Captcha");
               .add($("tr")
                 .add($("td")
                   .add(Ui.link(changeLanguage).att("class", "link")
-                    .html(Store.get(Main.langStore()) === "en" ? "ES" : "EN")))
+                    .html(Store.get(
+                      Main.langStore()) === "en" ? "ES" : "EN")))
                 .add($("td").att("align", "right").add(accept)))))
       ];
 
@@ -179,7 +186,7 @@ goog.require("github.dedeme.Captcha");
 
     Store.get(Main.langStore()) === "en" ? I18n.en() : I18n.es();
 
-    Dom.showRoot(
+    control.dom().showRoot(
       $("div")
         .add($("div").klass("title").html(
           "&nbsp;<br>" + Main.app() + "<br>&nbsp;"))
@@ -187,14 +194,5 @@ goog.require("github.dedeme.Captcha");
     );
     user.e().focus();
   }
-
-user_Auth = class {
-  /**
-   * @param {string} captchaStore
-   * @return {void}
-   */
-  static show (captchaStore) {
-    show (captchaStore);
-  }
-}}
+}
 

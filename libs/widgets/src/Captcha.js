@@ -2,9 +2,9 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /** Captcha for authentication */
-goog.provide("github.dedeme.Captcha");
+goog.provide("github_dedeme.Captcha");
 
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 
 {
   /** @private */
@@ -61,7 +61,7 @@ goog.require("github.dedeme");
     }
   }
 
-github.dedeme.Captcha = class {
+github_dedeme.Captcha/**/ = class {
 
   /**
    * @param {string} storeId Identifier for store Captcha data in local store.

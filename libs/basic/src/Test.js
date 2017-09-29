@@ -2,9 +2,9 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 /// Utility to test code
-goog.provide("github.dedeme.Test")
+goog.provide("github_dedeme.Test")
 
-github.dedeme.Test = class {
+github_dedeme.Test/**/ = class {
   /** @param {string} fname */
   constructor (fname) {
     /**

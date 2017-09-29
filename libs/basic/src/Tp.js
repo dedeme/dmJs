@@ -3,10 +3,10 @@
 
 /// Tuple of two elemens
 
-goog.provide("github.dedeme.Tp")
+goog.provide("github_dedeme.Tp")
 
 /** @template A, B */
-github.dedeme.Tp = class {
+github_dedeme.Tp/**/ = class {
   /**
    * @param {A} e1
    * @param {B} e2

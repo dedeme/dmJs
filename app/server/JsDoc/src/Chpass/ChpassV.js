@@ -5,7 +5,7 @@ goog.provide("ChpassV");
 
 goog.require("Global");
 goog.require("Dom0");
-goog.require("github.dedeme.Captcha");
+goog.require("github_dedeme.Captcha");
 
 {
   const pass = Ui.pass("newPass");
@@ -21,7 +21,7 @@ goog.require("github.dedeme.Captcha");
     .style("width:90px;")
     .value(_("Cancel"));
 
-  const captcha = new github.dedeme.Captcha("JsDoc_chpass", 3);
+  const captcha = new github_dedeme.Captcha("JsDoc_chpass", 3);
 
 ChpassV = class {
   /** @param {!Chpass} control */
@@ -48,7 +48,7 @@ ChpassV = class {
     return newPass2;
   }
 
-  /** @return {!github.dedeme.Captcha} */
+  /** @return {!github_dedeme.Captcha} */
   static captcha () {
     return captcha;
   }

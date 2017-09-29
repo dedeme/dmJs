@@ -4,7 +4,7 @@
 goog.provide("Dom");
 
 goog.require("Path")
-goog.require("github.dedeme");
+goog.require("github_dedeme");
 goog.require("Dom0");
 
 Dom = class {

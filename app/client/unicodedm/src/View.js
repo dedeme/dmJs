@@ -2,8 +2,8 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("View");
-goog.require("github.dedeme.Domo");
-goog.require("github.dedeme.Ui");
+goog.require("github_dedeme.Domo");
+goog.require("github_dedeme.Ui");
 goog.require("Dom");
 
 {
