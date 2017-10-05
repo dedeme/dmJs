@@ -29,9 +29,15 @@ view_Plan = class {
     const db = control.db();
     const conf = control.conf();
 
-    const item = conf.planId();
-    const lg = item.length;
-
+    let item = conf.planId();
+    let lg = item.length;
+    if (
+      (lg === 2 && !It.from(db.subgroups()).containsf(s => s[0] === item)) ||
+      (lg === 3 && !It.from(db.accounts()).containsf(a => a[0] === item))
+    ) {
+      item = "";
+      lg = 0;
+    }
     let group = "";
     let subgroup = "";
     let account = "";

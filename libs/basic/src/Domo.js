@@ -68,7 +68,7 @@ github_dedeme.Domo/**/ = class {
 
   /**
    * @param {string} key
-   * @param {? | undefined} value
+   * @param {?=} value
    * @return {?}
    */
   att (key, value) {

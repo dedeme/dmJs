@@ -9,9 +9,11 @@ Conf = class {
    * @param {!Array<number>} years
    * @param {number} year
    * @param {string} page
-   * @param {string} planId
+   * @param {string} planId Last group/account selected
+   * @param {number} diaryIx Index of diary list. 0 means no edited entry.
+   * @param {string} diaryId Last account selected for help
    */
-  constructor (language, years, year, page, planId) {
+  constructor (language, years, year, page, planId, diaryIx, diaryId) {
     /** @private */
     this._language = language;
     /** @private */
@@ -22,6 +24,10 @@ Conf = class {
     this._page = page;
     /** @private */
     this._planId = planId;
+    /** @private */
+    this._diaryIx = diaryIx;
+    /** @private */
+    this._diaryId = diaryId;
   }
 
   /** @return {string} */
@@ -74,6 +80,26 @@ Conf = class {
     this._planId = value;
   }
 
+  /** @return {number} */
+  diaryIx () {
+    return this._diaryIx;
+  }
+
+  /** @param {number} value */
+  setDiaryIx (value) {
+    this._diaryIx = value;
+  }
+
+  /** @return {string} */
+  diaryId () {
+    return this._diaryId;
+  }
+
+  /** @param {string} value */
+  setDiaryId (value) {
+    this._diaryId = value;
+  }
+
   /** @return {boolean} */
   isLastYear () {
     for (let i = 0; i < this._years.length; ++i) {
@@ -91,7 +117,9 @@ Conf = class {
       this._years,
       this._year,
       this._page,
-      this._planId
+      this._planId,
+      this._diaryIx,
+      this._diaryId
     ]);
   }
 
@@ -102,7 +130,7 @@ Conf = class {
   static restore (serial) {
     if (serial === "") {
       const year = DateDm.now().year();
-      return new Conf("es", [year], year, "settings", "");
+      return new Conf("es", [year], year, "settings", "", 0, "572");
     }
     const pars = /** @type {!Array<?>} */(JSON.parse(serial));
     return new Conf (
@@ -110,7 +138,9 @@ Conf = class {
       pars[1],
       pars[2],
       pars[3],
-      pars[4]
+      pars[4],
+      pars[5],
+      pars[6]
     );
   }
 }

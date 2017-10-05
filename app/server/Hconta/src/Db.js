@@ -182,6 +182,31 @@ Db = class {
     }
   }
 
+  /**
+   * @param {string} acc Id of a group, subgroup, account or subaccount
+   * @return {string}
+   */
+  description (acc) {
+    const lg = acc.length;
+    const it = lg === 1 ? It.from(Db.groups())
+      : lg === 2 ? It.from(this._subgroups)
+      : lg === 3 ? It.from(this._accounts)
+      : It.from(this._subaccounts);
+    const r = it.find(e => e[0] === acc);
+    return r.length === 0 ? "" : r[0][1];
+  }
+
+  /**
+   * @param {string} acc "" or an 'id' of subgroup or account
+   * @return {!It<!Array<string>>}
+   */
+  sub (acc) {
+    const lg = acc.length;
+    return lg === 0 ? It.from(Db.groups())
+      : lg === 1 ? It.from(this._subgroups)
+      : lg === 2 ? It.from(this._accounts)
+      : It.from(this._subaccounts);
+  }
 
   /** @return {!Array<!db_Dentry>} */
   diary () {
@@ -220,6 +245,24 @@ Db = class {
         }
       });
     });
+  }
+
+  /** @return {!Array<string>}*/
+  mostUsed () {
+    /** @const {!Object<string, number>} */
+    const accs = {};
+    /** @const {function(string):void} */
+    const add = s => {
+      const acc = accs[s];
+      accs[s] = acc ? acc + 1 : 1;
+    };
+    It.from(this._diary).each(e => {
+      It.from(e.debits()).each(d => { add(d.e1()); })
+      It.from(e.credits()).each(c => { add(c.e1()); })
+    });
+
+    return It.keys(accs).sortf((a1, a2) => accs[a1] > accs[a2] ? 1 : -1)
+      .take(7).to();
   }
 
   /** @return {string} */
