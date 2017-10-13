@@ -122,7 +122,7 @@ github_dedeme.Dec/**/ = class {
    * European format, with point of thousand and decimal comma.
    * @return {string}
    */
-  toEs () {
+  toEu () {
     return format(this, ".", ",");
   }
 

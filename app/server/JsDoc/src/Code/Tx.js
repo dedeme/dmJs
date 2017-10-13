@@ -16,6 +16,7 @@ goog.provide("Tx");
   let status = StCode;
 
   let level = 0;
+  let isHead = false;
   let charQuotes = "";
 
   let left = "";
@@ -138,12 +139,18 @@ goog.provide("Tx");
         left += "<span id='help:" +
           extractName(l.substring(7)).trim() +
           "'></span>";
-      } else {
+      } else if (!isHead) {
         left += "<span id='help:" +
           extractName(l).trim() +
           "'></span>";
       }
-      level = 2;
+
+      if (l.indexOf("{") === -1) {
+        isHead = true;
+      } else {
+        isHead = false;
+        level = 2;
+      }
     } else {
       It.from(l.split("")).each(ch => {
         if (ch === "{") {

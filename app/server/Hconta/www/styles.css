@@ -50,7 +50,8 @@ TD.diary {
   padding: 4px;border-radius: 4px;
   text-decoration: none;
   color: #000080;
-  text-align: center;width:20px;
+  text-align: center;
+  width:20px;
 }
 SPAN.diary {
   background-color: rgb(250, 250, 250);
@@ -58,7 +59,7 @@ SPAN.diary {
   padding: 4px;border-radius: 4px;
   text-decoration: none;font-family: monospace;
   color: #000080;
-  text-align: center
+  text-align: center;
 }
 
 .link{

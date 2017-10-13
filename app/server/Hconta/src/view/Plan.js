@@ -177,11 +177,11 @@ view_Plan = class {
 
     const selectKey = Ui.select("enterKey",
       (isSubaccount
-        ? It.range(1, 26).map(n => {
+        ? It.range(26).map(n => {
             const r = "0" + n;
             return r.substring(r.length - 2);
           })
-        : It.range(1, 10).map(n => "" + n)
+        : It.range(10).map(n => "" + n)
       ).filter(n =>
         (
           !It.from(createdKeys).contains(n) &&

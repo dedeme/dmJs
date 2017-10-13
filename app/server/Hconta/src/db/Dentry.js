@@ -6,18 +6,12 @@ goog.provide("db_Dentry");
 
 db_Dentry = class {
   /**
-   * @param {number} id
-   * @param {number} number
    * @param {!DateDm} date
    * @param {string} description
    * @param {!Array<!Tp<string,!Dec>>} debits
    * @param {!Array<!Tp<string,!Dec>>} credits
    */
-  constructor (id, number, date, description, debits, credits) {
-    /** @private */
-    this._id = id;
-    /** @private */
-    this._number = number;
+  constructor (date, description, debits, credits) {
     /** @private */
     this._date = date;
     /** @private */
@@ -26,16 +20,6 @@ db_Dentry = class {
     this._debits = debits;
     /** @private */
     this._credits = credits;
-  }
-
-  /** @return {number} */
-  id () {
-    return this._id;
-  }
-
-  /** @return {number} */
-  number () {
-    return this._number;
   }
 
   /** @return {!DateDm} */
@@ -56,5 +40,28 @@ db_Dentry = class {
   /** @return {!Array<!Tp<string,!Dec>>} */
   credits () {
     return this._credits;
+  }
+
+  /** @return {!Array<?>} */
+  serialize () {
+    return [
+      this._date.serialize(),
+      this._description,
+      It.from(this._debits).map(tp => [tp.e1(), tp.e2().serialize()]).to(),
+      It.from(this._credits).map(tp => [tp.e1(), tp.e2().serialize()]).to()
+    ];
+  }
+
+  /**
+   * @param {!Array<?>} serial
+   * @return {!db_Dentry}
+   */
+  static restore (serial) {
+    return new db_Dentry(
+      DateDm.restore(serial[0]),
+      serial[1],
+      It.from(serial[2]).map(arr => new Tp(arr[0], Dec.restore(arr[1]))).to(),
+      It.from(serial[3]).map(arr => new Tp(arr[0], Dec.restore(arr[1]))).to()
+    );
   }
 }

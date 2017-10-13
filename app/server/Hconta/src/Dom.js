@@ -76,11 +76,46 @@ Dom = class {
   }
 
   /**
+   * Returns true if 's' is a valid number in language "l"
+   * @param {string} s
+   * @return {boolean}
+   */
+  isNumber (s) {
+    if (this._control.conf().language() === "es") {
+      return Dec.isNumberEu(s);
+    }
+    return Dec.isNumberEn(s);
+  }
+
+  /**
+   * Returns 0 if s is an empty string.
+   * @param {string} s
+   * @return {!Dec}
+   */
+  toDec (s) {
+    if (s === "") {
+      return new Dec(0, 2);
+    }
+    return this._control.conf().language() === "es"
+      ? Dec.newEu(s, 2)
+      : Dec.newEn(s, 2);
+  }
+
+  /**
+   * Returns 'd' in european or inglish format, depending on conf.language
+   * @param {!Dec} d
+   * @return {string}
+   */
+  decToStr (d) {
+    return this._control.conf().language() === "es" ? d.toEu() : d.toEn();
+  }
+
+  /**
    * Returns text width of a text of type "14px sans"
    * @param {string} tx
    * @return {number}
    */
-  static textWidth(tx) {
+  static textWidth (tx) {
     const c = $("canvas");
     const e = c.e();
     const ctx = e.getContext("2d");
@@ -94,7 +129,7 @@ Dom = class {
    * @param {number} px
    * @return {string}
    */
-  static textAdjust(tx, px) {
+  static textAdjust (tx, px) {
     if (Dom.textWidth(tx) < px) {
       return tx;
     }
@@ -104,6 +139,15 @@ Dom = class {
       tx = tx.substring(0, tx.length - 4) + "...";
     }
     return tx;
+  }
+
+  /**
+   * Formats a subaccount like xxx.xx
+   * @param {string} acc
+   * @return {string}
+   */
+  static accFormat (acc) {
+    return acc.substring(0, 3) + "." + acc.substring(3);
   }
 
 }

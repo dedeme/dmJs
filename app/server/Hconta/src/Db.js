@@ -197,20 +197,70 @@ Db = class {
   }
 
   /**
+   * Returns groups, subgroups, accounts or subaccounts which start with 'acc'
    * @param {string} acc "" or an 'id' of subgroup or account
    * @return {!It<!Array<string>>}
    */
   sub (acc) {
     const lg = acc.length;
-    return lg === 0 ? It.from(Db.groups())
+    return (lg === 0 ? It.from(Db.groups())
       : lg === 1 ? It.from(this._subgroups)
       : lg === 2 ? It.from(this._accounts)
-      : It.from(this._subaccounts);
+      : It.from(this._subaccounts)).filter(s => s[0].startsWith(acc));
+  }
+
+  /**
+   * Returns groups, subgroups, accounts or subaccounts which start with
+   * 'acc' and have a subaccount created.
+   * @param {string} acc "" or an 'id' of subgroup or account
+   * @return {!It<!Array<string>>}
+   */
+  subOf (acc) {
+    const self = this;
+    return self.sub(acc).filter(
+      s1 => It.from(self._subaccounts).containsf(s2 => s2[0].startsWith(s1[0]))
+    );
   }
 
   /** @return {!Array<!db_Dentry>} */
   diary () {
     return this._diary;
+  }
+
+  /**
+   * @param {!db_Dentry} entry
+   * @return {number}
+   */
+  diaryAdd (entry) {
+    this._diary = It.from(this._diary)
+      .takeUntil(e => e.date().compare(entry.date()) > 0)
+      .add(entry)
+      .addIt(It.from(this._diary)
+        .dropUntil(e => e.date().compare(entry.date()) > 0)
+      ).to();
+    return It.from(this._diary)
+      .takeUntil(e => e.date().compare(entry.date()) > 0)
+      .size();
+  }
+
+  /**
+   * @param {number} ix Number of annotations (its order number is ix - 1)
+   * @return {void}
+   */
+  diaryDel (ix) {
+    this._diary = It.from(this._diary)
+      .take(ix - 1)
+      .addIt(It.from(this._diary).drop(ix))
+      .to();
+  }
+
+  /**
+   * @param {number} ix Number of annotations (its order number is ix - 1)
+   * @param {!db_Dentry} entry
+   * @return {void}
+   */
+  diaryModify (ix, entry) {
+    this._diary[ix - 1] = entry;
   }
 
   /**
@@ -236,12 +286,12 @@ Db = class {
     It.from(this._diary).each(e => {
       It.from(e.debits()).each(d => {
         if (d.e1().startsWith(id)) {
-          d.e1(newId + d.e1().substring(id.length));
+          d.setE1(newId + d.e1().substring(id.length));
         }
       });
       It.from(e.credits()).each(c => {
         if (c.e1().startsWith(id)) {
-          c.e1(newId + c.e1().substring(id.length));
+          c.setE1(newId + c.e1().substring(id.length));
         }
       });
     });
@@ -271,7 +321,7 @@ Db = class {
       this._subgroups,
       this._accounts,
       this._subaccounts,
-      this._diary
+      It.from(this._diary).map(e => e.serialize()).to()
     ]);
   }
 
@@ -292,7 +342,7 @@ Db = class {
       pars[0],
       pars[1],
       pars[2],
-      pars[3]
+      It.from(pars[3]).map(e => db_Dentry.restore(e)).to()
     );
   }
 }

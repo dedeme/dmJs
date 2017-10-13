@@ -162,6 +162,75 @@ Main = class {
     self.sendConf(() => { self.run(); });
   }
 
+  // diary -----------------------------
+
+  /**
+   * Sets account for help in 'conf.db'.
+   * @param {string} accId
+   * @param {function ():void} f
+   * @return {void}
+   */
+  setDiaryId (accId, f) {
+    this.conf().setDiaryId(accId);
+    this.sendConf(f);
+  }
+
+  /**
+   * Sets index of position in diary list
+   * @param {number} ix
+   * @param {function():void} f
+   * @return {void}
+   */
+  setDiaryIx (ix, f) {
+    this.conf().setDiaryIx(ix);
+    this.sendConf(f);
+  }
+
+  /**
+   * Sets number of items in diary list
+   * @param {number} len
+   * @param {function():void} f
+   * @return {void}
+   */
+  setDiaryListLen (len, f) {
+    this.conf().setDiaryListLen(len);
+    this.sendConf(f);
+  }
+
+  /**
+   * @param {!db_Dentry} entry
+   * @return {void}
+   */
+  addDentry (entry) {
+    const self = this;
+    self.conf().setDiaryIx(self.db().diaryAdd(entry));
+    self.sendDb(() => {
+      self.sendConf(() => { new view_Diary(self).show(); });
+    });
+  }
+
+  /**
+   * @param {number} ix Number of annotations (its order number is ix - 1)
+   * @param {function():void} f
+   * @return {void}
+   */
+  delDentry (ix, f) {
+    const self = this;
+    self.db().diaryDel(ix);
+    self.sendDb(f);
+  }
+
+  /**
+   * @param {number} ix Number of annotations (its order number is ix - 1)
+   * @param {!db_Dentry} entry
+   * @return {void}
+   */
+  modifyDentry (ix, entry) {
+    const self = this;
+    self.db().diaryModify(ix, entry);
+    self.sendDb(() => { new view_Diary(self).show(); });
+  }
+
   // plan ------------------------------
 
   /**

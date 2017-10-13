@@ -18,6 +18,10 @@ goog.require("TxMethod");
 
   let overview = " ";
   let helpBuffer = "";
+  let isHeader = false;
+  let headBuffer = "";
+  let isHeadStatic = false;
+  let headName = "";
   const methods = [];
 
   function isPrivate (tx) {
@@ -64,6 +68,24 @@ goog.require("TxMethod");
 
   function processCode (l) {
     const extractName = (tx) => tx.substring(0, tx.indexOf("(")).trim();
+    if (isHeader) {
+      const ix = l.indexOf("{");
+      if (ix === -1) {
+        headBuffer += "<br>&nbsp;&nbsp;&nbsp;&nbsp;" + l.trim();
+      } else {
+        methods.push(new TxMethod(
+            isHeadStatic,
+            headName,
+            headBuffer += "<br>&nbsp;&nbsp;&nbsp;&nbsp;" +
+              l.substring(0, ix).trim(),
+            processHelp(helpBuffer)
+          ));
+        helpBuffer = "";
+        level = 2;
+        isHeader = false;
+      }
+      return
+    }
 
     if (level === 0) {
       if (l.split(" ").join("").indexOf("=class") !== -1) {
@@ -82,30 +104,57 @@ goog.require("TxMethod");
         level = 0;
       } else if (l.startsWith("constructor ")) {
         if (isPublic) {
-          methods.push(new TxMethod(
-            false,
-            "",
-            l.substring(0, l.indexOf("{")).trim(),
-            processHelp(helpBuffer)
-          ));
+          const ix = l.indexOf("{");
+          if (ix === -1) {
+            isHeader = true;
+            isHeadStatic = false;
+            headName = "";
+            headBuffer = l.trim();
+            return;
+          } else {
+            methods.push(new TxMethod(
+              false,
+              "",
+              l.substring(0, ix).trim(),
+              processHelp(helpBuffer)
+            ));
+          }
         }
       } else if (l.startsWith("static ")) {
         if (isPublic) {
-          methods.push(new TxMethod(
-            true,
-            extractName(l.substring(7)).trim(),
-            l.substring(0, l.indexOf("{")).trim(),
-            processHelp(helpBuffer)
-          ));
+          const ix = l.indexOf("{");
+          if (ix === -1) {
+            isHeader = true;
+            isHeadStatic = true;
+            headName = extractName(l.substring(7)).trim();
+            headBuffer = l.trim();
+            return;
+          } else {
+            methods.push(new TxMethod(
+              true,
+              extractName(l.substring(7)).trim(),
+              l.substring(0, ix).trim(),
+              processHelp(helpBuffer)
+            ));
+          }
         }
       } else {
         if (isPublic) {
-          methods.push(new TxMethod(
-            false,
-            extractName(l).trim(),
-            l.substring(0, l.indexOf("{")).trim(),
-            processHelp(helpBuffer)
-          ));
+          const ix = l.indexOf("{");
+          if (ix === -1) {
+            isHeader = true;
+            isHeadStatic = false;
+            headName = extractName(l).trim();
+            headBuffer = l.trim();
+            return;
+          } else {
+            methods.push(new TxMethod(
+              false,
+              extractName(l).trim(),
+              l.substring(0, ix).trim(),
+              processHelp(helpBuffer)
+            ));
+          }
         }
       }
       helpBuffer = "";
