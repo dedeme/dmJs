@@ -45,24 +45,24 @@ github_dedeme.It/**/ = class {
       return new github_dedeme.It(
         () => c === 0,
         () => {
-          if (self.hasNext()) return self.next();
+          if (self._hasNext()) return self._next();
           ++c;
           return e;
         }
       );
     }
     return new github_dedeme.It(
-      () => self.hasNext() || c < i,
+      () => self._hasNext() || c < i,
       () => {
         if (c <= i) {
-          if (self.hasNext() && c < i) {
+          if (self._hasNext() && c < i) {
             ++c;
-            return self.next();
+            return self._next();
           }
           c = i + 1;
           return e;
         }
-        return self.next();
+        return self._next();
       }
     );
   }
@@ -76,13 +76,13 @@ github_dedeme.It/**/ = class {
     const self = this;
     let isNotAdd = true;
     return new github_dedeme.It(
-      () => self.hasNext() || isNotAdd,
+      () => self._hasNext() || isNotAdd,
       () => {
         if (isNotAdd) {
           isNotAdd = false;
           return e;
         }
-        return self.next();
+        return self._next();
       }
     );
   }
@@ -97,21 +97,21 @@ github_dedeme.It/**/ = class {
     const self = this;
     let c = 0;
     return new github_dedeme.It(
-      () => self.hasNext() || it.hasNext(),
+      () => self._hasNext() || it.hasNext(),
       () => {
         if (!i) {
-          if (self.hasNext()) return self.next();
+          if (self._hasNext()) return self._next();
           return it.next();
         }
         if (c < i) {
-          if (self.hasNext()) {
+          if (self._hasNext()) {
             ++c;
-            return self.next();
+            return self._next();
           }
           c = i;
         }
         if (it.hasNext()) return it.next();
-        return self.next();
+        return self._next();
       }
     );
   }
@@ -122,8 +122,8 @@ github_dedeme.It/**/ = class {
    * @return {boolean}
    */
   all (f) {
-    while (this.hasNext())
-      if (!f(this.next())) return false;
+    while (this._hasNext())
+      if (!f(this._next())) return false;
     return true;
   }
 
@@ -133,8 +133,8 @@ github_dedeme.It/**/ = class {
    * @return {boolean}
    */
   contains (e) {
-    while (this.hasNext())
-      if (e === this.next())  return true;
+    while (this._hasNext())
+      if (e === this._next())  return true;
     return false;
   }
 
@@ -144,8 +144,8 @@ github_dedeme.It/**/ = class {
    * @return {boolean}
    */
   containsf (f) {
-    while (this.hasNext())
-      if (f(this.next())) return true;
+    while (this._hasNext())
+      if (f(this._next())) return true;
     return false;
   }
 
@@ -189,8 +189,8 @@ github_dedeme.It/**/ = class {
     let last = null;
     let nx = true;
     for (;;) {
-      if (self.hasNext()) {
-        last = self.next();
+      if (self._hasNext()) {
+        last = self._next();
         if (f(last)) break;
       } else {
         nx = false;
@@ -201,7 +201,7 @@ github_dedeme.It/**/ = class {
       () => nx,
       () => {
         const r = last;
-        if (self.hasNext()) last = self.next();
+        if (self._hasNext()) last = self._next();
         else nx = false;
         return r;
       }
@@ -210,13 +210,13 @@ github_dedeme.It/**/ = class {
 
   /** @param {function (T)} f */
   each (f) {
-    while (this.hasNext()) f(this.next());
+    while (this._hasNext()) f(this._next());
   }
 
   /** @param {function (T, number)} f */
   eachIx (f) {
     let c = -1;
-    while (this.hasNext()) f(this.next(), ++c);
+    while (this._hasNext()) f(this._next(), ++c);
   }
 
   /**
@@ -225,9 +225,9 @@ github_dedeme.It/**/ = class {
    * @return {boolean}
    */
   eq (i) {
-    while (this.hasNext() && i.hasNext())
-      if (this.next() !== i.next()) return false;
-    if (this.hasNext() || i.hasNext()) return false;
+    while (this._hasNext() && i.hasNext())
+      if (this._next() !== i.next()) return false;
+    if (this._hasNext() || i.hasNext()) return false;
     return true;
   }
 
@@ -238,9 +238,9 @@ github_dedeme.It/**/ = class {
    * @return {boolean}
    */
   eqf (i, f) {
-    while (this.hasNext() && i.hasNext())
-      if (!f(this.next(), i.next())) return false;
-    if (this.hasNext() || i.hasNext()) return false;
+    while (this._hasNext() && i.hasNext())
+      if (!f(this._next(), i.next())) return false;
+    if (this._hasNext() || i.hasNext()) return false;
     return true;
   }
 
@@ -255,8 +255,8 @@ github_dedeme.It/**/ = class {
     let nx = true;
     const nnext = function () {
       for (;;) {
-        if (self.hasNext()) {
-          last = self.next();
+        if (self._hasNext()) {
+          last = self._next();
           if (f(last)) break;
         } else {
           nx = false;
@@ -294,8 +294,8 @@ github_dedeme.It/**/ = class {
    * @return {T | null | undefined}
    */
   findFirst (f) {
-    while (this.hasNext()) {
-      let e = this.next();
+    while (this._hasNext()) {
+      let e = this._next();
       if (f(e)) return e;
     }
     return undefined;
@@ -308,8 +308,8 @@ github_dedeme.It/**/ = class {
    */
   findLast (f) {
     let r = undefined;
-    while (this.hasNext()) {
-      let e = this.next();
+    while (this._hasNext()) {
+      let e = this._next();
       if (f(e)) r = e;
     }
     return r;
@@ -322,8 +322,8 @@ github_dedeme.It/**/ = class {
    */
   index (e) {
     let i = 0;
-    while (this.hasNext()) {
-      if (this.next() === e) return i;
+    while (this._hasNext()) {
+      if (this._next() === e) return i;
       ++i;
     }
     return -1;
@@ -337,8 +337,8 @@ github_dedeme.It/**/ = class {
    */
   indexf (f) {
     let i = 0;
-    while (this.hasNext()) {
-      if (f(this.next())) return i;
+    while (this._hasNext()) {
+      if (f(this._next())) return i;
       ++i;
     }
     return -1;
@@ -352,8 +352,8 @@ github_dedeme.It/**/ = class {
   lastIndex (e) {
     let r = -1;
     let i = 0;
-    while (this.hasNext()) {
-      if (this.next() === e) r = i;
+    while (this._hasNext()) {
+      if (this._next() === e) r = i;
       ++i;
     }
     return r;
@@ -384,7 +384,7 @@ github_dedeme.It/**/ = class {
    */
   map (f) {
     const self = this;
-    return new github_dedeme.It(() => self.hasNext(), () => f(self.next()));
+    return new github_dedeme.It(() => self._hasNext(), () => f(self._next()));
   }
 
   /**
@@ -396,7 +396,7 @@ github_dedeme.It/**/ = class {
    * @return {R}
    */
   reduce (seed, f) {
-    while (this.hasNext()) seed = f(seed, this.next());
+    while (this._hasNext()) seed = f(seed, this._next());
     return seed;
   }
 
@@ -407,6 +407,27 @@ github_dedeme.It/**/ = class {
    */
   reverse () {
     return github_dedeme.It/**/.from(this.to().reverse());
+  }
+
+  /**
+   * Returns an iterator over elements of [this] mixed.
+   * NOTE: This function creates an array!.
+   * @return {!github_dedeme.It<T>}
+   */
+  shuffle () {
+    let ni;
+    const a = this.to();
+    let i = a.length;
+    if (!i) return github_dedeme.It/**/.empty();
+    while (--i) {
+      ni = Math.floor(Math.random() * (i + 1));
+      if (ni !== i) {
+        let tmp = a[i];
+        a[i] = a[ni];
+        a[ni] = tmp;
+      }
+    }
+    return github_dedeme.It/**/.from(a);
   }
 
   /**
@@ -442,24 +463,23 @@ github_dedeme.It/**/ = class {
   }
 
   /**
-   * Returns an iterator over elements of [this] mixed.
-   * NOTE: This function creates an array!.
-   * @return {!github_dedeme.It<T>}
+   * Executes the asynchronic function 'f' wich calls 'callback' with each
+   * elemento of 'this'. After that executes 'goOn'
+   * @param {function(T, function(T):void):void} f Asynchronic function
+   * @param {function(T):void} callback
+   * @param {function():void} goOn
+   * @return {void}
    */
-  shuffle () {
-    let ni;
-    const a = this.to();
-    let i = a.length;
-    if (!i) return github_dedeme.It/**/.empty();
-    while (--i) {
-      ni = Math.floor(Math.random() * (i + 1));
-      if (ni !== i) {
-        let tmp = a[i];
-        a[i] = a[ni];
-        a[ni] = tmp;
-      }
+  sync (f, callback, goOn) {
+    const self = this;
+    if (self._hasNext()) {
+      f(self._next(), (d) => {
+        callback(d);
+        self.sync(f, callback, goOn);
+      });
+    } else {
+      goOn();
     }
-    return github_dedeme.It/**/.from(a);
   }
 
   /**
@@ -472,10 +492,10 @@ github_dedeme.It/**/ = class {
   take (n) {
     const self = this;
     return new github_dedeme.It(
-      () => self.hasNext() && n > 0,
+      () => self._hasNext() && n > 0,
       () => {
         --n;
-        return self.next();
+        return self._next();
       }
     );
   }
@@ -489,8 +509,8 @@ github_dedeme.It/**/ = class {
     const self = this;
     let last = null;
     let hnx = false;
-    if (self.hasNext()) {
-      last = self.next();
+    if (self._hasNext()) {
+      last = self._next();
       hnx = true;
     }
     return new github_dedeme.It(
@@ -499,8 +519,8 @@ github_dedeme.It/**/ = class {
         const r = last;
         last = null;
         hnx = false;
-        if (self.hasNext()) {
-          last = self.next();
+        if (self._hasNext()) {
+          last = self._next();
           hnx = true;
         }
         return r;
