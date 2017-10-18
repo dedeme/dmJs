@@ -48,16 +48,6 @@ view_Diary = class {
       .style("width:270px");
     /** @const {!Array<!Array<!Domo>>} */
     const entryRows = [];
-    const debitAcc = $("input").att("type", "text").klass("frame")
-      .style("width:45px;color:#000000;text-align:center;")
-      .disabled(true);
-    const debit = Ui.field("credit").att("id", "debit")
-      .style("width:65px");
-    const creditAcc = $("input").att("type", "text").klass("frame")
-      .style("width:45px;color:#000000;text-align:center;")
-      .disabled(true);
-    const credit = Ui.field("accept").att("id", "credit")
-      .style("width:65px");
 
     let diaryIx = conf.diaryIx() === 0 ? db.diary().length : conf.diaryIx();
     let stepList = conf.diaryListLen();
@@ -582,7 +572,7 @@ view_Diary = class {
                     ? e.debits().length
                     : e.credits().length;
                   desc.removeAll()
-                    .add(Ui.link(ev => { alert("link"); })
+                    .add(Ui.link(ev => { modifyClick(lix); })
                       .klass("link").html(e.description().toString()))
                     .add($("table").att("align", "center")
                       .addIt(It.range(n).map(i =>
@@ -599,7 +589,7 @@ view_Diary = class {
                           .add($("td").add(i == 0
                             ? Ui.link(ev => {
                                 desc.removeAll()
-                                  .add(Ui.link(ev => { alert("link"); })
+                                  .add(Ui.link(ev => { modifyClick(lix); })
                                     .klass("link")
                                     .html(e.description().toString()))
                               }).add(Ui.img("cross"))

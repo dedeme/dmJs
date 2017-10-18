@@ -47,7 +47,7 @@ Dom = class {
 
     function entry(id, target) {
       return Ui.link(ev => { control.go(target) })
-        .klass(target == page ? "frame" : "link").html(id);
+        .klass(target === page ? "frame" : "link").html(id);
     }
     function separator() {
       return $("span").html(" · ");

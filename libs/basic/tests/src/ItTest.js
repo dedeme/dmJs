@@ -283,6 +283,22 @@ ItTest = class {
     t.yes(its3.e2().eq(It.from(i1)));
     t.yes(its3.e3().eq(It.from(i1)));
 
-    t.log();
+    // Sync --------------------------------------
+
+    let frndRs = "";
+    function frnd(s, f) {
+      setTimeout(function(){ f(s); }, Rnd.i(30 * 10));
+    }
+    It.from(s0).sync(frnd, s => { frndRs += s; }, () => {
+      t.eq(frndRs, "");
+      It.from(s1).sync(frnd, s => { frndRs += s; }, () => {
+        t.eq(frndRs, "one");
+        frndRs = "";
+        It.from(s2).sync(frnd, s => { frndRs += s; }, () => {
+          t.eq(frndRs, "onetwothree");
+          t.log();
+        });
+      });
+    });
   }
 }

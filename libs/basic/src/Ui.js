@@ -217,8 +217,8 @@ github_dedeme.Ui/**/ = class {
    */
   static changePoint (input) {
     const el = input.e();
-    return input.on("keydown", e => {
-      if (e.keyCode/**/ == 110) {
+    input.e().onkeydown/**/ = e => {
+      if (e.keyCode/**/ === 110) {
         const start = el.selectionStart/**/;
         const end = el.selectionEnd/**/;
         const text = el.value/**/;
@@ -228,7 +228,8 @@ github_dedeme.Ui/**/ = class {
         return false;
       }
       return true;
-    });
+    };
+    return input;
   }
 
   /**

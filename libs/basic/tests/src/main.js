@@ -14,7 +14,7 @@ goog.require("RndTest");
 main = () => {
 
   TpTest.run();
-  ItTest.run();
+  ItTest.run();     // Its log apears at the end because it has a callback
   ListTest.run();
   DateDmTest.run();
   DecTest.run();

@@ -288,7 +288,7 @@ view_Plan = class {
           }).add(Ui.img("edit"))));
         tds.push($("td")
           .add(Ui.link(ev => {
-            if (r[0] === "57" || r[0] === "572" || r[0] === "57201") {
+            if (r[0] === "57" || r[0] === "572" || r[0] === "57200") {
               alert(_args(_("Group/account %0 can not be deleted"), r[0]));
               return;
             }

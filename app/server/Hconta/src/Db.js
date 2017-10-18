@@ -334,7 +334,7 @@ Db = class {
       const db = new Db([], [], [], []);
       db.subgroupsAdd("57", "Tesorería");
       db.accountsAdd("572", "Bancos, cuentas de ahorro, euros", "BABVI");
-      db.subaccountsAdd("57201", "Bankia");
+      db.subaccountsAdd("57200", "Bankia");
       return db;
     }
     const pars = /** @type {!Array<?>} */(JSON.parse(serial));

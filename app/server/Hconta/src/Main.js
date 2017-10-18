@@ -13,6 +13,7 @@ goog.require("Conf");
 goog.require("Db");
 goog.require("view_Bye");
 goog.require("view_Diary");
+goog.require("view_Cash");
 goog.require("view_Plan");
 goog.require("view_Settings");
 
@@ -99,6 +100,9 @@ Main = class {
             switch(conf.page()) {
             case "diary":
               new view_Diary(self).show();
+              break;
+            case "cash":
+              new view_Cash(self).show();
               break;
             case "plan":
               new view_Plan(self).show();
