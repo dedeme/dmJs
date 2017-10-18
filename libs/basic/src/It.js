@@ -463,8 +463,8 @@ github_dedeme.It/**/ = class {
   }
 
   /**
-   * Executes the asynchronic function 'f' wich calls 'callback' with each
-   * elemento of 'this'. After that executes 'goOn'
+   * Executes asynchronic function 'f' wich calls 'callback' with each
+   * element of 'this'. After that executes 'goOn'
    * @param {function(T, function(T):void):void} f Asynchronic function
    * @param {function(T):void} callback
    * @param {function():void} goOn

@@ -84,6 +84,14 @@ github_dedeme.Client/**/ = class {
      * @type {string}
      */
     this._pageId = "";
+
+    /**
+     * When a request is sent 'this._lock' is set to 'true' and is not posible
+     * to send new requests until request.readyState === 4.
+     * @private
+     * @type {boolean}
+     */
+    this._lock = false;
   }
 
   /**
@@ -131,12 +139,19 @@ github_dedeme.Client/**/ = class {
    * @return {void}
    */
   sendServer(rq, f) {
+    const self = this;
+
     let request = new XMLHttpRequest();
     request.onreadystatechange/**/ = function (e) {
       if (request.readyState/**/ === 4) {
+        self._lock = false;
         f(request.responseText/**/.trim())
       }
     };
+    if (self._lock) {
+      return;
+    }
+    self._lock = true;
     request.open(
       "POST",
       "http://" + location.host/**/ + "/cgi-bin/gocgi.sh",
