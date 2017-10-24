@@ -42,6 +42,26 @@ db_Dentry = class {
     return this._credits;
   }
 
+  /**
+   * Returns 'true' if 'this' contains acc in debits or credits
+   * @param {string} acc
+   * @return {boolean}
+   */
+  containsAccount (acc) {
+    return It.from(this._debits).containsf(tp => tp.e1() === acc) ||
+      It.from(this._credits).containsf(tp => tp.e1() === acc);
+  }
+
+  /**
+   * Returns 'true' if this contains acc or is group in debits or credits
+   * @param {string} acc
+   * @return {boolean}
+   */
+  containsAccountOrGroup (acc) {
+    return It.from(this._debits).containsf(tp => tp.e1().startsWith(acc)) ||
+      It.from(this._credits).containsf(tp => tp.e1().startsWith(acc));
+  }
+
   /** @return {!Array<?>} */
   serialize () {
     return [

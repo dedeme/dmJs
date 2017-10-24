@@ -1,19 +1,18 @@
 // Copyright 13-Oct-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-goog.provide("view_Cash");
+goog.provide("view_Accs");
 
 goog.require("github_dedeme.DatePicker");
 goog.require("github_dedeme.NumberField");
 goog.require("db_Dentry");
 
 {
-  const cashAcc = "57200";
   const helpWidth = 250;
   const DatePicker = github_dedeme.DatePicker/**/;
   const NumberField = github_dedeme.NumberField/**/;
 
-view_Cash = class {
+view_Accs = class {
   /**
    * @param {!Main} control
    */
@@ -32,44 +31,29 @@ view_Cash = class {
     const lang = conf.language();
     const db = control.db();
     const dom = control.dom();
+    const account = conf.accsConf().id();
 
-    const mostUsed = db.mostUsed();
     let ix = 1;
     let sum = 0;
     const cashData = It.from(db.diary()).map(e => {
-        const amm = It.from(e.debits()).filter(tp => tp.e1() === cashAcc)
-            .reduce(0, (s, tp) => s += tp.e2().value()) -
-          It.from(e.credits()).filter(tp => tp.e1() === cashAcc)
+        const ammD = It.from(e.debits())
+            .filter(tp => tp.e1().startsWith(account))
             .reduce(0, (s, tp) => s += tp.e2().value());
-          sum += amm;
+        const ammH = It.from(e.credits())
+            .filter(tp => tp.e1().startsWith(account))
+            .reduce(0, (s, tp) => s += tp.e2().value());
+        sum += ammD - ammH;
         return [
           ix++,
           e,
-          new Dec(amm, 2),
+          new Dec(ammD, 2),
+          new Dec(ammH, 2),
           new Dec(sum, 2)
         ]
       }).to();
 
     const planDiv = $("div");
     const listDiv = $("div").style("width:100%");
-    const dateField = $("input").att("type", "text").klass("frame")
-      .style("width:80px;color:#000000;text-align:center;");
-    const datePicker = new DatePicker();
-    datePicker.setLang(lang);
-    datePicker.setAction(d => {});
-    datePicker.setDate(cashData.length > 0
-      ? cashData[cashData.length - 1][1].date()
-      : DateDm.now()
-    );
-    const acc = $("input").att("type", "text").klass("frame")
-      .style("width:45px;color:#000000;text-align:center;")
-      .disabled(true);
-    const description = Ui.field("debit").att("id", "description")
-      .style("width:270px");
-    const amm = new NumberField(lang === "en", "accept");
-    amm.input().att("id", "debit").style("width:65px");
-    const accept = $("button").html(_("Accept")).att("id", "accept")
-      .on("click", acceptEntry);
 
     let cashIx = conf.cashConf().ix() === 0
       ? db.diary().length
@@ -85,73 +69,7 @@ view_Cash = class {
      * @return {void}
      */
     function changeTo (acc) {
-      const lg = acc.length
-      if (acc.length < 3) {
-        changeTo(db.subOf(acc).next()[0]);
-      } else {
-        control.setCashId(
-          acc,
-          () => { planDiv.removeAll().add(planHelpf()); }
-        );
-      }
-    }
-
-    /**
-     * @param {string} id
-     * @param {string} description
-     * @return {void}
-     */
-    function helpAccountClick (id, description) {
-      acc.value(Dom.accFormat(id)).att("title", description);
-    }
-
-    // Entry ---------------------------
-
-    function acceptEntry () {
-      const date = datePicker.date();
-      if (date === null) {
-        alert(_("Date is missing"));
-        return;
-      }
-      let a = acc.value();
-      if (a === "") {
-        alert(_("Account is missing"));
-        return;
-      }
-      a = a.replace(".", "");
-      const d = description.value().trim();
-      if (d === "") {
-        alert(_("Description is missing"));
-        return;
-      }
-      const v = amm.value(2);
-      if (v === null) {
-        alert(_("Ammount is missing"));
-        return;
-      }
-      if (v.eqValue(new Dec())) {
-        alert(_("Ammount is 0"));
-        return;
-      }
-      /** @const {!Array<!Tp<string,!Dec>>} */
-      const debits = [];
-      /** @const {!Array<!Tp<string,!Dec>>} */
-      const credits = [];
-      if (v.value() < 0) {
-        const v2 = new Dec(-v.value(), 2);
-        debits.push(new Tp(a, v2));
-        credits.push(new Tp(cashAcc, v2));
-      } else {
-        debits.push(new Tp(cashAcc, v));
-        credits.push(new Tp(a, v));
-      }
-
-      control.addDentry2(new db_Dentry(
-        date,
-        d,
-        debits,
-        credits
-      ));
+      control.setAccsId(acc);
     }
 
     // Center menu -----------------------
@@ -162,7 +80,10 @@ view_Cash = class {
     function nextCash (cashIx) {
       const lg = db.diary().length;
       ++cashIx;
-      while (cashIx < lg && !cashData[cashIx - 1][1].containsAccount(cashAcc)) {
+      while (
+        cashIx < lg &&
+        !cashData[cashIx - 1][1].containsAccountOrGroup(account)
+      ) {
         ++cashIx;
       }
       return cashIx >= lg ? -1 : cashIx;
@@ -173,7 +94,10 @@ view_Cash = class {
      */
     function previousCash (cashIx) {
       --cashIx;
-      while (cashIx > 0 && !cashData[cashIx - 1][1].containsAccount(cashAcc)) {
+      while (
+        cashIx > 0 &&
+        !cashData[cashIx - 1][1].containsAccountOrGroup(account)
+      ) {
         --cashIx;
       }
       return cashIx <= 0 ? -1 : cashIx;
@@ -267,9 +191,11 @@ view_Cash = class {
     // View ------------------------------------------------
 
     const planHelpf = () => {
-      const account = conf.cashConf().id();
+      const upAcc = account.length === 5
+        ? account.substring(0, 3)
+        : account.substring(0, account.length - 1);
       return $("ul").style("list-style:none;padding-left:0px;")
-        .addIt(It.range(1, 4).map(lg =>
+        .addIt(It.range(1, account.length + 1).map(lg =>
           $("li")
             .html("<a href='#' onclick='return false;'>" +
               Dom.textAdjust(
@@ -284,10 +210,51 @@ view_Cash = class {
                     }).klass("link").att("title", e[0])
                     .html(Dom.textAdjust(e[1], helpWidth - 16))))))))
         .add($("li").add($("hr")))
-        .addIt(db.sub(account).map(e =>
-          $("li").add(Ui.link(ev => { helpAccountClick(e[0], e[1]); })
-            .klass("link").att("title", Dom.accFormat(e[0]))
-            .html(Dom.textAdjust(e[1], helpWidth - 16)))));
+        .addIt(account.length === 5
+          ? It.empty()
+          : db.sub(account).map(e =>
+            $("li").add(Ui.link(ev => { changeTo(e[0]); })
+              .klass("link").att("title", Dom.accFormat(e[0]))
+              .html(Dom.textAdjust(e[1], helpWidth - 16)))));
+    }
+
+    const mkSubmenu = () => {
+      const entry = (id, target) =>
+        Ui.link(ev => { changeTo(target); })
+          .klass("link").html(id);
+      const separator = () => $("span").html("|");
+      const blank = () => $("span").html(" ");
+      const lg = account.length;
+
+      const r = $("p").add(separator())
+        .add(entry(" * ", ""));
+
+      let group = "";
+      if (lg > 0) {
+        group = account.substring(0, 1);
+        r.add(separator()).add(entry(" " + group + " ", group));
+      }
+      let subgroup = "";
+      if (lg > 1) {
+        subgroup = account.substring(1, 2);
+        r.add(separator()).add(entry(" " + subgroup + " ", group + subgroup));
+      }
+      let acc = "";
+      if (lg > 2) {
+        acc = account.substring(2, 3);
+        r.add(separator()).add(
+          entry(" " + acc + " ", group + subgroup + acc));
+      }
+      if (lg > 3) {
+        const subacc = account.substring(3, 5);
+        r.add(separator()).add(
+          entry(" " + subacc + " ", group + subgroup + acc + subacc));
+      }
+
+      r.add(separator());
+      return $("div").add(r)
+        .add($("p")
+          .add($("span").klass("frame").html(db.description(account))));
     }
 
     const list = () => {
@@ -297,7 +264,7 @@ view_Cash = class {
 
       const data = It.from(cashData)
         .take(cashIx)
-        .filter(arr => arr[2].value() !== 0)
+        .filter(arr => arr[2].value() + arr[3].value() !== 0)
         .to();
       return $("table").att("align", "center")
         .addIt(It.from(data)
@@ -310,43 +277,23 @@ view_Cash = class {
               .add(tdl().add(Ui.link(ev => {
                   control.goDiary(arr[0]);
                 }).klass("link").html(arr[1].description())))
-              .add(tdr().html(dom.decToStr(arr[2])))
-              .add(tdr().html(dom.decToStr(arr[3])))
+              .add(tdr().addStyle("background-color:#f0f0ff;")
+                .html(arr[2].value() === 0 ? "" : dom.decToStr(arr[2])))
+              .add(tdr().addStyle("background-color:#fff0f0;")
+                .html(arr[3].value() === 0 ? "" : dom.decToStr(arr[3])))
+              .add(tdr().html(dom.decToStr(arr[4])))
           ));
     }
 
     const left = $("td").klass("frame")
       .style("width:" + helpWidth + "px;vertical-align:top;white-space:nowrap")
-      .add($("p").html("<b>" + _("Most used accounts") + "</b>"))
-      .add($("ul").style("list-style:none;padding-left:0px;")
-        .addIt(
-            It.from(mostUsed).reverse().drop(1).map(acc =>
-              $("li").add(Ui.link(ev => {
-                  helpAccountClick(
-                    acc,
-                    It.from(db.subaccounts()).findFirst(s => s[0] === acc)[1]
-                  )
-                }).add($("span").klass("link")
-                  .att("title", Dom.accFormat(acc)).html(
-                    Dom.textAdjust(
-                      It.from(db.subaccounts()).findFirst(s => s[0] === acc)[1],
-                      helpWidth - 4
-                    )
-                ))))
-          ))
-      .add($("p").html("<b>" + _("Plan") + "</b>"))
       .add(planDiv)
     ;
 
     const right =  $("td").style("text-align:center;vertical-align:top;")
-      .add($("h2").html(_("Cash")))
-      .add($("table").att("align", "center").add($("tr")
-        .add($("td").add(datePicker.makeText(dateField)))
-        .add($("td").add(acc))
-        .add($("td").add(description))
-        .add($("td").add(amm.input()))
-        .add($("td").add(accept))
-      )).add($("hr"))
+      .add($("h2").html(_("Accs")))
+      .add(mkSubmenu())
+      .add($("hr"))
       .add($("table").att("align", "center")
         .add($("tr")
           .add($("td").att("colspan", 3))
@@ -414,7 +361,7 @@ view_Cash = class {
     const table = $("table").klass("main").add($("tr")
       .add(left)
       .add(right));
-    control.dom().show("cash", table);
+    control.dom().show("accs", table);
 
     planDiv.add(planHelpf());
     listDiv.add(list());

@@ -32,8 +32,8 @@ goog.provide("github_dedeme.Dec")
 
 github_dedeme.Dec/**/ = class {
   /**
-   * @param {number=} value A float value.
-   * @param {number=} scale Number of decimal positions.
+   * @param {number=} value A float value. Default 0.
+   * @param {number=} scale Number of decimal positions. Default 0.
    */
   constructor (value, scale) {
     value = value || 0;

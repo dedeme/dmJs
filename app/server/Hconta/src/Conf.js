@@ -3,6 +3,8 @@
 
 goog.provide("Conf");
 
+goog.require("db_PageConf");
+
 Conf = class {
   /**
    * @param {string} language
@@ -10,10 +12,9 @@ Conf = class {
    * @param {number} year
    * @param {string} page
    * @param {string} planId Last group/account selected
-   * @param {number} diaryIx Index of diary list. 0 means no edited entry.
-   * @param {string} diaryId Last account selected for help
-   * @param {number} diaryListLen Length of diary list.
-   * @param {number} accountListLen Length of account list.
+   * @param {db_PageConf} diaryConf
+   * @param {db_PageConf} cashConf
+   * @param {db_PageConf} accsConf
    */
   constructor (
     language,
@@ -21,10 +22,9 @@ Conf = class {
     year,
     page,
     planId,
-    diaryIx,
-    diaryId,
-    diaryListLen,
-    accountListLen
+    diaryConf,
+    cashConf,
+    accsConf
   ) {
     /** @private */
     this._language = language;
@@ -37,13 +37,11 @@ Conf = class {
     /** @private */
     this._planId = planId;
     /** @private */
-    this._diaryIx = diaryIx;
+    this._diaryConf = diaryConf;
     /** @private */
-    this._diaryId = diaryId;
+    this._cashConf = cashConf;
     /** @private */
-    this._diaryListLen = diaryListLen;
-    /** @private */
-    this._accountListLen = accountListLen;
+    this._accsConf = accsConf;
   }
 
   /** @return {string} */
@@ -56,9 +54,9 @@ Conf = class {
     this._language = value;
   }
 
-  /** @return {!Array<number>} */
+  /** @return {!Array<number>} A 'sorted on the fly' array */
   years () {
-    return this._years;
+    return It.from(this._years).sort().to();
   }
 
   /** @param {!Array<number>} value */
@@ -96,54 +94,25 @@ Conf = class {
     this._planId = value;
   }
 
-  /** @return {number} */
-  diaryIx () {
-    return this._diaryIx;
+  /** @return {db_PageConf} */
+  diaryConf () {
+    return this._diaryConf;
   }
 
-  /** @param {number} value */
-  setDiaryIx (value) {
-    this._diaryIx = value;
+  /** @return {db_PageConf} */
+  cashConf () {
+    return this._cashConf;
   }
 
-  /** @return {string} */
-  diaryId () {
-    return this._diaryId;
-  }
-
-  /** @param {string} value */
-  setDiaryId (value) {
-    this._diaryId = value;
+  /** @return {db_PageConf} */
+  accsConf () {
+    return this._accsConf;
   }
 
   /** @return {boolean} */
   isLastYear () {
-    for (let i = 0; i < this._years.length; ++i) {
-      if (this._years[i] > this._year) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /** @return {number} */
-  diaryListLen () {
-    return this._diaryListLen;
-  }
-
-  /** @param {number} value */
-  setDiaryListLen (value) {
-    this._diaryListLen = value;
-  }
-
-  /** @return {number} */
-  accountListLen () {
-    return this._accountListLen;
-  }
-
-  /** @param {number} value */
-  setAccountListLen (value) {
-    this._accountListLen = value;
+    const years = this.years();
+    return this._year === years[years.length - 1];
   }
 
   /** @return {string} */
@@ -154,10 +123,9 @@ Conf = class {
       this._year,
       this._page,
       this._planId,
-      this._diaryIx,
-      this._diaryId,
-      this._diaryListLen,
-      this._accountListLen
+      this._diaryConf.serialize(),
+      this._cashConf.serialize(),
+      this._accsConf.serialize()
     ]);
   }
 
@@ -168,7 +136,11 @@ Conf = class {
   static restore (serial) {
     if (serial === "") {
       const year = DateDm.now().year();
-      return new Conf("es", [year], year, "settings", "", 0, "572", 20, 20);
+      return new Conf("es", [year], year, "settings", "",
+        new db_PageConf("572", 0, 20),
+        new db_PageConf("572", 0, 20),
+        new db_PageConf("", 0, 20)
+      );
     }
     const pars = /** @type {!Array<?>} */(JSON.parse(serial));
     return new Conf (
@@ -177,10 +149,9 @@ Conf = class {
       pars[2],
       pars[3],
       pars[4],
-      pars[5],
-      pars[6],
-      pars[7],
-      pars[8]
+      db_PageConf.restore(pars[5]),
+      db_PageConf.restore(pars[6]),
+      db_PageConf.restore( pars[7])
     );
   }
 }

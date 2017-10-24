@@ -14,6 +14,7 @@ goog.require("Db");
 goog.require("view_Bye");
 goog.require("view_Diary");
 goog.require("view_Cash");
+goog.require("view_Accs");
 goog.require("view_Plan");
 goog.require("view_Settings");
 
@@ -104,6 +105,9 @@ Main = class {
             case "cash":
               new view_Cash(self).show();
               break;
+            case "accs":
+              new view_Accs(self).show();
+              break;
             case "plan":
               new view_Plan(self).show();
               break;
@@ -147,6 +151,7 @@ Main = class {
   }
 
   // menu ------------------------------
+
   /**
    * @return {void}
    */
@@ -175,7 +180,7 @@ Main = class {
    * @return {void}
    */
   setDiaryId (accId, f) {
-    this.conf().setDiaryId(accId);
+    this.conf().diaryConf().setId(accId);
     this.sendConf(f);
   }
 
@@ -186,7 +191,7 @@ Main = class {
    * @return {void}
    */
   setDiaryIx (ix, f) {
-    this.conf().setDiaryIx(ix);
+    this.conf().diaryConf().setIx(ix);
     this.sendConf(f);
   }
 
@@ -197,7 +202,7 @@ Main = class {
    * @return {void}
    */
   setDiaryListLen (len, f) {
-    this.conf().setDiaryListLen(len);
+    this.conf().diaryConf().setListLen(len);
     this.sendConf(f);
   }
 
@@ -207,7 +212,7 @@ Main = class {
    */
   addDentry (entry) {
     const self = this;
-    self.conf().setDiaryIx(self.db().diaryAdd(entry));
+    self.conf().diaryConf().setIx(self.db().diaryAdd(entry));
     self.sendDb(() => {
       self.sendConf(() => { new view_Diary(self).show(); });
     });
@@ -233,6 +238,77 @@ Main = class {
     const self = this;
     self.db().diaryModify(ix, entry);
     self.sendDb(() => { new view_Diary(self).show(); });
+  }
+
+  // cash ------------------------------
+
+  /**
+   * Sets account for help in 'conf.db'.
+   * @param {string} accId
+   * @param {function ():void} f
+   * @return {void}
+   */
+  setCashId (accId, f) {
+    this.conf().cashConf().setId(accId);
+    this.sendConf(f);
+  }
+
+  /**
+   * Sets index of position in cash list
+   * @param {number} ix
+   * @param {function():void} f
+   * @return {void}
+   */
+  setCashIx (ix, f) {
+    this.conf().cashConf().setIx(ix);
+    this.sendConf(f);
+  }
+
+  /**
+   * Sets number of items in cash list
+   * @param {number} len
+   * @param {function():void} f
+   * @return {void}
+   */
+  setCashListLen (len, f) {
+    this.conf().cashConf().setListLen(len);
+    this.sendConf(f);
+  }
+
+  /**
+   * @param {!db_Dentry} entry
+   * @return {void}
+   */
+  addDentry2 (entry) {
+    const self = this;
+    self.conf().diaryConf().setIx(self.db().diaryAdd(entry));
+    self.sendDb(() => {
+      self.sendConf(() => { new view_Cash(self).show(); });
+    });
+  }
+
+  /**
+   * Sets index of position in diary list
+   * @param {number} ix
+   * @return {void}
+   */
+  goDiary (ix) {
+    const self = this;
+    self.conf().diaryConf().setIx(ix);
+    this.sendConf(() => { new view_Diary(self).show(); });
+  }
+
+  // accs ------------------------------
+
+  /**
+   * Sets account in 'conf.db' and reload Accs page.
+   * @param {string} accId
+   * @return {void}
+   */
+  setAccsId (accId) {
+    const self = this;
+    self.conf().accsConf().setId(accId);
+    self.sendConf(() => { new view_Accs(self).show(); });
   }
 
   // plan ------------------------------

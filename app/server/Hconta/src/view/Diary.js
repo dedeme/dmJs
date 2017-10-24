@@ -49,8 +49,10 @@ view_Diary = class {
     /** @const {!Array<!Array<!Domo>>} */
     const entryRows = [];
 
-    let diaryIx = conf.diaryIx() === 0 ? db.diary().length : conf.diaryIx();
-    let stepList = conf.diaryListLen();
+    let diaryIx = conf.diaryConf().ix() === 0
+      ? db.diary().length
+      : conf.diaryConf().ix();
+    let stepList = conf.diaryConf().listLen();
     let fieldFocussed = 0;
 
     function rowCol (fFocussed) {
@@ -272,6 +274,19 @@ view_Diary = class {
           }
         }
       });
+      if (err === "") {
+        const accs = It.from(debits).addIt(It.from(credits))
+          .map(tp => tp.e1()).to();
+
+        err = It.range(accs.length - 1).reduce("", (s, i) =>
+            s !== "" ? s
+            : It.range(i + 1, accs.length).reduce("", (ss, j) =>
+                ss !== "" ? ss
+                : (accs[i] !== accs[j]) ? ""
+                : _args(_("Account %0 is repeated"), Dom.accFormat(accs[i]))
+              )
+          );
+      }
       if (err !== "") {
         alert(err);
         return;
@@ -348,10 +363,11 @@ view_Diary = class {
     /** @return {void} */
     function dupClick () {
       if (diaryIx < db.diary().length) {
-        diaryIx += stepList
-        if (diaryIx > db.diary().length) {
-          diaryIx = db.diary().length;
+        const ix = diaryIx + stepList
+        if (ix > db.diary().length) {
+          return;
         }
+        diaryIx = ix;
         control.setDiaryIx(diaryIx, () => {
           listDiv.removeAll().add(list());
         })
@@ -361,10 +377,11 @@ view_Diary = class {
     /** @return {void} */
     function ddownClick () {
       if (diaryIx > 1) {
-        diaryIx -= stepList;
+        const ix = diaryIx - stepList;
         if (diaryIx < 1) {
-          diaryIx = 1;
+          return;
         }
+        diaryIx = ix;
         control.setDiaryIx(diaryIx, () => {
           listDiv.removeAll().add(list());
         })
@@ -403,7 +420,7 @@ view_Diary = class {
 
     function deleteClick (i) {
       if (confirm(_args(
-        _("Delete annotation %0:\n%1"),
+        _("Delete annotation %0:\n%1?"),
         i,
         db.diary()[i - 1].description()
       ))) {
@@ -457,7 +474,7 @@ view_Diary = class {
     // View ------------------------------------------------
 
     const planHelpf = () => {
-      const account = conf.diaryId();
+      const account = conf.diaryConf().id();
       return $("ul").style("list-style:none;padding-left:0px;")
         .addIt(It.range(1, 4).map(lg =>
           $("li")
@@ -558,52 +575,47 @@ view_Diary = class {
           .drop(diaryIx - stepList)
           .reverse()
           .map(e => {
+            const n = e.debits().length > e.credits().length
+                    ? e.debits().length
+                    : e.credits().length;
+            const descDentry = $("table").att("align", "center")
+              .addIt(It.range(n).map(i =>
+                $("tr")
+                  .add(td().add(i < e.debits().length
+                    ? Ui.link(ev => {
+                        alert(e.debits()[i].e1() + "\n" + lix)
+                      }).klass("link")
+                        .html(Dom.accFormat(e.debits()[i].e1()))
+                    : $("span")))
+                  .add(tdr().add(i < e.debits().length
+                    ? $("span").html(dom.decToStr(e.debits()[i].e2()))
+                    : $("span")))
+                  .add($("td").html("||"))
+                  .add(tdr().add(i < e.credits().length
+                    ? $("span").html(dom.decToStr(e.credits()[i].e2()))
+                    : $("span")))
+                  .add(td().add(i < e.credits().length
+                    ? Ui.link(ev => {
+                        alert(e.credits()[i].e1() + "\n" + lix)
+                      }).klass("link")
+                        .html(Dom.accFormat(e.credits()[i].e1()))
+                    : $("span")))
+              ));
+            descDentry.e().style/**/.display/**/ = "none";
             const lix = ix--;
             const desc = $("div")
-              .add(Ui.link(ev => { modifyClick(lix); })
-                .klass("link").html(e.description().toString()));
+              .add(Ui.link(ev => {
+                  descDentry.e().style/**/.display/**/ =
+                    descDentry.e().style/**/.display/**/ === "none"
+                      ? "block" : "none";
+                }).klass("link").html(e.description().toString()))
+              .add(descDentry);
             return $("tr")
               .add($("td").add(Ui.link(ev => {
                   deleteClick(lix);
                 }).add(Ui.img("delete"))))
               .add(tdr().html("" + lix))
-              .add(td().add(Ui.link(ev => {
-                  const n = e.debits().length > e.credits().length
-                    ? e.debits().length
-                    : e.credits().length;
-                  desc.removeAll()
-                    .add(Ui.link(ev => { modifyClick(lix); })
-                      .klass("link").html(e.description().toString()))
-                    .add($("table").att("align", "center")
-                      .addIt(It.range(n).map(i =>
-                        $("tr")
-                          .add(td().add(i < e.debits().length
-                            ? Ui.link(ev => {
-                                alert(e.debits()[i].e1() + "\n" + lix)
-                              }).klass("link")
-                                .html(Dom.accFormat(e.debits()[i].e1()))
-                            : $("span")))
-                          .add(tdr().add(i < e.debits().length
-                            ? $("span").html(dom.decToStr(e.debits()[i].e2()))
-                            : $("span")))
-                          .add($("td").add(i == 0
-                            ? Ui.link(ev => {
-                                desc.removeAll()
-                                  .add(Ui.link(ev => { modifyClick(lix); })
-                                    .klass("link")
-                                    .html(e.description().toString()))
-                              }).add(Ui.img("cross"))
-                            : $("span")))
-                          .add(tdr().add(i < e.credits().length
-                            ? $("span").html(dom.decToStr(e.credits()[i].e2()))
-                            : $("span")))
-                          .add(td().add(i < e.credits().length
-                            ? Ui.link(ev => {
-                                alert(e.credits()[i].e1() + "\n" + lix)
-                              }).klass("link")
-                                .html(Dom.accFormat(e.credits()[i].e1()))
-                            : $("span")))
-                      )));
+              .add(td().add(Ui.link(ev => {modifyClick(lix);
                 }).klass("link").html(e.date().format("%D/%M"))))
               .add(tdl().add(desc))
               .add(tdr().html(dom.decToStr(new Dec(
@@ -619,7 +631,7 @@ view_Diary = class {
       .add($("p").html("<b>" + _("Most used accounts") + "</b>"))
       .add($("ul").style("list-style:none;padding-left:0px;")
         .addIt(
-            It.from(mostUsed).map(acc =>
+            It.from(mostUsed).reverse().map(acc =>
               $("li").add(Ui.link(ev => {
                   helpAccountClick(
                     acc,

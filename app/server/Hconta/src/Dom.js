@@ -59,6 +59,8 @@ Dom = class {
         .add(separator())
         .add(entry(_("Cash"), "cash"))
         .add(separator())
+        .add(entry(_("Accs"), "accs"))
+        .add(separator())
         .add(entry(_("Plan"), "plan")))
       .add($("td").style("text-align:right")
         .add(entry(_("Settings"), "settings"))
