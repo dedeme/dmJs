@@ -3,31 +3,69 @@
 # src/view/Plan.js: 303
 %0 can not be deleted because %1 = '%0' can not be deleted, because\nthere are %1 diarty entries which use it
 
-# src/view/Diary.js: 110
-# src/view/Diary.js: 113
-# src/view/Diary.js: 227
+# src/Main.js: 482
+'%0' can not be read = '%0' can not be read
+
+# src/view/Backups.js: 60
+'%0' is an empty file = '%0' is an empty file
+
+# src/view/Diary.js: 112
+# src/view/Diary.js: 115
+# src/view/Diary.js: 229
 '%0' is not a number = '%0' is not a number
 
 # src/user/Auth.js: 39
 # src/user/Chpass.js: 29
-# src/view/Cash.js: 72
-# src/view/Diary.js: 547
+# src/view/Cash.js: 71
+# src/view/Diary.js: 551
 Accept = Accept
 
-# src/view/Diary.js: 284
+# src/view/Diary.js: 286
 Account %0 is repeated = Account %0 is repeated
 
-# src/view/Diary.js: 224
+# src/view/Diary.js: 226
 Account for ammount %0 is missing = Account for ammount %0 is missing
 
+# src/view/Cash.js: 118
+Account is missing = Account is missing
+
 # src/view/Plan.js: 54
+# src/view/Summaries.js: 96
 Accounts = Accounts
 
+# src/Dom.js: 62
+# src/view/Accs.js: 290
+Accs = Accs
+
+# src/view/Backups.js: 62
+# src/view/Backups.js: 100
+All the data will be replaced = ATENTION!: All the data will be replaced.\nContinue?
+
+# src/view/Cash.js: 133
+Ammount is 0 = Ammount is 0
+
+# src/view/Cash.js: 129
+Ammount is missing = Ammount is missing
+
+# src/Dom.js: 68
+# src/view/Backups.js: 85
+Backs = Backups
+
+# src/view/Backups.js: 51
+Backup file is missing = Backup file is missin
+
+# src/view/Backups.js: 116
+Backups = Backups
+
+# src/view/Summaries.js: 88
+Balance = Balance
+
 # src/user/Chpass.js: 33
-# src/view/Diary.js: 544
+# src/view/Diary.js: 548
 Cancel = Cancel
 
 # src/Dom.js: 60
+# src/view/Cash.js: 342
 Cash = Cash
 
 # src/view/Settings.js: 24
@@ -42,6 +80,12 @@ Change password = Change password
 # src/user/Auth.js: 162
 # src/user/Chpass.js: 147
 Check gray squares = Check gray squares
+
+# src/view/Backups.js: 93
+Clear = Clear
+
+# src/view/Backups.js: 90
+Clear trash? = Clear trash?
 
 # src/user/Expired.js: 36
 Click %0 to continue. = Click %0 to continue.
@@ -58,32 +102,42 @@ Current password = Current password
 # src/user/Chpass.js: 51
 Current password is missing = 'Current password' is missing
 
-# src/view/Diary.js: 233
+# src/view/Cash.js: 113
+# src/view/Diary.js: 235
 Date is missing = Date is missing
 
-# src/view/Diary.js: 293
+# src/view/Diary.js: 295
 Debits sum is different from Credits sum = Debits sum is different from Credits sum
 
 # src/view/Plan.js: 296
 Delete '%0'? = Delete '%0'?
 
-# src/view/Diary.js: 419
+# src/view/Diary.js: 423
 Delete annotation %0:\n%1? = Delete annotation %0:\n%1?
 
 # src/view/Plan.js: 263
 Description = Description
 
-# src/view/Diary.js: 238
+# src/view/Cash.js: 124
+# src/view/Diary.js: 240
 # src/view/Plan.js: 214
 Description is missing = Description is missing
 
 # src/Dom.js: 58
-# src/view/Cash.js: 204
-# src/view/Diary.js: 653
+# src/view/Diary.js: 652
 Diary = Diary
+
+# src/view/Backups.js: 119
+Download = Download
 
 # src/user/Chpass.js: 132
 Fail trying to change password = Fail trying to change password
+
+# src/Main.js: 508
+Fail unzipping backup = Fail unzipping backup
+
+# src/Main.js: 510
+File is not a Hconta backup = File is not a Hconta backup
 
 # src/user/Auth.js: 89
 # src/user/Chpass.js: 47
@@ -107,7 +161,7 @@ here = here
 # src/user/Auth.js: 124
 Keep connected = Keep connected
 
-# src/view/Diary.js: 174
+# src/view/Diary.js: 176
 Last row has data = Last row has data
 
 # src/user/Auth.js: 182
@@ -117,11 +171,14 @@ Login = Login
 # src/view/Bye.js: 33
 Logout-message = <p>%0 has finished.</p><p><b>Good by!</b></p>
 
-# src/view/Cash.js: 182
-# src/view/Diary.js: 632
+# src/view/Backups.js: 31
+Make backup = Make backup
+
+# src/view/Cash.js: 320
+# src/view/Diary.js: 631
 Most used accounts = Most used accounts
 
-# src/view/Diary.js: 661
+# src/view/Diary.js: 660
 New = New
 
 # src/user/Chpass.js: 97
@@ -136,47 +193,73 @@ New password is missing = 'New password' is missing
 # src/view/Plan.js: 262
 Nº = Nº
 
+# src/view/Backups.js: 55
+Only one file can be selected = Only one file can be selected
+
+# src/view/Summaries.js: 84
+P & L = P & L
+
 # src/user/Auth.js: 109
 Password = Password
 
 # src/user/Auth.js: 66
 Password is missing = Password is missing
 
-# src/Main.js: 374
+# src/Main.js: 573
 Password successfully changed = Password successfully changed
 
-# src/Dom.js: 62
-# src/view/Cash.js: 199
-# src/view/Diary.js: 649
+# src/Dom.js: 66
+# src/view/Cash.js: 337
+# src/view/Diary.js: 648
 Plan = Plan
 
-# src/view/Diary.js: 134
+# src/view/Backups.js: 124
+Restore = Restore
+
+# src/view/Backups.js: 48
+Restore backup = Restore backup
+
+# src/view/Diary.js: 136
 Result is a credit,\nbut last credit field is not empty = Result is a Credit,\nbut last Credit field is not empty.
 
-# src/view/Diary.js: 143
+# src/view/Diary.js: 145
 Result is a debit,\nbut last debit field is not empty = Result is a Debit,\nbut last Debit field is not empty.
 
 # src/user/Expired.js: 34
 Session is expired. = Session is expired.
 
-# src/Dom.js: 64
+# src/Dom.js: 70
 # src/view/Settings.js: 21
 Settings = Settings
 
-# src/view/Diary.js: 167
+# src/view/Diary.js: 169
 Single row can not be removed = Single row can not be removed
 
+# src/view/Summaries.js: 80
+Statements = Statements
+
 # src/view/Plan.js: 61
+# src/view/Summaries.js: 100
 Subaccounts = Subaccounts
 
 # src/view/Plan.js: 49
 Subgroups = Subgroups
 
-# src/view/Diary.js: 126
+# src/Dom.js: 64
+# src/view/Summaries.js: 104
+Summaries = Summaries
+
+# src/view/Summaries.js: 92
+Summary = Summary
+
+# src/view/Diary.js: 128
 Sums of Debits and Credits are equals = Sums of Debits and Credits are equals
 
-# src/view/Diary.js: 297
+# src/view/Diary.js: 299
 Sums of Debits and Credits are zero = Sums of Debits and Credits are zero
+
+# src/view/Backups.js: 88
+Trash = Trash
 
 # src/user/Auth.js: 104
 User = User

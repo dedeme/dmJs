@@ -1,16 +1,12 @@
-// Copyright 13-Oct-2017 ºDeme
+// Copyright 23-Oct-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("view_Accs");
 
-goog.require("github_dedeme.DatePicker");
-goog.require("github_dedeme.NumberField");
 goog.require("db_Dentry");
 
 {
   const helpWidth = 250;
-  const DatePicker = github_dedeme.DatePicker/**/;
-  const NumberField = github_dedeme.NumberField/**/;
 
 view_Accs = class {
   /**

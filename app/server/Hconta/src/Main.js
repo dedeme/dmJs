@@ -15,7 +15,9 @@ goog.require("view_Bye");
 goog.require("view_Diary");
 goog.require("view_Cash");
 goog.require("view_Accs");
+goog.require("view_Summaries");
 goog.require("view_Plan");
+goog.require("view_Backups");
 goog.require("view_Settings");
 
 Main = class {
@@ -37,6 +39,16 @@ Main = class {
     );
     /** @private */
     this._dom = new Dom(this);
+    /**
+     * @private
+     * @type {!Array<string>}
+     */
+    this._backups = [];
+    /**
+     * @private
+     * @type {!Array<string>}
+     */
+    this._trash = [];
   }
 
   /** @return {string} */
@@ -85,6 +97,16 @@ Main = class {
     return this._dom;
   }
 
+  /** @return {!Array<string>} */
+  backups () {
+    return this._backups;
+  }
+
+  /** @return {!Array<string>} */
+  trash () {
+    return this._trash;
+  }
+
   run () {
     const self = this;
     const client = self._client;
@@ -97,7 +119,9 @@ Main = class {
           conf.language() === "es" ? I18n.es() : I18n.en();
           let data = {"rq": "getDb", "year": "" + conf.year()};
           client.send(data, rp => {
-            self._db = Db.restore(rp["actions"]);
+            self._db = Db.restore(rp["db"]);
+            this._backups = rp["backups"];
+            this._trash = rp["trash"];
             switch(conf.page()) {
             case "diary":
               new view_Diary(self).show();
@@ -108,8 +132,14 @@ Main = class {
             case "accs":
               new view_Accs(self).show();
               break;
+            case "summaries":
+              new view_Summaries(self).show();
+              break;
             case "plan":
               new view_Plan(self).show();
+              break;
+            case "backups":
+              new view_Backups(self).show();
               break;
             case "settings":
               new view_Settings(self).show();
@@ -126,6 +156,7 @@ Main = class {
   }
 
   // server ----------------------------
+
   /**
    * @private
    * @param {function():void} f
@@ -311,6 +342,17 @@ Main = class {
     self.sendConf(() => { new view_Accs(self).show(); });
   }
 
+  // summaries -------------------------
+
+  /**
+   * @param {string} op Summaries option
+   */
+  setSummary (op) {
+    const self = this;
+    self.conf().setSummary(op);
+    self.sendConf(() => { new view_Summaries(self).show(); });
+  }
+
   // plan ------------------------------
 
   /**
@@ -412,7 +454,113 @@ Main = class {
     });
   }
 
+  // backups ---------------------------
+
+  /**
+   * Downloads a backup
+   * @param {function(string):void} action This callback passes the name of
+   *  backup file.
+   * @return {void}
+   */
+  backupDownload (action) {
+    const data = {"rq": "backup"};
+    this._client.send(data, rp => { action(rp["name"]); });
+  }
+
+  /**
+   * Restores a backup
+   * @param {*} file
+   * @param {function(number):void} progress
+   */
+  backupRestore (file, progress) {
+    const self = this;
+    const step = 25000;
+    let start = 0;
+
+    const reader = new FileReader();
+    reader.onerror/**/ = evt => {
+      alert(_args(_("'%0' can not be read"), file.name/**/));
+      const data = {"rq": "restoreAbort"};
+      this._client.send(data, () => {
+        new view_Backups(self).show();
+      });
+    }
+    reader.onloadend/**/ = evt => {
+      if (evt.target/**/.readyState/**/ === FileReader.DONE/**/) { // DONE == 2
+        const bindata = new Uint8Array(evt.target/**/.result/**/);
+        progress(start);
+        if (bindata.length > 0) {
+          const data = {
+            "rq": "restoreAppend",
+            "data": B64.encodeBytes(bindata)
+          };
+          this._client.send(data, rp => {
+            start += step;
+            var blob = file.slice(start, start + step);
+            reader.readAsArrayBuffer(blob);
+          });
+        } else {
+          progress(file.size/**/);
+          const data = {"rq": "restoreEnd"};
+          this._client.send(data, (rp) => {
+            const fail = rp["fail"];
+            if (fail === "restore:unzip") {
+              alert(_("Fail unzipping backup"));
+            } else if (fail === "restore:version") {
+              alert(_("File is not a Hconta backup"));
+            }
+            self.run();
+          });
+        }
+      }
+    };
+
+    function append() {
+      var blob = file.slice(start, start + step);
+      reader.readAsArrayBuffer(blob);
+    }
+
+    const data = {"rq": "restoreStart"};
+    this._client.send(data, () => {
+      append();
+    });
+  }
+
+  /** @return {void} */
+  clearTrash () {
+    const self = this;
+    const data = {"rq": "clearTrash"};
+    this._client.send(data, () => {
+      self.run();
+    });
+  }
+
+  /**
+   * @param {string} f
+   * @return {void}
+   */
+  autorestore (f) {
+    const self = this;
+    const data = {"rq": "autorestore", "file": f};
+    this._client.send(data, () => {
+      self.run();
+    });
+  }
+
+  /**
+   * @param {string} f
+   * @return {void}
+   */
+  restoreTrash (f) {
+    const self = this;
+    const data = {"rq": "restoreTrash", "file": f};
+    this._client.send(data, () => {
+      self.run();
+    });
+  }
+
   // settings --------------------------
+
   /**
    * @return {void}
    */

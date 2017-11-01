@@ -11,6 +11,7 @@ Conf = class {
    * @param {!Array<number>} years
    * @param {number} year
    * @param {string} page
+   * @param {string} summary Last selected option on summaries
    * @param {string} planId Last group/account selected
    * @param {db_PageConf} diaryConf
    * @param {db_PageConf} cashConf
@@ -21,6 +22,7 @@ Conf = class {
     years,
     year,
     page,
+    summary,
     planId,
     diaryConf,
     cashConf,
@@ -34,6 +36,8 @@ Conf = class {
     this._year = year;
     /** @private */
     this._page = page;
+    /** @private */
+    this._summary = summary;
     /** @private */
     this._planId = planId;
     /** @private */
@@ -85,6 +89,16 @@ Conf = class {
   }
 
   /** @return {string} */
+  summary () {
+    return this._summary;
+  }
+
+  /** @param {string} value */
+  setSummary (value) {
+    this._summary = value;
+  }
+
+  /** @return {string} */
   planId () {
     return this._planId;
   }
@@ -122,6 +136,7 @@ Conf = class {
       this._years,
       this._year,
       this._page,
+      this._summary,
       this._planId,
       this._diaryConf.serialize(),
       this._cashConf.serialize(),
@@ -136,7 +151,7 @@ Conf = class {
   static restore (serial) {
     if (serial === "") {
       const year = DateDm.now().year();
-      return new Conf("es", [year], year, "settings", "",
+      return new Conf("es", [year], year, "settings", "0A", "",
         new db_PageConf("572", 0, 20),
         new db_PageConf("572", 0, 20),
         new db_PageConf("", 0, 20)
@@ -149,9 +164,10 @@ Conf = class {
       pars[2],
       pars[3],
       pars[4],
-      db_PageConf.restore(pars[5]),
+      pars[5],
       db_PageConf.restore(pars[6]),
-      db_PageConf.restore( pars[7])
+      db_PageConf.restore(pars[7]),
+      db_PageConf.restore( pars[8])
     );
   }
 }
