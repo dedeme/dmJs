@@ -357,7 +357,7 @@ Db = class {
     });
 
     return It.keys(accs).sortf((a1, a2) => accs[a1] < accs[a2] ? 1 : -1)
-      .take(7).to();
+      .take(15).to();
   }
 
   /** @return {string} */

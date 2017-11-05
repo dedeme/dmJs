@@ -98,11 +98,12 @@ view_Cash = class {
 
     /**
      * @param {string} id
-     * @param {string} description
+     * @param {string} descr
      * @return {void}
      */
-    function helpAccountClick (id, description) {
-      acc.value(Dom.accFormat(id)).att("title", description);
+    function helpAccountClick (id, descr) {
+      acc.value(Dom.accFormat(id)).att("title", descr);
+      description.e().focus();
     }
 
     // Entry ---------------------------
