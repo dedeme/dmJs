@@ -162,10 +162,13 @@ view_Cash = class {
     function nextCash (cashIx) {
       const lg = db.diary().length;
       ++cashIx;
-      while (cashIx < lg && !cashData[cashIx - 1][1].containsAccount(cashAcc)) {
+      while (
+        cashIx < lg &&
+        !cashData[cashIx - 1][1].containsAccount(cashAcc)
+      ) {
         ++cashIx;
       }
-      return cashIx >= lg ? -1 : cashIx;
+      return cashIx > lg ? -1 : cashIx;
     }
 
     /**
@@ -205,7 +208,7 @@ view_Cash = class {
     function dupClick () {
       let nextIx = nextCash(cashIx + stepList);
       if (nextIx === -1) {
-        nextIx = previousCash(db.diary().length)
+        nextIx = previousCash(db.diary().length + 1)
       }
       if (nextIx !== -1) {
         cashIx = nextIx;
@@ -252,10 +255,7 @@ view_Cash = class {
     /** @return {void} */
     function monthClick (i) {
       let ix =
-        It.from(db.diary()).takeUntil(e => e.date().month() > i).size()
-      if (ix !== db.diary().length) {
-        ++ix;
-      }
+        It.from(db.diary()).takeUntil(e => e.date().month() > i).size() + 1;
       ix = previousCash(ix);
 
       cashIx = ix === -1 ? 0 : ix;
@@ -320,7 +320,7 @@ view_Cash = class {
       .add($("p").html("<b>" + _("Most used accounts") + "</b>"))
       .add($("ul").style("list-style:none;padding-left:0px;")
         .addIt(
-            It.from(mostUsed).reverse().drop(1).map(acc =>
+            It.from(mostUsed).drop(1).map(acc =>
               $("li").add(Ui.link(ev => {
                   helpAccountClick(
                     acc,

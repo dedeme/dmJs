@@ -6,7 +6,8 @@ goog.provide("db_PageConf");
 
 db_PageConf = class {
   /**
-   * @param {string} id Account identifier for help
+   * @param {string} id Account identifier for help or for display (in Accs
+   *                    page)
    * @param {number} ix First annotation number of list
    * @param {number} listLen Len of list
    */

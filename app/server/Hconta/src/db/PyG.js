@@ -21,6 +21,21 @@ db_PyG = class {
   }
 
   /**
+   * @param {string} id
+   * @return {string}
+   */
+  static groupsGet (id) {
+    const gs = db_PyG.groups();
+    for (let i = 0; i < gs.length; ++i) {
+      const g = gs[i];
+      if (g[0] === id) {
+        return g[1];
+      }
+    }
+    throw ("Group " + id + " is missing");
+  }
+
+  /**
    * Fields:
    *    id
    *    description
@@ -40,9 +55,9 @@ db_PyG = class {
       ["09", "Imputación de subvenciones "],
       ["10", "Excesos de provisiones"],
       ["11", "Deterioro y resultado por enajenaciones del inmovilizado"],
-      ["12", " Otros resultados"],
+      ["12", "Otros resultados"],
       ["13", "Ingresos financieros"],
-      ["14", " Gastos financieros"],
+      ["14", "Gastos financieros"],
       ["15", "Variación de valor razonable en instrumentos financieros"],
       ["16", "Diferencias de cambio"],
       ["17", "Deterioro y resultado por enajenaciones de instr. financieros"],
@@ -74,7 +89,7 @@ db_PyG = class {
    * @return {string}
    */
   static groupId(id) {
-    return id < "13" ? "A" : id < "18" ? "B" : "D";
+    return id < "13" ? "A" : id < "18" ? "B" : "C";
   }
 }
 

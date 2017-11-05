@@ -31,7 +31,7 @@ view_Accs = class {
 
     let ix = 1;
     let sum = 0;
-    const cashData = It.from(db.diary()).map(e => {
+    const accsData = It.from(db.diary()).map(e => {
         const ammD = It.from(e.debits())
             .filter(tp => tp.e1().startsWith(account))
             .reduce(0, (s, tp) => s += tp.e2().value());
@@ -50,11 +50,10 @@ view_Accs = class {
 
     const planDiv = $("div");
     const listDiv = $("div").style("width:100%");
-
-    let cashIx = conf.cashConf().ix() === 0
+    let accsIx = conf.accsConf().ix() === 0
       ? db.diary().length
-      : conf.cashConf().ix();
-    let stepList = conf.cashConf().listLen();
+      : conf.accsConf().ix();
+    let stepList = conf.accsConf().listLen();
 
     // Control ---------------------------------------------
 
@@ -73,38 +72,38 @@ view_Accs = class {
     /**
      * @return {number} next annotation index of cash or -1
      */
-    function nextCash (cashIx) {
+    function nextAnn (accsIx) {
       const lg = db.diary().length;
-      ++cashIx;
+      ++accsIx;
       while (
-        cashIx < lg &&
-        !cashData[cashIx - 1][1].containsAccountOrGroup(account)
+        accsIx < lg &&
+        !accsData[accsIx - 1][1].containsAccountOrGroup(account)
       ) {
-        ++cashIx;
+        ++accsIx;
       }
-      return cashIx >= lg ? -1 : cashIx;
+      return accsIx > lg ? -1 : accsIx;
     }
 
     /**
      * @return {number} previous annotation index of cash or -1
      */
-    function previousCash (cashIx) {
-      --cashIx;
+    function previousAnn (accsIx) {
+      --accsIx;
       while (
-        cashIx > 0 &&
-        !cashData[cashIx - 1][1].containsAccountOrGroup(account)
+        accsIx > 0 &&
+        !accsData[accsIx - 1][1].containsAccountOrGroup(account)
       ) {
-        --cashIx;
+        --accsIx;
       }
-      return cashIx <= 0 ? -1 : cashIx;
+      return accsIx <= 0 ? -1 : accsIx;
     }
 
     /** @return {void} */
     function upClick () {
-      const nextIx = nextCash(cashIx);
+      const nextIx = nextAnn(accsIx);
       if (nextIx !== -1) {
-        cashIx = nextIx;
-        control.setCashIx(cashIx, () => {
+        accsIx = nextIx;
+        control.setAccsIx(accsIx, () => {
           listDiv.removeAll().add(list());
         })
       }
@@ -112,10 +111,10 @@ view_Accs = class {
 
     /** @return {void} */
     function downClick () {
-      const previousIx = previousCash(cashIx);
+      const previousIx = previousAnn(accsIx);
       if (previousIx !== -1) {
-        cashIx = previousIx;
-        control.setCashIx(cashIx, () => {
+        accsIx = previousIx;
+        control.setAccsIx(accsIx, () => {
           listDiv.removeAll().add(list());
         })
       }
@@ -123,13 +122,13 @@ view_Accs = class {
 
     /** @return {void} */
     function dupClick () {
-      let nextIx = nextCash(cashIx + stepList);
+      let nextIx = nextAnn(accsIx + stepList);
       if (nextIx === -1) {
-        nextIx = previousCash(db.diary().length)
+        nextIx = previousAnn(db.diary().length + 1)
       }
       if (nextIx !== -1) {
-        cashIx = nextIx;
-        control.setCashIx(cashIx, () => {
+        accsIx = nextIx;
+        control.setAccsIx(accsIx, () => {
           listDiv.removeAll().add(list());
         })
       }
@@ -137,13 +136,13 @@ view_Accs = class {
 
     /** @return {void} */
     function ddownClick () {
-      let previousIx = previousCash(cashIx - stepList);
+      let previousIx = previousAnn(accsIx - stepList);
       if (previousIx === -1) {
-        previousIx = nextCash(0);
+        previousIx = nextAnn(0);
       }
       if (previousIx !== -1) {
-        cashIx = previousIx;
-        control.setCashIx(cashIx, () => {
+        accsIx = previousIx;
+        control.setAccsIx(accsIx, () => {
           listDiv.removeAll().add(list());
         })
       }
@@ -172,14 +171,11 @@ view_Accs = class {
     /** @return {void} */
     function monthClick (i) {
       let ix =
-        It.from(db.diary()).takeUntil(e => e.date().month() > i).size()
-      if (ix !== db.diary().length) {
-        ++ix;
-      }
-      ix = previousCash(ix);
+        It.from(db.diary()).takeUntil(e => e.date().month() > i).size() + 1;
+      ix = previousAnn(ix);
 
-      cashIx = ix === -1 ? 0 : ix;
-      control.setCashIx(cashIx, () => {
+      accsIx = ix === -1 ? 0 : ix;
+      control.setAccsIx(accsIx, () => {
         listDiv.removeAll().add(list());
       })
     }
@@ -258,8 +254,8 @@ view_Accs = class {
       const tdr = () => td().addStyle("text-align:right");
       const tdl = () => td().addStyle("text-align:left");
 
-      const data = It.from(cashData)
-        .take(cashIx)
+      const data = It.from(accsData)
+        .take(accsIx)
         .filter(arr => arr[2].value() + arr[3].value() !== 0)
         .to();
       return $("table").att("align", "center")

@@ -22,6 +22,21 @@ db_Balance = class {
   }
 
   /**
+   * @param {string} id
+   * @return {string}
+   */
+  static groupsGet (id) {
+    const gs = db_Balance.groups();
+    for (let i = 0; i < gs.length; ++i) {
+      const g = gs[i];
+      if (g[0] === id) {
+        return g[1];
+      }
+    }
+    throw ("Group " + id + " is missing");
+  }
+
+  /**
    * Fields:
    *    id
    *    description

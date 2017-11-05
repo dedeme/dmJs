@@ -103,7 +103,7 @@ view_Plan = class {
                   const ename2 = Dom.textAdjust(ename, 340);
                   return $("li")
                     .add(Ui.link(ev => { groupField.value("B" + ekey); })
-                      .klass("link").att("title", ename).html(ename2));
+                      .klass("link").att("title", "B" + ekey).html(ename2));
                 }))
             );
         });
@@ -125,7 +125,7 @@ view_Plan = class {
                   const ename2 = Dom.textAdjust(ename, 337);
                   return $("li")
                     .add(Ui.link(ev => { groupField.value("P" + ekey); })
-                      .klass("link").att("title", ename).html(ename2));
+                      .klass("link").att("title", "P" + ekey).html(ename2));
                 }))
             );
         });

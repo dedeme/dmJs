@@ -4,11 +4,13 @@
 goog.provide("view_Diary");
 
 goog.require("github_dedeme.DatePicker");
+goog.require("github_dedeme.NumberField");
 goog.require("db_Dentry");
 
 {
   const helpWidth = 250;
   const DatePicker = github_dedeme.DatePicker/**/;
+  const NumberField = github_dedeme.NumberField/**/;
 
 view_Diary = class {
   /**
@@ -87,7 +89,7 @@ view_Diary = class {
     function helpAccountClick (id, description) {
       const [row, col] = rowCol(fieldFocussed);
       if (entryRows[row]) {
-        entryRows[row][col].value(Dom.accFormat(id)).att("title", description);
+        entryRows[row][col].html(Dom.accFormat(id)).att("title", description);
       }
     }
 
@@ -250,10 +252,10 @@ view_Diary = class {
       It.from(entryRows).each(dm => {
         /** @const !Array<string>} */
         const e = [
-          dm[0].value().trim(),
+          dm[0].html().trim(),
           dm[1].value().trim(),
           dm[2].value().trim(),
-          dm[3].value().trim()
+          dm[3].html().trim()
         ]
         if (err === "") {
           err = ctrl(e[0], e[1]);
@@ -324,7 +326,11 @@ view_Diary = class {
 
     /** return {void} */
     function newClick () {
-      datePicker.setDate(db.diary()[db.diary().length - 1].date());
+      datePicker.setDate(
+        db.diary().length > 1
+          ? db.diary()[db.diary().length - 1].date()
+          : DateDm.now()
+      );
       number.value(db.diary().length + 1);
       description.value("");
       entryRows.splice(0, entryRows.length);
@@ -364,10 +370,7 @@ view_Diary = class {
     function dupClick () {
       if (diaryIx < db.diary().length) {
         const ix = diaryIx + stepList
-        if (ix > db.diary().length) {
-          return;
-        }
-        diaryIx = ix;
+        diaryIx =  ix > db.diary().length ? db.diary().length : ix;
         control.setDiaryIx(diaryIx, () => {
           listDiv.removeAll().add(list());
         })
@@ -378,10 +381,7 @@ view_Diary = class {
     function ddownClick () {
       if (diaryIx > 1) {
         const ix = diaryIx - stepList;
-        if (diaryIx < 1) {
-          return;
-        }
-        diaryIx = ix;
+        diaryIx = ix <  1 ? 1 : ix;
         control.setDiaryIx(diaryIx, () => {
           listDiv.removeAll().add(list());
         })
@@ -451,7 +451,7 @@ view_Diary = class {
       entryRows.splice(0, entryRows.length);
       It.range(n).each(i => {
         entryRows.push([
-          mkAccEntry().value(
+          mkAccEntry().html(
             i < e.debits().length ? Dom.accFormat(e.debits()[i].e1()) : ""
           ),
           mkAmmountEntry(i * 2).value(
@@ -460,7 +460,7 @@ view_Diary = class {
           mkAmmountEntry(i * 2 + 1).value(
             i < e.credits().length ? dom.decToStr(e.credits()[i].e2()) : ""
           ),
-          mkAccEntry().value(
+          mkAccEntry().html(
             i < e.credits().length ? Dom.accFormat(e.credits()[i].e1()) : ""
           )
         ]);
@@ -497,24 +497,35 @@ view_Diary = class {
             .html(Dom.textAdjust(e[1], helpWidth - 16)))));
     }
 
-    const mkAccEntry = () => $("input").att("type", "text").klass("frame")
-      .style("width:45px;color:#000000;text-align:center;")
-      .disabled(true);
+    const mkAccEntry = () => {
+      const i = $("div");
+      i.klass("frame")
+      .style(
+        "width:48px;color:#000000;" +
+        "text-align:center;vertical-align:middle;"
+      ).on("dblclick", ev => { i.html(""); });
+      return i;
+    }
 
-    const mkAmmountEntry = (ix) => $("input").att("type", "text")
-      .style("width:65px").on("focus", ev => { ammountFocus(ix); })
-        .on("dblclick", ev => { ammountDblclick(ix); });
+    const mkAmmountEntry = (ix) => {
+      const amm = new NumberField(lang === "en", "accept");
+      return amm.input().att("type", "text")
+      .style("width:65px").on("focus", ev => { ammountFocus(ix); });
+    }
 
     const fieldFocus = (ix) => {
       const [row, col] = rowCol(ix);
       entryRows[row][col].style(
-        "width:45px;color:#000000;background-color:#fffff0;text-align:center;")
+        "width:48px;color:#000000;" +
+        "background-color:#fffff0;text-align:center;vertical-align:text-bottom;"
+      );
     }
 
     const fieldUnfocus = (ix) => {
       const [row, col] = rowCol(ix);
       entryRows[row][col].style(
-        "width:45px;color:#000000;background-color:#ffffff;text-align:center;")
+        "width:48px;color:#000000;" +
+        "background-color:#ffffff;text-align:center;vertical-align:middle;")
     }
 
     /** @const {function(number=, !DateDm=):!Domo} */
@@ -583,7 +594,7 @@ view_Diary = class {
                 $("tr")
                   .add(td().add(i < e.debits().length
                     ? Ui.link(ev => {
-                        alert(e.debits()[i].e1() + "\n" + lix)
+                        control.goToAcc(e.debits()[i].e1(), lix)
                       }).klass("link")
                         .html(Dom.accFormat(e.debits()[i].e1()))
                     : $("span")))
@@ -596,7 +607,7 @@ view_Diary = class {
                     : $("span")))
                   .add(td().add(i < e.credits().length
                     ? Ui.link(ev => {
-                        alert(e.credits()[i].e1() + "\n" + lix)
+                        control.goToAcc(e.credits()[i].e1(), lix)
                       }).klass("link")
                         .html(Dom.accFormat(e.credits()[i].e1()))
                     : $("span")))
@@ -631,7 +642,7 @@ view_Diary = class {
       .add($("p").html("<b>" + _("Most used accounts") + "</b>"))
       .add($("ul").style("list-style:none;padding-left:0px;")
         .addIt(
-            It.from(mostUsed).reverse().map(acc =>
+            It.from(mostUsed).map(acc =>
               $("li").add(Ui.link(ev => {
                   helpAccountClick(
                     acc,

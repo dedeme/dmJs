@@ -42,6 +42,21 @@ Db = class {
   }
 
   /**
+   * @param {string} id
+   * @return {string}
+   */
+  static groupsGet (id) {
+    const gs = Db.groups();
+    for (let i = 0; i < gs.length; ++i) {
+      const g = gs[i];
+      if (g[0] === id) {
+        return g[1];
+      }
+    }
+    throw ("Group " + id + " is missing");
+  }
+
+  /**
    * Fields:
    *   id: 2 digits
    *   description
@@ -96,6 +111,21 @@ Db = class {
 
   /**
    * @param {string} id
+   * @return {!Array<string>} 0 = description, 1 = summary
+   */
+  accountsGet (id) {
+    const accs = this._accounts;
+    for (let i = 0; i < accs.length; ++i) {
+      const acc = accs[i];
+      if (acc[0] === id) {
+        return [acc[1], acc[2]];
+      }
+    }
+    throw ("Account " + id + " is missing");
+  }
+
+  /**
+   * @param {string} id
    * @param {string} description
    * @param {string} summary
    * @return {void}
@@ -142,6 +172,21 @@ Db = class {
    */
   subaccounts () {
     return this._subaccounts;
+  }
+
+  /**
+   * @param {string} id
+   * @return {string}
+   */
+  static subaccountsGet (id) {
+    const subs = this._subaccounts;
+    for (let i = 0; i < subs.length; ++i) {
+      const sub = subs[i];
+      if (sub[0] === id) {
+        return sub[1];
+      }
+    }
+    throw ("Subaccount " + id + " is missing");
   }
 
   /**
@@ -307,11 +352,11 @@ Db = class {
       accs[s] = acc ? acc + 1 : 1;
     };
     It.from(this._diary).each(e => {
-      It.from(e.debits()).each(d => { add(d.e1()); })
-      It.from(e.credits()).each(c => { add(c.e1()); })
+      It.from(e.debits()).each(d => { add(d.e1()); });
+      It.from(e.credits()).each(c => { add(c.e1()); });
     });
 
-    return It.keys(accs).sortf((a1, a2) => accs[a1] > accs[a2] ? 1 : -1)
+    return It.keys(accs).sortf((a1, a2) => accs[a1] < accs[a2] ? 1 : -1)
       .take(7).to();
   }
 

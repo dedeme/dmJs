@@ -244,6 +244,7 @@ Main = class {
   addDentry (entry) {
     const self = this;
     self.conf().diaryConf().setIx(self.db().diaryAdd(entry));
+    self.conf().cashConf().setIx(self.conf().diaryConf().ix());
     self.sendDb(() => {
       self.sendConf(() => { new view_Diary(self).show(); });
     });
@@ -269,6 +270,13 @@ Main = class {
     const self = this;
     self.db().diaryModify(ix, entry);
     self.sendDb(() => { new view_Diary(self).show(); });
+  }
+
+  goToAcc (acc, lix) {
+    const accsConf = this.conf().accsConf();
+    accsConf.setId(acc);
+    accsConf.setIx(lix);
+    this.go("accs");
   }
 
   // cash ------------------------------
@@ -313,6 +321,7 @@ Main = class {
   addDentry2 (entry) {
     const self = this;
     self.conf().diaryConf().setIx(self.db().diaryAdd(entry));
+    self.conf().cashConf().setIx(self.conf().diaryConf().ix());
     self.sendDb(() => {
       self.sendConf(() => { new view_Cash(self).show(); });
     });
@@ -339,7 +348,30 @@ Main = class {
   setAccsId (accId) {
     const self = this;
     self.conf().accsConf().setId(accId);
+    self.conf().accsConf().setIx(0);
     self.sendConf(() => { new view_Accs(self).show(); });
+  }
+
+  /**
+   * Sets index of position in Accs list
+   * @param {number} ix
+   * @param {function():void} f
+   * @return {void}
+   */
+  setAccsIx (ix, f) {
+    this.conf().accsConf().setIx(ix);
+    this.sendConf(f);
+  }
+
+  /**
+   * Sets number of items in Accs list
+   * @param {number} len
+   * @param {function():void} f
+   * @return {void}
+   */
+  setAccsListLen (len, f) {
+    this.conf().accsConf().setListLen(len);
+    this.sendConf(f);
   }
 
   // summaries -------------------------
@@ -352,6 +384,19 @@ Main = class {
     self.conf().setSummary(op);
     self.sendConf(() => { new view_Summaries(self).show(); });
   }
+
+  /**
+   * Sets account in 'conf.db' and reload Accs page.
+   * @param {string} accId
+   * @return {void}
+   */
+  goAcc (accId) {
+    const self = this;
+    self.conf().accsConf().setId(accId);
+    self.conf().accsConf().setIx(0);
+    self.sendConf(() => { new view_Accs(self).show(); });
+  }
+
 
   // plan ------------------------------
 
