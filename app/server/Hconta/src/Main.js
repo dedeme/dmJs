@@ -12,6 +12,7 @@ goog.require("user_Chpass");
 goog.require("Conf");
 goog.require("Db");
 goog.require("view_Bye");
+goog.require("view_Year");
 goog.require("view_Diary");
 goog.require("view_Cash");
 goog.require("view_Accs");
@@ -123,6 +124,9 @@ Main = class {
             this._backups = rp["backups"];
             this._trash = rp["trash"];
             switch(conf.page()) {
+            case "year":
+              new view_Year(self).show();
+              break;
             case "diary":
               new view_Diary(self).show();
               break;
@@ -200,6 +204,38 @@ Main = class {
     const self = this;
     self.conf().setPage(page);
     self.sendConf(() => { self.run(); });
+  }
+
+  // year ------------------------------
+
+  /**
+   * @param {number} y
+   * @return {void}
+   */
+  changeYear (y) {
+    const self = this;
+    self.conf().setYear(y);
+    self.sendConf(() => { self.run(); });
+  }
+
+  /** @return {void} */
+  closeYear () {
+    const self = this;
+    const year = self.conf().year();
+    const closeEntry = self._db.close(year);
+    self.db().setDiary([closeEntry]);
+    const data = {
+      "rq": "setDb",
+      "year": "" + (year + 1),
+      "db": self.db().serialize()
+    };
+    this._client.send(data, rp => {
+      const ys = self.conf().years();
+      ys.push(year + 1);
+      self.conf().setYears(ys);
+      self.conf().setYear(year + 1);
+      self.sendConf(() => { self.run(); });
+    });
   }
 
   // diary -----------------------------
@@ -280,6 +316,69 @@ Main = class {
   }
 
   // cash ------------------------------
+
+  /**
+   * Shorcuts for annotations
+   * @return {Object<string, Array<string>>} Returns an object[account,
+   *   [description, ammount] with usual descriptions and ammounts for
+   *   and account. If there are not any usual description or ammount, their
+   *   array value is "".
+   */
+  shortCuts () {
+    /** @type {Object<string, !Tp3<number, !Object<string, number>, !Object<string, number>>>} */
+    const shdiary = {};
+    It.from(this._db.diary()).each(e => {
+      It.from(e.debits()).map(d => [d.e1(), d.e2(), e.description()]).addIt(
+        It.from(e.credits()).map(c => [c.e1(), c.e2(), e.description()])
+      ).each(a => {
+        let she = shdiary[a[0]];
+        const val = this._dom.decToStr(a[1]);
+        const des = a[2];
+        if (she === undefined) {
+          /** @type {Object<string, number>} */
+          const descriptions = {};
+          descriptions[des] = 1;
+          /** @type {Object<string, number>} */
+          const values = {};
+          values[val] = 1;
+          shdiary[a[0]] = new Tp3(1, descriptions, values);
+        } else {
+          let desN = she.e2()[des];
+          if (desN === undefined) {
+            desN = 1;
+          } else {
+            ++desN;
+          }
+          let vN = she.e3()[val];
+          if (vN === undefined) {
+            vN = 1;
+          } else {
+            ++vN;
+          }
+          she.setE1(she.e1() + 1);
+          she.e2()[des] = desN;
+          she.e3()[val] = vN;
+        }
+      })
+    });
+
+    const r = {};
+    It.from(this._db.subaccounts()).each(acc => {
+      const a = acc[0];
+      const tp3 = shdiary[a];
+      if (tp3 === undefined) {
+        r[a] = ["", ""];
+      } else {
+        const n = tp3.e1() / 2;
+        const descs = tp3.e2();
+        const vs = tp3.e3();
+        const desc = It.keys(descs).findFirst(k => descs[k] > n);
+        const v = It.keys(vs).findFirst(k => vs[k] > n);
+        r[a] = [desc === undefined ? "" : desc, v === undefined ? "" : v];
+      }
+    });
+    return r;
+  }
 
   /**
    * Sets account for help in 'conf.db'.
@@ -391,10 +490,10 @@ Main = class {
    * @return {void}
    */
   goAcc (accId) {
-    const self = this;
-    self.conf().accsConf().setId(accId);
-    self.conf().accsConf().setIx(0);
-    self.sendConf(() => { new view_Accs(self).show(); });
+    const accsConf = this.conf().accsConf();
+    accsConf.setId(accId);
+    accsConf.setIx(0);
+    this.go("accs");
   }
 
 

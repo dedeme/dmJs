@@ -113,6 +113,7 @@ view_Summaries = class {
     pls["D"][1] = pls["A"][1] + pls["B"][1] + pls["C"][1];
     pls["C"][1] = pls["D"][1] - pls["C"][1];
 
+    bals["PA"][2]["PAVII"][2]["120"][2]["12000"][1] = pls["D"][1];
     bals["PA"][2]["PAVII"][2]["120"][1] = pls["D"][1];
     It.keys(bals).each(k0 => {
       let v0 = bals[k0];

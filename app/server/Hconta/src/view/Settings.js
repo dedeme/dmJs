@@ -19,15 +19,16 @@ view_Settings = class {
     const control = this._control;
     control.dom().show("settings", $("div").style("text-align:center")
       .add($("h2").html(_("Settings")))
-      .add($("p").html("&nbsp;"))
-      .add($("p")
-        .add($("span").html(_("Change language to") + ": "))
-        .add(Ui.link(ev => { control.changeLang(); })
-          .klass("link")
-          .html(control.conf().language() == "en" ? "ES": "EN")))
-      .add($("p")
-        .add(Ui.link(ev => { control.changePassPage(); })
-          .klass("link").html(_("Change password"))))
+      .add($("table").att("align", "center").add($("tr").add($("td")
+        .klass("frame")
+        .add($("p")
+          .add($("span").html(_("Change language to") + ": "))
+          .add(Ui.link(ev => { control.changeLang(); })
+            .klass("link")
+            .html(control.conf().language() == "en" ? "ES": "EN")))
+        .add($("p")
+          .add(Ui.link(ev => { control.changePassPage(); })
+            .klass("link").html(_("Change password")))))))
     );
   }
 }

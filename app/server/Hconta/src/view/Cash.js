@@ -33,6 +33,7 @@ view_Cash = class {
     const db = control.db();
     const dom = control.dom();
 
+    const shortCuts = control.shortCuts();
     const mostUsed = db.mostUsed();
     let ix = 1;
     let sum = 0;
@@ -65,13 +66,19 @@ view_Cash = class {
       .style("width:45px;color:#000000;text-align:center;")
       .disabled(true);
     const description = Ui.field("debit").att("id", "description")
-      .style("width:270px");
+      .style("width:270px")
+      .on("focus", ev => { description.e().select(); });
     const amm = new NumberField(lang === "en", "accept");
-    amm.input().att("id", "debit").style("width:65px");
+    amm.input().att("id", "debit").style("width:65px")
+      .on("focus", ev => { amm.input().e().select(); });
     const accept = $("button").html(_("Accept")).att("id", "accept")
       .on("click", acceptEntry);
+    if (!conf.isLastYear()) {
+      accept.disabled(true);
+    }
 
-    let cashIx = conf.cashConf().ix() === 0
+    let ixTmp = conf.diaryConf().ix();
+    let cashIx = ixTmp === 0 || ixTmp > db.diary().length
       ? db.diary().length
       : conf.cashConf().ix();
     let stepList = conf.cashConf().listLen();
@@ -103,6 +110,9 @@ view_Cash = class {
      */
     function helpAccountClick (id, descr) {
       acc.value(Dom.accFormat(id)).att("title", descr);
+      const descVal = shortCuts[id];
+      description.value(descVal[0]);
+      amm.input().value(descVal[1]);
       description.e().focus();
     }
 
@@ -207,30 +217,28 @@ view_Cash = class {
 
     /** @return {void} */
     function dupClick () {
-      let nextIx = nextCash(cashIx + stepList);
-      if (nextIx === -1) {
-        nextIx = previousCash(db.diary().length + 1)
-      }
-      if (nextIx !== -1) {
-        cashIx = nextIx;
-        control.setCashIx(cashIx, () => {
+      It.range(stepList).each(i => {
+        const nextIx = nextCash(cashIx);
+        if (nextIx !== -1) {
+          cashIx = nextIx;
+        }
+      });
+      control.setCashIx(cashIx, () => {
           listDiv.removeAll().add(list());
-        })
-      }
+      });
     }
 
     /** @return {void} */
     function ddownClick () {
-      let previousIx = previousCash(cashIx - stepList);
-      if (previousIx === -1) {
-        previousIx = nextCash(0);
-      }
-      if (previousIx !== -1) {
-        cashIx = previousIx;
-        control.setCashIx(cashIx, () => {
+      It.range(stepList).each(i => {
+        const previousIx = previousCash(cashIx);
+        if (previousIx !== -1) {
+          cashIx = previousIx;
+        }
+      });
+      control.setCashIx(cashIx, () => {
           listDiv.removeAll().add(list());
-        })
-      }
+      });
     }
 
     /** @return {void} */

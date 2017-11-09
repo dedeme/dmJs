@@ -3,78 +3,88 @@
 # src/view/Plan.js: 303
 %0 can not be deleted because %1 = '%0' no se puede eliminar, porque hay %1\nentradas del diario que usan la cuenta/grupo.
 
-# src/Main.js: 482
+# src/Main.js: 626
 '%0' can not be read = '%0' no puede ser leido
 
 # src/view/Backups.js: 60
 '%0' is an empty file = '%0' es un archivo vacío
 
-# src/view/Diary.js: 112
 # src/view/Diary.js: 115
-# src/view/Diary.js: 229
+# src/view/Diary.js: 118
+# src/view/Diary.js: 232
 '%0' is not a number = '%0' no es un número
 
 # src/user/Auth.js: 39
 # src/user/Chpass.js: 29
-# src/view/Cash.js: 71
-# src/view/Diary.js: 551
+# src/view/Cash.js: 74
+# src/view/Diary.js: 563
 Accept = Aceptar
 
-# src/view/Diary.js: 286
+# src/view/Diary.js: 289
 Account %0 is repeated = La cuenta '%0' está repetida
 
-# src/view/Diary.js: 226
+# src/view/Diary.js: 229
 Account for ammount %0 is missing = Falta la cuenta para la cantidad %0
 
-# src/view/Cash.js: 118
+# src/view/Cash.js: 129
 Account is missing = No se ha indicado la cuenta
 
 # src/view/Plan.js: 54
-# src/view/Summaries.js: 96
+# src/view/Summaries.js: 167
+# src/view/Summaries.js: 306
+# src/view/Summaries.js: 486
+# src/view/Summaries.js: 644
 Accounts = Cuentas
 
-# src/Dom.js: 62
-# src/view/Accs.js: 290
+# src/Dom.js: 67
+# src/view/Accs.js: 285
 Accs = Ctas
 
 # src/view/Backups.js: 62
 # src/view/Backups.js: 100
+# src/view/Backups.js: 110
 All the data will be replaced = ¡ATENCIÓN!. Todos los datos serán reemplazados.\n¿Continuar?
 
-# src/view/Cash.js: 133
+# src/view/Cash.js: 144
 Ammount is 0 = La cantidad es 0
 
-# src/view/Cash.js: 129
+# src/view/Cash.js: 140
 Ammount is missing = No se ha indicado la cantidad
 
-# src/Dom.js: 68
+# src/Dom.js: 73
 # src/view/Backups.js: 85
 Backs = Copias
 
 # src/view/Backups.js: 51
 Backup file is missing = No se ha indicado el archivo de backup
 
-# src/view/Backups.js: 116
+# src/view/Backups.js: 119
 Backups = Copias de seguridad
 
-# src/view/Summaries.js: 88
+# src/view/Summaries.js: 447
+# src/view/Summaries.js: 486
+# src/view/Summaries.js: 546
+# src/view/Summaries.js: 636
 Balance = Balance
 
 # src/user/Chpass.js: 33
-# src/view/Diary.js: 548
+# src/view/Diary.js: 560
 Cancel = Cancelar
 
-# src/Dom.js: 60
-# src/view/Cash.js: 342
+# src/Dom.js: 65
+# src/view/Cash.js: 351
 Cash = Caja
 
-# src/view/Settings.js: 24
+# src/view/Year.js: 56
+Change = Cambiar
+
+# src/view/Settings.js: 25
 Change language to = Cambiar lenguaje a
 
 # src/view/Plan.js: 228
 change of count %0 = Este cambio afectará a %0 registros.\n¿Continuar?
 
-# src/view/Settings.js: 30
+# src/view/Settings.js: 31
 Change password = Cambiar contraseña
 
 # src/user/Auth.js: 162
@@ -90,6 +100,12 @@ Clear trash? = ¿Vaciar la papelera?
 # src/user/Expired.js: 36
 Click %0 to continue. = Hacer click %0 para continuar.
 
+# src/view/Year.js: 61
+Close = Cerrar
+
+# src/view/Year.js: 40
+Close year = Cerrar ejercicio
+
 # src/user/Chpass.js: 103
 Confirm password = Confirmar la contraseña
 
@@ -102,41 +118,41 @@ Current password = Contraseña actual
 # src/user/Chpass.js: 51
 Current password is missing = Falta indicar la contraseña actual
 
-# src/view/Cash.js: 113
-# src/view/Diary.js: 235
+# src/view/Cash.js: 124
+# src/view/Diary.js: 238
 Date is missing = Falta la fecha
 
-# src/view/Diary.js: 295
+# src/view/Diary.js: 298
 Debits sum is different from Credits sum = La suma del Debe es distinta de la del Haber
 
 # src/view/Plan.js: 296
 Delete '%0'? = ¿Eliminar '%0'?
 
-# src/view/Diary.js: 423
+# src/view/Diary.js: 424
 Delete annotation %0:\n%1? = ¿Eliminar la anotación %0:\n%1?
 
 # src/view/Plan.js: 263
 Description = Descripción
 
-# src/view/Cash.js: 124
-# src/view/Diary.js: 240
+# src/view/Cash.js: 135
+# src/view/Diary.js: 243
 # src/view/Plan.js: 214
 Description is missing = Falta indicar la descripción
 
-# src/Dom.js: 58
-# src/view/Diary.js: 652
+# src/Dom.js: 63
+# src/view/Diary.js: 671
 Diary = Diario
 
-# src/view/Backups.js: 119
+# src/view/Backups.js: 122
 Download = Descarga
 
 # src/user/Chpass.js: 132
 Fail trying to change password = Fallo intentando cambiar la contraseña
 
-# src/Main.js: 508
+# src/Main.js: 652
 Fail unzipping backup = Fallo descomprimiendo la copia de seguridad
 
-# src/Main.js: 510
+# src/Main.js: 654
 File is not a Hconta backup = El archivo no es una copia de seguridad de Hconta
 
 # src/user/Auth.js: 89
@@ -161,7 +177,7 @@ here = aquí
 # src/user/Auth.js: 124
 Keep connected = Mantenerse conectado
 
-# src/view/Diary.js: 176
+# src/view/Diary.js: 179
 Last row has data = La última fila contiene datos
 
 # src/user/Auth.js: 182
@@ -174,11 +190,12 @@ Logout-message = <p>%0 ha terminado.</p><p><b>¡Hasta pronto!</b></p>
 # src/view/Backups.js: 31
 Make backup = Hacer copia
 
-# src/view/Cash.js: 320
-# src/view/Diary.js: 631
+# src/view/Cash.js: 329
+# src/view/Diary.js: 650
 Most used accounts = Cuentas más usadas
 
-# src/view/Diary.js: 660
+# src/view/Diary.js: 679
+# src/view/Diary.js: 680
 New = Nuevo
 
 # src/user/Chpass.js: 97
@@ -196,7 +213,10 @@ Nº = Nº
 # src/view/Backups.js: 55
 Only one file can be selected = Sólo se puede seleccionar un archivo
 
-# src/view/Summaries.js: 84
+# src/view/Summaries.js: 267
+# src/view/Summaries.js: 306
+# src/view/Summaries.js: 366
+# src/view/Summaries.js: 632
 P & L = P & G
 
 # src/user/Auth.js: 109
@@ -205,58 +225,70 @@ Password = Contraseña
 # src/user/Auth.js: 66
 Password is missing = Falta indicar la contraseña
 
-# src/Main.js: 573
+# src/Main.js: 742
 Password successfully changed = La contraseña se cambió correctamente
 
-# src/Dom.js: 66
-# src/view/Cash.js: 337
-# src/view/Diary.js: 648
+# src/Dom.js: 71
+# src/view/Cash.js: 346
+# src/view/Diary.js: 667
 Plan = Plan
 
-# src/view/Backups.js: 124
+# src/view/Backups.js: 127
 Restore = Restauración
 
 # src/view/Backups.js: 48
 Restore backup = Restaurar copia
 
-# src/view/Diary.js: 136
+# src/view/Diary.js: 139
 Result is a credit,\nbut last credit field is not empty = El resultado debe ir en el Haber,\npero el último campo del Haber no está vacío.
 
-# src/view/Diary.js: 145
+# src/view/Diary.js: 148
 Result is a debit,\nbut last debit field is not empty = El resultado debe ir en el Debe,\npero el último campo del Debe no está vacío.
 
 # src/user/Expired.js: 34
 Session is expired. = La sesión ha expirado.
 
-# src/Dom.js: 70
+# src/Dom.js: 75
 # src/view/Settings.js: 21
 Settings = Configuración
 
-# src/view/Diary.js: 169
+# src/view/Diary.js: 172
 Single row can not be removed = La fila no puede ser eliminada
 
-# src/view/Summaries.js: 80
+# src/view/Summaries.js: 148
+# src/view/Summaries.js: 167
+# src/view/Summaries.js: 207
+# src/view/Summaries.js: 628
 Statements = Rúbricas
 
 # src/view/Plan.js: 61
-# src/view/Summaries.js: 100
+# src/view/Summaries.js: 207
+# src/view/Summaries.js: 366
+# src/view/Summaries.js: 546
+# src/view/Summaries.js: 648
 Subaccounts = Subcuentas
 
 # src/view/Plan.js: 49
 Subgroups = Subgrupos
 
-# src/Dom.js: 64
-# src/view/Summaries.js: 104
+# src/Dom.js: 69
+# src/view/Summaries.js: 652
 Summaries = Resúmenes
 
-# src/view/Summaries.js: 92
+# src/view/Summaries.js: 148
+# src/view/Summaries.js: 267
+# src/view/Summaries.js: 447
+# src/view/Summaries.js: 640
 Summary = Resumen
 
-# src/view/Diary.js: 128
+# src/view/Diary.js: 131
 Sums of Debits and Credits are equals = El Debe suma lo mismo que el Haber
 
-# src/view/Diary.js: 299
+# src/view/Diary.js: 302
 Sums of Debits and Credits are zero = La suma del Debe y el Haber es 0
+
+# src/view/Year.js: 43
+This operation only can be manually undone.\nContinue? = Esta operación solo puede ser revertida manualmente.\n¿Continuar?
 
 # src/view/Backups.js: 88
 Trash = Papelera
@@ -269,4 +301,7 @@ User name is missing = Falta indicar el nombre del usuario
 
 # src/user/Auth.js: 147
 Wrong password = La contraseña es incorrecta
+
+# src/view/Year.js: 53
+Year = Ejercicio
 

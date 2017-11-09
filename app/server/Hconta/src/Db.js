@@ -273,6 +273,14 @@ Db = class {
   }
 
   /**
+   * @param {!Array<!db_Dentry>} d New diary data. Used when closing year.
+   * @return {void}
+   */
+  setDiary (d) {
+    this._diary = d;
+  }
+
+  /**
    * @param {!db_Dentry} entry
    * @return {number}
    */
@@ -360,6 +368,48 @@ Db = class {
       .take(15).to();
   }
 
+  /**
+   * param {number} year
+   * @return {db_Dentry} Open annotation for next year
+   */
+  close (year) {
+    const self = this;
+    const accs = {};
+    function add(acc, amm) {
+      const a = accs[acc] || 0;
+      accs[acc] = a + amm;
+    }
+    let sum = 0;
+    It.from(this._diary).each(e => {
+      It.from(e.debits())
+        .filter(d =>
+          self.accountsGet(d.e1().substring(0, 3))[1].charAt(0) === "B")
+        .each(d => {
+          const v = d.e2().value();
+          sum += v;
+          add(d.e1(), v);
+        });
+      It.from(e.credits())
+        .filter(c =>
+          self.accountsGet(c.e1().substring(0, 3))[1].charAt(0) === "B")
+        .each(c => {
+          const v = c.e2().value();
+          sum -= v;
+          add(c.e1(), -v);
+        });
+    });
+    add("10200", -sum);
+
+    return new db_Dentry(
+      new DateDm(1, 1, year + 1),
+      "Asiento de apertura",
+      It.keys(accs).filter(k => accs[k] > 0)
+        .map(k => new Tp(k, new Dec(accs[k], 2))).to(),
+      It.keys(accs).filter(k => accs[k] < 0)
+        .map(k => new Tp(k, new Dec(-accs[k], 2))).to()
+    );
+  }
+
   /** @return {string} */
   serialize () {
     return JSON.stringify([
@@ -380,6 +430,12 @@ Db = class {
       db.subgroupsAdd("57", "Tesorería");
       db.accountsAdd("572", "Bancos, cuentas de ahorro, euros", "BABVI");
       db.subaccountsAdd("57200", "Bankia");
+      db.subgroupsAdd("10", "Capital");
+      db.accountsAdd("102", "Capital", "BPAI");
+      db.subaccountsAdd("10200", "Capital");
+      db.subgroupsAdd("12", "Resultados pendientes de aplicación");
+      db.accountsAdd("120", "Resultados del ejercicio", "BPAVII");
+      db.subaccountsAdd("12000", "Resultados del ejercicio");
       return db;
     }
     const pars = /** @type {!Array<?>} */(JSON.parse(serial));

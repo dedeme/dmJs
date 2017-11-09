@@ -51,7 +51,8 @@ view_Diary = class {
     /** @const {!Array<!Array<!Domo>>} */
     const entryRows = [];
 
-    let diaryIx = conf.diaryConf().ix() === 0
+    let ixTmp = conf.diaryConf().ix();
+    let diaryIx = ixTmp === 0 || ixTmp > db.diary().length
       ? db.diary().length
       : conf.diaryConf().ix();
     let stepList = conf.diaryConf().listLen();
@@ -622,12 +623,19 @@ view_Diary = class {
                 }).klass("link").html(e.description().toString()))
               .add(descDentry);
             return $("tr")
-              .add($("td").add(Ui.link(ev => {
-                  deleteClick(lix);
-                }).add(Ui.img("delete"))))
+              .add($("td").add(
+                lix === 1
+                  ? $("span").add(Ui.lightImg("delete"))
+                  : Ui.link(ev => {
+                      deleteClick(lix);
+                    }).add(Ui.img("delete"))))
               .add(tdr().html("" + lix))
-              .add(td().add(Ui.link(ev => {modifyClick(lix);
-                }).klass("link").html(e.date().format("%D/%M"))))
+              .add(td().add(
+                conf.isLastYear()
+                  ? Ui.link(ev => {modifyClick(lix);}).klass("link")
+                    .html(e.date().format("%D/%M"))
+                  : $("span").style("color:#800000;")
+                    .html(e.date().format("%D/%M"))))
               .add(tdl().add(desc))
               .add(tdr().html(dom.decToStr(new Dec(
                 It.from(e.debits())
@@ -666,9 +674,10 @@ view_Diary = class {
       .add($("table").att("align", "center")
         .add($("tr")
           .add($("td").att("colspan", 2))
-          .add($("td").att("colspan", 2).klass("diary").add(Ui.link(ev => {
-              newClick();}
-            ).html(_("New"))))
+          .add($("td").att("colspan", 2).klass("diary").add(
+            conf.isLastYear()
+              ? Ui.link(ev => {newClick();}).html(_("New"))
+              : $("span").style("color: #800000;").html(_("New"))))
           .add($("td").klass("diary").add(Ui.link(ev => {
               upClick();
             }).addStyle("font-family:monospace").html("&nbsp;\u2191&nbsp;")))

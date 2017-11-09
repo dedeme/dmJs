@@ -25,6 +25,7 @@ goog.provide("I18n");
     "Balance":  "Balance",
     "Cancel":  "Cancel",
     "Cash":  "Cash",
+    "Change":  "Change",
     "Change language to":  "Change language to",
     "change of count %0":  "This change will affect to %0 records.\nContinue?",
     "Change password":  "Change password",
@@ -32,6 +33,8 @@ goog.provide("I18n");
     "Clear":  "Clear",
     "Clear trash?":  "Clear trash?",
     "Click %0 to continue.":  "Click %0 to continue.",
+    "Close":  "Close",
+    "Close year":  "Close year",
     "Confirm password":  "Confirm password",
     "Confirm password is missing":  "'Confirm password' is missing",
     "Current password":  "Current password",
@@ -84,10 +87,12 @@ goog.provide("I18n");
     "Summary":  "Summary",
     "Sums of Debits and Credits are equals":  "Sums of Debits and Credits are equals",
     "Sums of Debits and Credits are zero":  "Sums of Debits and Credits are zero",
+    "This operation only can be manually undone.\nContinue?":  "This operation only can be manually undone.\nContinue?",
     "Trash":  "Trash",
     "User":  "User",
     "User name is missing":  "User name is missing",
-    "Wrong password":  "Wrong password"
+    "Wrong password":  "Wrong password",
+    "Year":  "Year"
   };
 
   const es = {
@@ -110,6 +115,7 @@ goog.provide("I18n");
     "Balance":  "Balance",
     "Cancel":  "Cancelar",
     "Cash":  "Caja",
+    "Change":  "Cambiar",
     "Change language to":  "Cambiar lenguaje a",
     "change of count %0":  "Este cambio afectará a %0 registros.\n¿Continuar?",
     "Change password":  "Cambiar contraseña",
@@ -117,6 +123,8 @@ goog.provide("I18n");
     "Clear":  "Eliminar",
     "Clear trash?":  "¿Vaciar la papelera?",
     "Click %0 to continue.":  "Hacer click %0 para continuar.",
+    "Close":  "Cerrar",
+    "Close year":  "Cerrar ejercicio",
     "Confirm password":  "Confirmar la contraseña",
     "Confirm password is missing":  "Falta la confirmación de la contraseña",
     "Current password":  "Contraseña actual",
@@ -169,10 +177,12 @@ goog.provide("I18n");
     "Summary":  "Resumen",
     "Sums of Debits and Credits are equals":  "El Debe suma lo mismo que el Haber",
     "Sums of Debits and Credits are zero":  "La suma del Debe y el Haber es 0",
+    "This operation only can be manually undone.\nContinue?":  "Esta operación solo puede ser revertida manualmente.\n¿Continuar?",
     "Trash":  "Papelera",
     "User":  "Usuario",
     "User name is missing":  "Falta indicar el nombre del usuario",
-    "Wrong password":  "La contraseña es incorrecta"
+    "Wrong password":  "La contraseña es incorrecta",
+    "Year":  "Ejercicio"
   };
 
 I18n = class {

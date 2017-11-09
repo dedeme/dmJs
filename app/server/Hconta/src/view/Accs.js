@@ -50,7 +50,8 @@ view_Accs = class {
 
     const planDiv = $("div");
     const listDiv = $("div").style("width:100%");
-    let accsIx = conf.accsConf().ix() === 0
+    let ixTmp = conf.accsConf().ix();
+    let accsIx = ixTmp === 0 || ixTmp > db.diary().length
       ? db.diary().length
       : conf.accsConf().ix();
     let stepList = conf.accsConf().listLen();
@@ -122,30 +123,28 @@ view_Accs = class {
 
     /** @return {void} */
     function dupClick () {
-      let nextIx = nextAnn(accsIx + stepList);
-      if (nextIx === -1) {
-        nextIx = previousAnn(db.diary().length + 1)
-      }
-      if (nextIx !== -1) {
-        accsIx = nextIx;
-        control.setAccsIx(accsIx, () => {
+      It.range(stepList).each(i => {
+        const nextIx = nextAnn(accsIx);
+        if (nextIx !== -1) {
+          accsIx = nextIx;
+        }
+      });
+      control.setAccsIx(accsIx, () => {
           listDiv.removeAll().add(list());
-        })
-      }
+      });
     }
 
     /** @return {void} */
     function ddownClick () {
-      let previousIx = previousAnn(accsIx - stepList);
-      if (previousIx === -1) {
-        previousIx = nextAnn(0);
-      }
-      if (previousIx !== -1) {
-        accsIx = previousIx;
-        control.setAccsIx(accsIx, () => {
+      It.range(stepList).each(i => {
+        const previousIx = previousAnn(accsIx);
+        if (previousIx !== -1) {
+          accsIx = previousIx;
+        }
+      });
+      control.setAccsIx(accsIx, () => {
           listDiv.removeAll().add(list());
-        })
-      }
+      });
     }
 
     /** @return {void} */

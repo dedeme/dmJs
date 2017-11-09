@@ -44,6 +44,7 @@ Dom = class {
    */
   show (page, o) {
     const control = this._control;
+    const conf = control.conf();
 
     function entry(id, target) {
       return Ui.link(ev => { control.go(target) })
@@ -55,6 +56,10 @@ Dom = class {
 
     const menu = $("table").klass("main").add($("tr")
       .add($("td")
+        .add(
+          entry(conf.year(), "year")
+            .addStyle(conf.isLastYear() ? "" : "color:#800000")
+        ).add(separator())
         .add(entry(_("Diary"), "diary"))
         .add(separator())
         .add(entry(_("Cash"), "cash"))

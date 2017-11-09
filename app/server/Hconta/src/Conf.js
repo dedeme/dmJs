@@ -58,7 +58,7 @@ Conf = class {
     this._language = value;
   }
 
-  /** @return {!Array<number>} A 'sorted on the fly' array */
+  /** @return {!Array<number>} A sorted array */
   years () {
     return It.from(this._years).sort().to();
   }
