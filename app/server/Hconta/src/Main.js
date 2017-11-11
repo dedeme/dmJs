@@ -328,8 +328,10 @@ Main = class {
     /** @type {Object<string, !Tp3<number, !Object<string, number>, !Object<string, number>>>} */
     const shdiary = {};
     It.from(this._db.diary()).each(e => {
-      It.from(e.debits()).map(d => [d.e1(), d.e2(), e.description()]).addIt(
-        It.from(e.credits()).map(c => [c.e1(), c.e2(), e.description()])
+      It.from(e.debits())
+        .map(d => [d.e1(),  new Dec(-d.e2().value(), 2), e.description()]).addIt(
+          It.from(e.credits())
+            .map(c => [c.e1(), c.e2(), e.description()])
       ).each(a => {
         let she = shdiary[a[0]];
         const val = this._dom.decToStr(a[1]);
