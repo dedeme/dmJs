@@ -486,16 +486,19 @@ view_Diary = class {
             .add($("ul").att("id", "hlist")
               .style("list-style:none;padding-left:10px;")
               .addIt(db.subOf(account.substring(0, lg - 1))
+                .sortf((e1, e2) => e1[0] > e2[0] ? 1 : -1)
                 .map(e =>
                   $("li").add(Ui.link(ev => {
                       changeTo(e[0]);
                     }).klass("link").att("title", e[0])
                     .html(Dom.textAdjust(e[1], helpWidth - 16))))))))
         .add($("li").add($("hr")))
-        .addIt(db.sub(account).map(e =>
-          $("li").add(Ui.link(ev => { helpAccountClick(e[0], e[1]); })
-            .klass("link").att("title", Dom.accFormat(e[0]))
-            .html(Dom.textAdjust(e[1], helpWidth - 16)))));
+        .addIt(db.sub(account)
+          .sortf((e1, e2) => e1[0] > e2[0] ? 1 : -1)
+          .map(e =>
+            $("li").add(Ui.link(ev => { helpAccountClick(e[0], e[1]); })
+              .klass("link").att("title", Dom.accFormat(e[0]))
+              .html(Dom.textAdjust(e[1], helpWidth - 16)))));
     }
 
     const mkAccEntry = () => {

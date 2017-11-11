@@ -195,6 +195,7 @@ view_Accs = class {
             .add($("ul").att("id", "hlist")
               .style("list-style:none;padding-left:10px;")
               .addIt(db.subOf(account.substring(0, lg - 1))
+                .sortf((e1, e2) => e1[0] > e2[0] ? 1 : -1)
                 .map(e =>
                   $("li").add(Ui.link(ev => {
                       changeTo(e[0]);
@@ -203,10 +204,12 @@ view_Accs = class {
         .add($("li").add($("hr")))
         .addIt(account.length === 5
           ? It.empty()
-          : db.sub(account).map(e =>
-            $("li").add(Ui.link(ev => { changeTo(e[0]); })
-              .klass("link").att("title", Dom.accFormat(e[0]))
-              .html(Dom.textAdjust(e[1], helpWidth - 16)))));
+          : db.sub(account)
+            .sortf((e1, e2) => e1[0] > e2[0] ? 1 : -1)
+            .map(e =>
+              $("li").add(Ui.link(ev => { changeTo(e[0]); })
+                .klass("link").att("title", Dom.accFormat(e[0]))
+                .html(Dom.textAdjust(e[1], helpWidth - 16)))));
     }
 
     const mkSubmenu = () => {
