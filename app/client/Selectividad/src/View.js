@@ -166,10 +166,14 @@ View = class {
                 .add($("td").html(e[0]))
                 .add($("td").html(e[1]))
                 .add($("td").html(
-                  "<a href='exe/s" + formatUnit(++i) + ".pdf'>Ejercicio</a>"))
+                  "· <a href='exe/s" +
+                    formatUnit(++i) +
+                    ".pdf'>Ejercicio</a>"))
                 .add($("td")
                   .html(e[2]
-                    ? "<a href='exe/s" + formatUnit(i) + "S.pdf'>Solución</a>"
+                    ? " · <a href='exe/s" +
+                        formatUnit(i) +
+                        "S.pdf'>Solución</a>"
                     : "")))
            .add($("tr").add($("td").att("colspan", 4).add($("hr"))))
         ));

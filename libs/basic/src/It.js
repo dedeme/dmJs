@@ -463,20 +463,32 @@ github_dedeme.It/**/ = class {
   }
 
   /**
-   * Executes asynchronic function 'f' wich calls 'callback' with each
-   * element of 'this'. After that executes 'goOn'
-   * @param {function(T, function(T):void):void} f Asynchronic function
-   * @param {function(T):void} callback
-   * @param {function():void} goOn
+   * It work similar as each(), but can be used with callbacks.<br>
+   * An example of its use is:
+   *   sources.readArray().sync(
+   *     function (s, f) {
+   *       server.fileInfo(s[2], function (info) {
+   *         if (info.type != "D") {
+   *           s[3] = false;
+   *           s[4] = false;
+   *         }
+   *         f(); // It is mandatory call 'f' at the end of callback
+   *       });
+   *     }, function () {
+   *       program goes on...
+   *     }
+   *   );
+   * @param {function(T, function():void):void} f Function which execute
+   *  a callback function. This function recive two arguments:
+   *    {T} Iterator element
+   *    {function():void} Funtion to be called at the end of the callback.
+   * @param {function():void} goOn Program continuation.
    * @return {void}
    */
-  sync (f, callback, goOn) {
+  sync (f, goOn) {
     const self = this;
     if (self._hasNext()) {
-      f(self._next(), (d) => {
-        callback(d);
-        self.sync(f, callback, goOn);
-      });
+      f(self._next(), function () { self.sync(f, goOn); });
     } else {
       goOn();
     }
