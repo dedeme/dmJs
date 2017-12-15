@@ -26,12 +26,21 @@ view_Create = class {
     const db = control.db();
 
     const nick = $("input");
-    const key = $("input");
-    const accept = $("button").html(_("Accept")).on("click", ev => {
+    const invertiaKey = $("input");
+    const infomercadosKey = $("input");
+    const create = $("button").html(_("Create")).on("click", ev => {
       control.create(
         nick.value().trim(),
-        key.value().trim(),
+        invertiaKey.value().trim(),
+        infomercadosKey.value().trim(),
         counter
+      );
+    });
+    const setKeys = $("button").html(_("Set Keys")).on("click", ev => {
+      control.setKey(
+        nick.value().trim(),
+        invertiaKey.value().trim(),
+        infomercadosKey.value().trim()
       );
     });
     const counter = $("span").klass("frame");
@@ -39,12 +48,16 @@ view_Create = class {
       .add($("tr")
         .add($("td").html(_("Nick")))
         .add($("td").html(_("Invertia key")))
-        .add($("td").html(_("Index")))
+        .add($("td").html(_("Infomercados key")))
+        .add($("td"))
+        .add($("td"))
         .add($("td")))
       .add($("tr")
         .add($("td").add(nick))
-        .add($("td").add(key))
-        .add($("td").add(accept)))
+        .add($("td").add(invertiaKey))
+        .add($("td").add(infomercadosKey))
+        .add($("td").add(create))
+        .add($("td").add(setKeys)))
       .add($("tr")
         .add($("td").att("colspan", 4)))
       .add($("tr")

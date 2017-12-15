@@ -25,22 +25,12 @@ view_Settings = class {
           _("Change Language to %0"),
           db.language() === "es" ? "EN" : "ES"
         )));
-    const sourceDiv = $("div")
-      .add(Ui.link(ev => { control.changeSource() })
-        .klass("link").html(_args(
-          _("Change Source to %0"),
-          db.source() === Main.invertia()
-            ? Main.infomercados()
-            : Main.invertia()
-        )));
     const passDiv = $("div")
       .add(Ui.link(ev => { control.changePassPage() })
         .klass("link").html(_("Change Password")));
 
     const opts = [
         langDiv,
-        $("p").html("<p></p>"),
-        sourceDiv,
         $("p").html("<p></p>"),
         passDiv
       ]

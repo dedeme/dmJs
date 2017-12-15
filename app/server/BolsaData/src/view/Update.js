@@ -157,7 +157,7 @@ view_Update = class {
             })
             .add(Ui.img("delete"))))
           .add($("td").add(Ui.link(ev => {
-              if (confirm(_args(_("Update '%0'?"), k))) {
+              if (confirm(_args(_("Update '%0' from %1?"), k, db.source()))) {
                 const counter = $("div").klass("frame");
                 right.removeAll().add(counter);
                 control.update(k, pages, counter);

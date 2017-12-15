@@ -60,6 +60,14 @@ Main = class {
     return "201711";
   }
 
+  static invertia () {
+    return "INVERTIA";
+  }
+
+  static infomercados () {
+    return "INFOMERCADOS";
+  }
+
   /** @return {number} */
   static maxQuotes () {
     return 550;
@@ -235,6 +243,17 @@ Main = class {
   }
 
   /** @return {void} */
+  changeSource () {
+    const self = this;
+    const db = self._db;
+    db.setSource(db.source() === Main.invertia()
+      ? Main.infomercados()
+      : Main.invertia()
+    );
+    self.sendDb(() => { self.run(); });
+  }
+
+  /** @return {void} */
   changePassPage () {
     new user_Chpass(this).show();
   }
@@ -357,20 +376,22 @@ Main = class {
   }
 
   /**
+   * Only work with Main.invertia()
    * @param {string} nick
-   * @param {string} key
+   * @param {string} invertiaKey
+   * @param {string} infomercadosKey
    * @param {!Domo} counter A $("span")
    * @return {void}
    */
-  create (nick, key, counter) {
+  create (nick, invertiaKey, infomercadosKey, counter) {
     const self = this;
     const db = self._db;
 
     function read(nPage) {
       counter.html("" + nPage);
       const data = {
-        "rq" : "getInvertia",
-        "url" : Reader.invertiaUrl(key, nPage)
+        "rq" : "getSource",
+        "url" : Reader.sourceUrl(Main.invertia(), invertiaKey, nPage)
       }
       self._client.send(data, rp => {
         if (rp["fail"] === "") {
@@ -395,8 +416,12 @@ Main = class {
       alert(_("Nick is missing"));
       return;
     }
-    if (key === "") {
-      alert(_("Key is missing"));
+    if (invertiaKey === "") {
+      alert(_("Invertia key is missing"));
+      return;
+    }
+    if (infomercadosKey === "") {
+      alert(_("Infomercados key is missing"));
       return;
     }
     if (It.keys(db.quotes()).contains(nick)) {
@@ -407,11 +432,75 @@ Main = class {
       }
     }
 
-    db.invertiaId()[nick] = key;
+    db.invertiaId()[nick] = invertiaKey;
+    db.infomercadosId()[nick] = infomercadosKey;
     db.status()[nick] = "?";
     db.quotes()[nick] = [];
 
     read (1);
+  }
+
+  /**
+   * Nick must exist in Main.invertia or in Main.infomercados.
+   * @param {string} nick
+   * @param {string} invertiaKey Can be ""
+   * @param {string} infomercadosKey Can be ""
+   * @return {void}
+   */
+  setKey (nick, invertiaKey, infomercadosKey) {
+    const self = this;
+    const db = self._db;
+
+    if (nick === "") {
+      alert(_("Nick is missing"));
+      return;
+    }
+    if (invertiaKey === "") {
+      if (infomercadosKey === "") {
+        alert(_("Both keys are missing"));
+        return;
+      }
+      if (db.invertiaId()[nick] === undefined) {
+        alert(_args(
+          _("Nick '%0' is not defined in %1"), nick, Main.infomercados()
+        ));
+        return;
+      }
+      db.infomercadosId()[nick] = infomercadosKey;
+      const conf = confirm(_args(
+        _("%0 wil be set:\n%1: %2\n%3: %4"),
+        nick,
+        Main.invertia(), db.invertiaId()[nick],
+        Main.infomercados(), db.infomercadosId()[nick]
+      ));
+      if (!conf) {
+        return;
+      }
+      self.go("update");
+      return;
+    }
+
+    if (infomercadosKey !== "") {
+      alert(_("One of key to set must be blank"));
+      return;
+    }
+    if (db.infomercadosId()[nick] === undefined) {
+      alert(_args(
+        _("Nick '%0' is not defined in %1"), nick, Main.invertia()
+      ));
+      return;
+    }
+    db.invertiaId()[nick] = invertiaKey;
+    const conf = confirm(_args(
+      _("%0 wil be set:\n%1: %2\n%3: %4"),
+      nick,
+      Main.invertia(), db.invertiaId()[nick],
+      Main.infomercados(), db.infomercadosId()[nick]
+    ));
+    if (!conf) {
+      return;
+    }
+    self.go("update");
   }
 
   /**
@@ -421,20 +510,31 @@ Main = class {
    * @return {void}
    */
   update (nick, pages, counter) {
+    if (nick === "") {
+      alert(_("Nick is missing"));
+      return;
+    }
     const self = this;
     const db = self._db;
-    const key = db.invertiaId()[nick];
+    const key = db.source() === Main.invertia()
+      ? db.invertiaId()[nick]
+      : db.infomercadosId()[nick]
+    ;
+    if (key === undefined) {
+      alert(_("Key is missing"));
+      return;
+    }
     let newQs = [];
 
     function read(nPage) {
       counter.html(nick + ": " + nPage);
       const data = {
-        "rq" : "getInvertia",
-        "url" : Reader.invertiaUrl(key, nPage)
+        "rq" : "getSource",
+        "url" : Reader.sourceUrl(db.source(), key, nPage)
       }
       self._client.send(data, rp => {
         if (rp["fail"] === "") {
-          const tp = Reader.readPage(B64.decode(rp["page"]));
+          const tp = Reader.readPage(db.source(), B64.decode(rp["page"]));
           const err = tp.e1();
           if (err !== "") {
             alert(_args(_("Fail in page %0:\n%1"), "" + nPage, err));
@@ -461,15 +561,6 @@ Main = class {
       });
     }
 
-    if (nick === "") {
-      alert(_("Nick is missing"));
-      return;
-    }
-    if (key === undefined) {
-      alert(_("Key is missing"));
-      return;
-    }
-
     db.status()[nick] = "?";
 
     read (1);
@@ -484,19 +575,23 @@ Main = class {
     const self = this;
     const db = self._db;
 
-    It.keys(self._db.invertiaId()).sort().sync(
+    const keysMap = db.source() === Main.invertia()
+      ? db.invertiaId()
+      : db.infomercadosId()
+    ;
+    It.keys(keysMap).sort().sync(
       (nick, f) => {
-          const key = db.invertiaId()[nick];
+          const key = keysMap[nick];
           let newQs = [];
           function read(nPage) {
             counter.html(nick + ": " + nPage);
             const data = {
-              "rq" : "getInvertia",
-              "url" : Reader.invertiaUrl(key, nPage)
+              "rq" : "getSource",
+              "url" : Reader.sourceUrl(db.source(), key, nPage)
             }
             self._client.send(data, rp => {
               if (rp["fail"] === "") {
-                const tp = Reader.readPage(B64.decode(rp["page"]));
+                const tp = Reader.readPage(db.source(), B64.decode(rp["page"]));
                 const err = tp.e1();
                 if (err !== "") {
                   alert(_args(_("Fail in page %0:\n%1"), "" + nPage, err));

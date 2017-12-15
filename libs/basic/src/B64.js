@@ -39,7 +39,7 @@ github_dedeme.B64/**/ = class {
   }
 
   /**
-   * Decodes B64 code in Uint9Array
+   * Decodes B64 code in Uint8Array
    * @param {string} b64
    * @return {!Uint8Array}
    */

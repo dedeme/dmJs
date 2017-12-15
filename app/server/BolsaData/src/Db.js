@@ -20,6 +20,13 @@ Db = class {
      * @private
      * @type {string}
      */
+    this._source = d["source"] || Main.invertia();
+
+
+    /**
+     * @private
+     * @type {string}
+     */
     this._page = d["page"] || "update";
 
     /**
@@ -33,6 +40,13 @@ Db = class {
      * @type {!Object<string, string>}
      */
     this._invertiaId = d["invertiaId"] || {};
+
+    /**
+     * @private
+     * @type {!Object<string, string>}
+     */
+    this._infomercadosId = d["infomercadosId"] || {};;
+
 
     /**
      * @private
@@ -78,6 +92,18 @@ Db = class {
     this._language = value;
   }
 
+  /** @return {string} */
+  source () {
+    return this._source;
+  }
+
+  /**
+   * @param {string} value
+   * @return {void}
+   */
+  setSource (value) {
+    this._source = value;
+  }
 
   /** @return {string} */
   page () {
@@ -112,6 +138,11 @@ Db = class {
    */
   invertiaId () {
     return this._invertiaId;
+  }
+
+  /** @return {!Object<string, string>} */
+  infomercadosId () {
+    return this._infomercadosId;
   }
 
   /** @return {string} */
@@ -163,9 +194,11 @@ Db = class {
     const qs = this._quotes;
     return {
       "language" : this._language,
+      "source" : this._source,
       "page" : this._page,
       "quoteTranslator" : this._quoteTranslator,
       "invertiaId" : this._invertiaId,
+      "infomercadosId" : this._infomercadosId,
       "model": this._model,
       "ibex": this._ibex,
       "status" : this._status
@@ -281,9 +314,11 @@ Db = class {
   static restore (serial) {
     return new Db({
       "language" : serial["language"],
+      "source" : serial["source"],
       "page" : serial["page"],
       "quoteTranslator" : serial["quoteTranslator"],
       "invertiaId" : serial["invertiaId"],
+      "infomercadosId" : serial["infomercadosId"],
       "model" : serial["model"],
       "ibex" : serial["ibex"]
     });
