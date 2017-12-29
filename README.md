@@ -1,2 +1,2 @@
-# dmjs17
+# dmjs18
 Javascript utilities

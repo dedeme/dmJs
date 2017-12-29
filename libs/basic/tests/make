@@ -4,7 +4,7 @@ SOURCES="src/*.js ../src/*.js"
 
 # DON'T CHANGE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-COMPILER=/deme/dmjs17/tools/closure-compiler-v20170806.jar
+COMPILER=/deme/dmjs18/tools/closure-compiler-v20170806.jar
 PRETTY=" --compilation_level ADVANCED_OPTIMIZATIONS "
 if [ "$1" == "pretty" ]
 then

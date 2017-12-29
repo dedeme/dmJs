@@ -1,4 +1,4 @@
 #!/bin/bash
-cd /deme/dmjs17
+cd /deme/dmjs18
 gitk
 
