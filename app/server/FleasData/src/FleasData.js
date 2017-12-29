@@ -12,10 +12,10 @@ FleasData = class {
    * @param {!Main} control
    * @param {number} time
    * @param {number} initialCash
-   * @param {Array<string>} fleaNames
+   * @param {!Array<!Fleas>} fleaNames
    * @param {number} newFlea
    * @param {number} cycle
-   * @param {number} newBest
+   * @param {number} newBests
    * @param {!Object<string, !Array<!Flea>>} bests
    * @param {!Array<!Flea>} fleas
    * @param {Flea} tracedFlea
@@ -23,8 +23,8 @@ FleasData = class {
    */
   constructor (
     control, time,
-    initialCash, fleaNames,
-    newFlea, cycle, newBest, bests, fleas,
+    initialCash, fleas,
+    newFlea, cycle, newBests, bests, fleas,
     tracedFlea, traces
   ) {
     /** @private */
@@ -35,13 +35,17 @@ FleasData = class {
     /** @private */
     this._initialCash = initialCash;
     /** @private */
-    this._fleaNames = fleaNames;
+    this._fleas = fleas;
     /** @private */
     this._newFlea = newFlea;
     /** @private */
     this._cycle = cycle;
-    /** @private */
-    this._newBest = newBest;
+    /**
+     * @private
+     * @type {number}
+     */
+    this._newBests = newBests;
+
     /** @private */
     this._bests = bests;
     /** @private */
@@ -58,8 +62,8 @@ FleasData = class {
   }
 
   /** @return {Array<string>} */
-  fleaNames () {
-    return this._fleaNames;
+  fleas () {
+    return this._fleas;
   }
 
   /** @return {number} */
@@ -113,7 +117,6 @@ FleasData = class {
           self._fleaNames = fd._fleaNames;
           self._newFlea = fd._newFlea;
           self._cycle = fd._cycle;
-          self._newBest = fd._newBest;
           self._bests = fd._bests;
           self._fleas = fd._fleas;
           self._tracedFlea = fd._tracedFlea;
@@ -134,6 +137,11 @@ FleasData = class {
    */
   static restore (control, time, data) {
     const serial = /** @type {!Array<?>} */ (JSON.parse(data));
+console.log(serial[0]);
+console.log(serial[1]);
+console.log(serial[2]);
+console.log(serial[4]);
+alert("here");
     const bests = /** @type {!Object<string, !Array<?>>} */ (serial[5])
     return new FleasData (
       control,
@@ -142,14 +150,13 @@ FleasData = class {
       serial[1],
       serial[2],
       serial[3],
-      serial[4],
       It.keys(bests).reduce({}, (s, k) => {
           s[k] = It.from(bests[k]).map(e => Flea.restore(e)).to()
           return s;
         }),
-      It.from(serial[6]).map(e => Flea.restore(e)).to(),
-      serial[7] === null ? null : Flea.restore(serial[7]),
-      It.from(serial[8]).map(e => Trace.restore(e)).to()
+      It.from(serial[5]).map(e => Flea.restore(e)).to(),
+      serial[7] === null ? null : Flea.restore(serial[6]),
+      It.from(serial[7]).map(e => Trace.restore(e)).to()
     );
   }
 

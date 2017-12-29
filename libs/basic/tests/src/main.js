@@ -12,15 +12,15 @@ goog.require("CrypTest");
 goog.require("RndTest");
 
 main = () => {
-
+/*
   TpTest.run();
   ItTest.run();     // Its log apears at the end because it has a callback
   ListTest.run();
   DateDmTest.run();
   DecTest.run();
   B64Test.run();
-  CrypTest.run();
-  RndTest.run();
+*/  CrypTest.run();
+//  RndTest.run();
 
 };
 

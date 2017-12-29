@@ -35,13 +35,14 @@ github_dedeme.Cryp/**/ = class {
     let k = B64.decodeBytes(B64.encode(
       key + "codified in irreversibleDeme is good, very good!\n\r8@@"
     ));
-
     let lenk = k.length;
     let sum = 0;
+let tmp = "";
     for (let i = 0; i < lenk; ++i) {
+tmp += k[i] + "-";
       sum += k[i];
     }
-
+console.log(tmp);
     let lg2 = lg + lenk;
     let r = new Uint8Array(lg2);
     let r1 = new Uint8Array(lg2);

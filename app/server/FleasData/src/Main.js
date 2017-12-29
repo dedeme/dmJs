@@ -138,7 +138,6 @@ Main = class {
 
   run () {
     const self = this;
-
     self._client.connect(ok => {
       if (ok) {
         self.readLastModification(time => {

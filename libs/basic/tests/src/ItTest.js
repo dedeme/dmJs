@@ -284,7 +284,7 @@ ItTest = class {
     t.yes(its3.e3().eq(It.from(i1)));
 
     // Sync --------------------------------------
-
+/*
     let frndRs = "";
     function frnd(s, f) {
       setTimeout(function(){ f(s); }, Rnd.i(30 * 10));
@@ -300,5 +300,6 @@ ItTest = class {
         });
       });
     });
+*/
   }
 }
