@@ -1,6 +1,6 @@
 #!/bin/bash
 DIR=$(pwd)
-cd /deme/dmjs17/app/client/fcrypt/www
+cd www
 SCRIPT=$(cat index.js)
 HTML0=$(cat indexTemplate0.html)
 HTML1=$(cat indexTemplate1.html)

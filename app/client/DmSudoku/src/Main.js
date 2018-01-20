@@ -13,7 +13,7 @@ goog.require("View");
   const lastId = "__Sudoku_store_last";
   const dataId = "__Sudoku_store_data";
 
-  const version = "v. 201709";
+  const version = "v. 201801";
 
   let interval = null;
 

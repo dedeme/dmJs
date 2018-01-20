@@ -45,7 +45,7 @@ Dom = class {
   show (page, o) {
     const control = this._control;
     const user = control.client().user();
-    const db = control.db();
+    const conf = control.conf();
 
     function entry(id, target) {
       return Ui.link(ev => { control.go(target) })

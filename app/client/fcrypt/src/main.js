@@ -79,6 +79,8 @@ var main = function () {
     $$("body").next().removeAll().add(div);
     div
       .add($("div").klass("title").html('&nbsp;<br>fcrypt<br>&nbsp;'))
+      .add($("div").style("text-align:center")
+        .html('General-special-bank-phone'))
       .add($("div")
         .add($("table")
           .att("align", "center")

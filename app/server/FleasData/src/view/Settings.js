@@ -17,13 +17,13 @@ view_Settings = class {
    */
   show () {
     const control = this._control;
-    const db = control.db();
+    const conf = control.conf();
 
     const langDiv = $("div")
       .add(Ui.link(ev => { control.changeLanguage() })
         .klass("link").html(_args(
           _("Change Language to %0"),
-          db.language() === "es" ? "EN" : "ES"
+          conf.lang() === "es" ? "EN" : "ES"
         )));
     const passDiv = $("div")
       .add(Ui.link(ev => { control.changePassPage() })

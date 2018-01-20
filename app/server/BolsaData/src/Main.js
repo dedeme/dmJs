@@ -57,7 +57,7 @@ Main = class {
 
   /** @return {string} */
   static version () {
-    return "201711";
+    return "201801";
   }
 
   static invertia () {
@@ -144,11 +144,14 @@ Main = class {
           const db = self._db;
 
           db.language() === "es" ? I18n.es() : I18n.en();
-
           It.keys(db.invertiaId()).sync(
             (nick, f) => {
               let data = {"rq": "getQuotes", "nick": nick};
               client.send(data, rp => {
+                let quotes = rp["quotes"];
+                if (!quotes) {
+                  quotes = "";
+                }
                 db.quotes()[nick] = It.from(rp["quotes"].split("\n"))
                   .map(q => Quote.from(q))
                   .to();
@@ -395,7 +398,7 @@ Main = class {
       }
       self._client.send(data, rp => {
         if (rp["fail"] === "") {
-          const err = self._reader.readCreate(nick, B64.decode(rp["page"]));
+          const err = self._reader.readCreate(nick, rp["page"]);
           if (err !== "") {
             alert(_args(_("Fail in page %0:\n%1"), "" + nPage, err));
             self.go("update");
@@ -534,7 +537,7 @@ Main = class {
       }
       self._client.send(data, rp => {
         if (rp["fail"] === "") {
-          const tp = Reader.readPage(db.source(), B64.decode(rp["page"]));
+          const tp = Reader.readPage(db.source(), rp["page"]);
           const err = tp.e1();
           if (err !== "") {
             alert(_args(_("Fail in page %0:\n%1"), "" + nPage, err));
@@ -591,7 +594,7 @@ Main = class {
             }
             self._client.send(data, rp => {
               if (rp["fail"] === "") {
-                const tp = Reader.readPage(db.source(), B64.decode(rp["page"]));
+                const tp = Reader.readPage(db.source(), rp["page"]);
                 const err = tp.e1();
                 if (err !== "") {
                   alert(_args(_("Fail in page %0:\n%1"), "" + nPage, err));

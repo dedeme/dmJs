@@ -5,8 +5,10 @@ goog.provide("Flea");
 
 goog.require("Stat");
 goog.require("Gen");
+goog.require("families_BuyAndHold");
 goog.require("families_MovingAverage");
 goog.require("families_WmovingAverage");
+goog.require("families_Rsi");
 
 Flea = class {
   /**
@@ -15,11 +17,10 @@ Flea = class {
    * @param {number} family
    * @param {number} bet
    * @param {number} ibex
-   * @param {number} mutability
    * @param {!Stat} stats
-   * @param {?} extraData
+   * @param {!Family} extra
    */
-  constructor (id, cycle, family, bet, ibex, mutability, stats, extraData) {
+  constructor (id, cycle, family, bet, ibex, stats, extra) {
     /** @private */
     this._id = id;
     /** @private */
@@ -31,15 +32,12 @@ Flea = class {
     /** @private */
     this._ibex = ibex;
     /** @private */
-    this._mutability = mutability;
-    /** @private */
     this._stats = stats;
     /**
      * @private
-     * @type {?}
+     * @type {!Family}
      */
-    this._extraData = extraData;
-
+    this._extra = extra;
   }
 
   /** @return {number} */
@@ -67,39 +65,44 @@ Flea = class {
     return this._ibex;
   }
 
-  /** @return {number} */
-  mutability () {
-    return this._mutability;
-  }
-
   /** @return {!Stat} */
   stats () {
     return this._stats;
   }
 
-  /** @return {?} */
-  extraData () {
-    return this._extraData;
+  /** @return {!Family} */
+  extra () {
+    return this._extra;
   }
 
   /**
    * @param {!Array<?>} serial
-   * @return {!Flea}
+   * @return {Flea}
    */
   static restore (serial) {
     function gen (g) {
       return Gen.restore(g).actualOption();
     }
-    function extra (family) {
+    function extra(family) {
       switch (family) {
-        case FleasData.movingAverage(): return new families_MovingAverage(
-            gen(serial[7]), gen(serial[8]), gen(serial[9])
-          );
-        case FleasData.wmovingAverage(): return new families_WmovingAverage(
-            gen(serial[7]), gen(serial[8]), gen(serial[9])
-          );
-        default: return null;
+        case Flea.buyAndHold(): return new families_BuyAndHold(
+          ).mkFamily();
+        case Flea.movingAverage(): return new families_MovingAverage(
+            gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2])
+          ).mkFamily();
+        case Flea.wmovingAverage(): return new families_WmovingAverage(
+            gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2])
+          ).mkFamily();
+        case Flea.rsi(): return new families_Rsi(
+            gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2]),
+            gen(serial[6][3])
+          ).mkFamily();
+        default: throw ("'" + family + "': Unkon family");
       }
+    }
+
+    if (serial === null) {
+      return null;
     }
 
     const family = gen(serial[2])
@@ -111,12 +114,51 @@ Flea = class {
       family,
       gen(serial[3]),
       gen(serial[4]),
-      gen(serial[5]),
 
-      Stat.restore(serial[6]),
+      Stat.restore(serial[5]),
 
       extra(family)
     );
   }
+
+  /** @return {number} */
+  static buyAndHold () {
+    return 0;
+  }
+
+  /** @return {number} */
+  static movingAverage () {
+    return 1;
+  }
+
+  /** @return {number} */
+  static wmovingAverage () {
+    return 2;
+  }
+
+  /** @return {number} */
+  static rsi () {
+    return 3;
+  }
+
+  /** @return {number} */
+  static familyNumber () {
+    return 4;
+  }
+
+  /**
+   * @param {number} family
+   * @return {string}
+   */
+  static familyNames(family) {
+    switch(family) {
+    case Flea.buyAndHold(): return "BuyAndHold";
+    case Flea.movingAverage(): return "MovingAverage";
+    case Flea.wmovingAverage(): return "WmovingAverage";
+    case Flea.rsi(): return "Rsi";
+    default: throw ("'" + family + "': Unkon family");
+    }
+  }
+
 }
 

@@ -59,7 +59,7 @@ Main = class {
 
   /** @return {string} */
   static version () {
-    return "201709";
+    return "201801";
   }
 
   /** @return {string} */

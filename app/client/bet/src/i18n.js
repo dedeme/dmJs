@@ -6,28 +6,28 @@ goog.provide("I18n");
   let lang = {};
 
   const en = {
-    "%0 is not a valid number":  "%0 is not a valid number",
-    "%0: values must be greater than 1":  "%0: values must be greater than 1",
-    "Bets":  "Bets",
-    "Calculate":  "Calculate",
-    "Clear":  "Clear",
-    "Help & Credits":  "Help & Credits",
-    "Profits":  "Profits",
-    "There are missing values":  "There are missing values"
+    "%0 is not a valid number": "%0 is not a valid number",
+    "%0: values must be greater than 1": "%0: values must be greater than 1",
+    "Bets": "Bets",
+    "Calculate": "Calculate",
+    "Clear": "Clear",
+    "Help & Credits": "Help & Credits",
+    "Profits": "Profits",
+    "There are missing values": "There are missing values"
   };
 
   const es = {
-    "%0 is not a valid number":  "%0 no es un número válido",
-    "%0: values must be greater than 1":  "%0: Los valores deben ser mayores que 1",
-    "Bets":  "Apuestas",
-    "Calculate":  "Calcular",
-    "Clear":  "Limpiar",
-    "Help & Credits":  "Ayuda & Créditos",
-    "Profits":  "Beneficio",
-    "There are missing values":  "Faltan valores por introducir"
+    "%0 is not a valid number": "%0 no es un número válido",
+    "%0: values must be greater than 1": "%0: Los valores deben ser mayores que 1",
+    "Bets": "Apuestas",
+    "Calculate": "Calcular",
+    "Clear": "Limpiar",
+    "Help & Credits": "Ayuda & Créditos",
+    "Profits": "Beneficio",
+    "There are missing values": "Faltan valores por introducir"
   };
 
-I18n = class {
+  I18n = class {
   /** @return {void} */
   static en () {
     lang = en;
@@ -76,7 +76,7 @@ function _args(key, ...args) {
         : "%" + ch;
       isCode = false;
     } else {
-      if (ch === '%') {
+      if (ch === "%") {
         isCode = true;
       } else {
         bf += ch

@@ -154,7 +154,7 @@ github_dedeme.Client/**/ = class {
     self._lock = true;
     request.open(
       "POST",
-      "http://" + location.host/**/ + "/cgi-bin/gocgi.sh",
+      "http://" + location.host/**/ + "/cgi-bin/ccgi.sh",
       true
     );
     request.setRequestHeader(
@@ -232,8 +232,8 @@ github_dedeme.Client/**/ = class {
         } catch (e) {
           console.log("ROW SERVER RESPONSE:");
           console.log(rp);
-          console.log("CLIENT ERROR:")
-          console.log(e)
+          console.log("CLIENT ERROR:");
+          console.log(e);
         }
       }
     );
@@ -252,7 +252,7 @@ github_dedeme.Client/**/ = class {
       rp => {
         try {
           let jdata = Cryp.decryp(self.key(), rp);
-          let data = /** @type {!Object<string, ?>} */(JSON.parse(jdata))
+          let data = /** @type {!Object<string, ?>} */(JSON.parse(jdata));
           if (data["error"] !== "") {
             console.log("SERVER ERROR: " + data["error"])
           } else {
@@ -264,10 +264,21 @@ github_dedeme.Client/**/ = class {
             }
           }
         } catch (e) {
-          console.log("ROW SERVER RESPONSE:");
-          console.log(rp);
-          console.log("CLIENT ERROR:")
-          console.log(e)
+          try {
+            const jdata = Cryp.decryp("nosession", rp);
+            const data = /** @type {!Object<string, ?>} */(JSON.parse(jdata));
+            let expired = data["expired"] || false;
+            if (expired) {
+              self._fexpired();
+            } else {
+              throw(e);
+            }
+          } catch (e) {
+            console.log("ROW SERVER RESPONSE:");
+            console.log(rp);
+            console.log("CLIENT ERROR:");
+            console.log(e);
+          }
         }
       }
     );

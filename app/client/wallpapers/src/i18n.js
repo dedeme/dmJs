@@ -6,40 +6,40 @@ goog.provide("I18n");
   let lang = {};
 
   const en = {
-    "Coordinates":  "Coordinates",
-    "Download":  "Download",
-    "Draw":  "Draw",
-    "File name":  "File name",
-    "Gallery":  "Gallery",
-    "Go back":  "Go Back",
-    "Language":  "Language",
-    "Load Functions":  "Load Functions",
-    "Off":  "Off",
-    "On":  "On",
-    "Only can be uploaded one file":  "Only can be uploaded one file",
-    "Precode":  "Precode",
-    "Preview":  "Preview",
-    "Save Functions":  "Save Functions"
+    "Coordinates": "Coordinates",
+    "Download": "Download",
+    "Draw": "Draw",
+    "File name": "File name",
+    "Gallery": "Gallery",
+    "Go back": "Go Back",
+    "Language": "Language",
+    "Load Functions": "Load Functions",
+    "Off": "Off",
+    "On": "On",
+    "Only can be uploaded one file": "Only can be uploaded one file",
+    "Precode": "Precode",
+    "Preview": "Preview",
+    "Save Functions": "Save Functions"
   };
 
   const es = {
-    "Coordinates":  "Coordenadas",
-    "Download":  "Descargar",
-    "Draw":  "Dibujar",
-    "File name":  "Nombre del archivo",
-    "Gallery":  "Galería",
-    "Go back":  "Volver",
-    "Language":  "Lenguaje",
-    "Load Functions":  "Cargar Funciones",
-    "Off":  "Off",
-    "On":  "On",
-    "Only can be uploaded one file":  "Solo se puede subir un arhivo",
-    "Precode":  "Precódigo",
-    "Preview":  "Vista Previa",
-    "Save Functions":  "Guardar funciones"
+    "Coordinates": "Coordenadas",
+    "Download": "Descargar",
+    "Draw": "Dibujar",
+    "File name": "Nombre del archivo",
+    "Gallery": "Galería",
+    "Go back": "Volver",
+    "Language": "Lenguaje",
+    "Load Functions": "Cargar Funciones",
+    "Off": "Off",
+    "On": "On",
+    "Only can be uploaded one file": "Solo se puede subir un arhivo",
+    "Precode": "Precódigo",
+    "Preview": "Vista Previa",
+    "Save Functions": "Guardar funciones"
   };
 
-I18n = class {
+  I18n = class {
   /** @return {void} */
   static en () {
     lang = en;
@@ -88,7 +88,7 @@ function _args(key, ...args) {
         : "%" + ch;
       isCode = false;
     } else {
-      if (ch === '%') {
+      if (ch === "%") {
         isCode = true;
       } else {
         bf += ch

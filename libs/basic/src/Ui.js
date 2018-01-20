@@ -1,7 +1,7 @@
 // Copyright 03-Sep-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-/** Class for envelopping DOM objects */
+/** Utilities for DOM objects */
 goog.provide("github_dedeme.Ui");
 goog.require("github_dedeme.Domo");
 
@@ -70,6 +70,7 @@ github_dedeme.Ui/**/ = class {
    * <p>Example:</p>
    * <p><tt>foo.com/bar?v1&k1=v2&v3 -> {"0" : v1, "k1" : v2, "2" : v3}</tt></p>
    * <p>NOTE: <i>keys and values are not trimized.</i></p>
+   * <p>NOTE: <i>If there is no variable, return is an empty object</i></p>
    * @return {!Object<string, string>}
    */
   static url () {

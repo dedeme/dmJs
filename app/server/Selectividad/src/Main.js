@@ -51,7 +51,7 @@ Main = class {
 
   /** @return {string} */
   static version () {
-    return "201711";
+    return "201801";
   }
 
   /** @return {string} */
@@ -365,7 +365,7 @@ Main = class {
   printExercise(id, tps, cut, f) {
     const self = this;
     let ix = 1;
-    const tx = "<body style='font-family:Times;font-size:small'>" +
+    const tx = "<body style='font-family:times;font-size:10pt'>" +
       "<h2 style='text-align:center'>Selectividad<br/><small>" +
       id + "</small></h2>" +
       It.from(tps).reduce("", (s, tp) =>

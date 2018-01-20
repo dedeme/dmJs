@@ -1,4 +1,4 @@
-// Copyright 09-Sep-2017 ºDeme
+// Copyright 31-12-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("GalleryAux");
@@ -7,6 +7,20 @@ GalleryAux = class {
   /** @return {!Object<string, !Array<string>>} */
   static data () {
     return {
+      "HenonAttractor": [
+        "egg-0",
+        "egg-1",
+        "margin-0",
+        "margin-1",
+        "O-0",
+        "O-1",
+        "sin-0",
+        "sin-1",
+        "tubular-0",
+        "tubular-1",
+        "waves-0",
+        "waves-1"
+      ],
       "MultiscrollAttractor-1": [
         "belt-0",
         "belt-1",
@@ -23,7 +37,8 @@ GalleryAux = class {
         "motherboard-2",
         "motherboard-3",
         "motherboard-4",
-        "semiface"],
+        "semiface"
+      ],
       "MultiscrollAttractor-2": [
         "car-0",
         "ghost-0",
@@ -34,20 +49,8 @@ GalleryAux = class {
         "masks-1",
         "organic",
         "tower-0",
-        "tower-1"],
-      "HenonAttractor": [
-        "O-0",
-        "O-1",
-        "egg-0",
-        "egg-1",
-        "margin-0",
-        "margin-1",
-        "sin-0",
-        "sin-1",
-        "tubular-0",
-        "tubular-1",
-        "waves-0",
-        "waves-1"]
+        "tower-1"
+      ]
     };
   }
 }

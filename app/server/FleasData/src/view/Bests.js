@@ -3,35 +3,51 @@
 
 goog.provide("view_Bests");
 
+goog.require("Flea");
+
 view_Bests = class {
   /**
    * @param {!Main} control
+   * @param {!Array<string>} bests
    */
-  constructor (control) {
+  constructor (control, bests) {
     /** @private */
     this._control = control;
 
-    const data = control.fleasData();
-    const bests = data.bests();
+    /**
+     * @private
+     * @type {!Object<string,!Array<Flea>>}
+     */
+    this._bests = {};
+    It.from(bests).each(jbests => {
+      const bests =
+        /** @type {!Array<!Array<*>>} */ (JSON.parse(jbests));
+      It.from(bests).each(cycleBests => {
+        const cycle = /** @type {string} */ (cycleBests[0]);
+        const fsSerial =
+          /** @type {!Array<!Array<*>>} */ (cycleBests[1]);
+        const fleas = It.from(fsSerial).map(s => Flea.restore(s)).to();
+        this._bests[cycle] = fleas;
+      });
+    });
+
     /**
      * @private
      * @type {!Array<string>}
      */
-    this._keys = It.keys(bests).sortf((a, b) => +a < +b ? 1 : -1).to();
+    this._keys = It.keys(this._bests).sortf((a, b) => +a < +b ? 1 : -1).to();
 
     this._interval = setInterval(function () {
-      data.update(changed => {
-        if (changed) {
+      if (control.conf().page() !== "bests") {
+        clearInterval(this._interval);
+      } else {
+        control.updateBests(() => {
           clearInterval(this._interval);
           control.run2();
-        }
-      });
+        });
+      }
     }, 10000)
 
-  }
-
-  interval () {
-    return this._interval;
   }
 
   /**
@@ -40,11 +56,12 @@ view_Bests = class {
   show () {
     const self = this;
     const control = self._control;
-    const db = control.db();
-    const data = control.fleasData();
-    const bests = data.bests();
+    const conf = control.conf();
+
+    const bests = self._bests;
     const keys = self._keys;
-    let selected = db.bestsId();
+
+    let selected = conf.subpage();
     if (selected === "last" || !It.from(keys).contains(selected)) {
       selected = this._keys[0];
     }
@@ -52,7 +69,9 @@ view_Bests = class {
     function evalCont(fid, post) {
       return post === null
         ? "blank"
-        : It.from(post).containsf(e => e.id() === fid) ? "well" : "cross"
+        : It.from(post).containsf(e => e != null && e.id() === fid)
+          ? "well"
+          : "cross"
       ;
     }
 
@@ -60,7 +79,7 @@ view_Bests = class {
       if (pre === null) {
         return "blank";
       }
-      const preIx = It.from(pre).indexf(e => e.id() === fid);
+      const preIx = It.from(pre).indexf(e => e != null && e.id() === fid);
       if (preIx === -1) {
         return "blank";
       }
@@ -82,46 +101,42 @@ view_Bests = class {
     }
 
     function td() {
-      return  $("td").klass("frame");
+      return $("td").klass("frame");
     }
 
     function tdl() {
       return $("td").klass("frame").style("text-align:right");
     }
 
-    const thSpecialData = th().html(_("Special data"));
+    function spanSpecial (f) {
+      return f.extra().fields();
+    }
+
+    let span = 1;
+    It.from(bests[selected]).each(f => {
+      if (f != null && spanSpecial(f) > span) {
+        span = spanSpecial(f);
+      }
+    })
+    const thSpecialData = $("td").klass("frame4").att("colspan", span)
+      .style("font-family:monospace;").html(_("Special data"));
 
     function toTrs(key) {
       function intFormat (n) {
-        return db.fDec(new Dec(n, 0))
+        return conf.fDec(new Dec(n, 0))
       }
       function floatFormat (n) {
-        return db.fDec(new Dec(n, 2))
+        return conf.fDec(new Dec(n, 2))
       }
-      function spanSpecial (f) {
-        switch (f.family()){
-          case FleasData.buyAndHold(): return 1;
-          case FleasData.movingAverage(): return 3;
-          case FleasData.wmovingAverage(): return 3;
-          default: throw("Unknow flea family");
-        }
-      }
-      function specialCols (d, span) {
-        if (d === null) {
+      /**
+       * @param {Flea} f
+       * @param {number} span
+       */
+      function specialCols (f, span) {
+        if (f === null) {
           return It.from([td().att("colspan", span)]);
         }
-        switch (d.id()){
-          case FleasData.movingAverage():
-          case FleasData.wmovingAverage(): return It.from([
-              tdl().att("title", _("Length"))
-                .html(intFormat(d.len() * 5)),
-              tdl().att("title", _("Buy Strip"))
-                .html(floatFormat(d.buyStrip() * 0.5) + "%"),
-              tdl().att("colspan", span - 2).att("title", _("Sell Strip"))
-                .html(floatFormat(d.sellStrip() * 0.5) + "%")
-            ]);
-          default: throw("Unknow flea family");
-        }
+        return f.extra().bests()(intFormat, floatFormat, span);
       }
 
       const bs = bests[key];
@@ -133,32 +148,40 @@ view_Bests = class {
         : bests[keys[It.from(keys).index(key) + 1]];
       const ls = [];
       const rs = [];
-      let span = 1;
-      It.from(bs).each(f => {
-        if (spanSpecial(f) > span) {
-          span = spanSpecial(f);
-        }
-      })
-
-      thSpecialData.att("colspan", span);
 
       let i = 1;
-      return It.from(bs).map(f =>
-        $("tr")
-          .add(td().add(Ui.img(evalCont(f.id(), postBests))))
-          .add(td().add(Ui.img(evalUpDown(f.id(), i - 1, preBests))))
-          .add(tdl().html(i++))
-          .add(tdl().html(intFormat(f.id())))
-          .add(td().html(data.fleaNames()[f.family()]))
-          .add(tdl().html(intFormat(f.cycle())))
-          .add(tdl().html(intFormat(f.bet() * 5000)))
-          .add(tdl().html(intFormat(f.ibex())))
-          .add(tdl().html(intFormat(f.mutability())))
-          .addIt(specialCols(f.extraData(), span))
-          .add(tdl().html(floatFormat(f.stats().cash())))
-          .add(tdl().html(intFormat(f.stats().buys())))
-          .add(tdl().html(intFormat(f.stats().sells())))
-      );
+      return It.from(bs).map(f => {
+        return f === null
+        ? $("tr")
+            .add(td().html(""))
+            .add(td().html(""))
+            .add(td().html(""))
+            .add(td().html(""))
+            .add(td().html(""))
+            .add(td().html(""))
+            .add(td().html(""))
+            .add(td().html(""))
+            .addIt(specialCols(null, 0))
+            .add(td().html(""))
+            .add(td().html(""))
+            .add(td().html(""))
+        : $("tr")
+            .add(td().add(Ui.img(evalCont(f.id(), postBests))))
+            .add(td().add(Ui.img(evalUpDown(f.id(), i - 1, preBests))))
+            .add(tdl().html(i++))
+            .add(tdl().html(intFormat(f.id())))
+            .add(td().html(Flea.familyNames(f.family())))
+            .add(tdl().html(intFormat(f.cycle())))
+            .add(tdl().html(intFormat((f.bet() + 1) * 5000)))
+            .add(td().html(
+                f.ibex() === 0 ? _("Out")
+                : f.ibex() === 1 ? _("In") : _("Mix")
+              ))
+            .addIt(specialCols(f, span))
+            .add(tdl().html(floatFormat(f.stats().cash())))
+            .add(tdl().html(intFormat(f.stats().buys())))
+            .add(tdl().html(intFormat(f.stats().sells())))
+      });
     }
 
     const viewer = $("table").att("align", "center")
@@ -171,8 +194,7 @@ view_Bests = class {
         .add(th().html(_("Type")))
         .add(thl().html(_("Cycle")))
         .add(thl().html(_("Bet")))
-        .add(thl().html(_("Ibex")))
-        .add(thl().html(_("Mut.")))
+        .add(th().html(_("Ibex")))
         .add(thSpecialData)
         .add(thl().html(_("Incomes")))
         .add(thl().html(_("Buys")))

@@ -46,7 +46,7 @@ Model = class {
      * @private
      * @type {string}
      */
-    this._version = "201710";
+    this._version = "201801";
     /**
      * @private
      * @type {string}

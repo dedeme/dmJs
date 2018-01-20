@@ -1,4 +1,4 @@
-// Copyright 13-Nov-2017 ºDeme
+// Copyright 23-Oct-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("view_Backups");
@@ -78,6 +78,41 @@ view_Backups = class {
             .add($("td").att("align", "center").add(div)))));
     }
 
+    function lists() {
+      return $("tr").add($("td").att("colspan", 2)
+        .add($("table").att("align", "center")
+          .add($("tr")
+            .add($("td").html("<b>" + _("Backs") + "</b>"))
+            .add($("td").style("width:25px"))
+            .add($("td")
+              .add($("span").html("<b>" + _("Trash") + "</b>"))
+              .add(Ui.link(ev => {
+                  if (confirm(_("Clear trash?"))) {
+                    control.clearTrash();
+                  }
+                }).klass("link").html(" [ " + _("Clear") + " ]"))))
+          .add($("tr")
+            .add($("td").klass("frame").style("vertical-align:top")
+              .add($("table")
+                .addIt(It.from(control.backups()).sort().reverse().map(f =>
+                  $("tr").add($("td")
+                    .add(Ui.link(ev => {
+                        if (confirm(_("All the data will be replaced"))) {
+                          control.autorestore(f);
+                        }
+                      }).klass("link").html(f)))))))
+            .add($("td"))
+            .add($("td").klass("frame").style("vertical-align:top")
+              .add($("table")
+                .addIt(It.from(control.trash()).sort().reverse().map(f =>
+                  $("tr").add($("td")
+                    .add(Ui.link(ev => {
+                        if (confirm(_("All the data will be replaced"))) {
+                          control.restoreTrash(f);
+                        }
+                      }).klass("link").html(f))))))))));
+    }
+
     control.dom().show("backups", $("table")
       .style("width:100%;text-align:center")
       .add($("tr").add($("td").att("colspan", 2)
@@ -92,6 +127,9 @@ view_Backups = class {
           .html(_("Restore")))
         .add($("td").add($("hr"))))
       .add(upload())
+      .add($("tr")
+        .add($("td").att("colspan", 2).add($("hr"))))
+      .add(lists())
     );
   }
 }

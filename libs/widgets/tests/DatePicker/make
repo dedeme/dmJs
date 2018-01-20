@@ -1,10 +1,10 @@
 #!/bin/bash
 
-SOURCES="/deme/dmjs17/libs/basic_201709/src src/*.js ../../src/*.js"
+SOURCES="/deme/dmjs18/libs/basic/src src/*.js ../../src/*.js"
 
 # DON'T CHANGE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-COMPILER=/deme/dmjs17/tools/closure-compiler-v20170806.jar
+COMPILER=/deme/dmjs18/tools/closure-compiler-v20171203.jar
 PRETTY=" --compilation_level ADVANCED_OPTIMIZATIONS "
 if [ "$1" == "pretty" ]
 then
@@ -21,7 +21,7 @@ compile () {
     --warning_level VERBOSE \
     --dependency_mode=STRICT \
     $SS \
-    --entry_point main \
+    --entry_point Main \
     --js_output_file www/index.js \
     $PRETTY
 }

@@ -1,10 +1,11 @@
 #!/bin/bash
 
-SOURCES="src /deme/dmjs17/libs/basic_201709/src"
+JS_ROOT="../../.."
+SOURCES="src $JS_ROOT/libs/basic/src"
 
 # DON'T CHANGE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-COMPILER=/deme/dmjs17/tools/closure-compiler-v20170806.jar
+COMPILER=$JS_ROOT/tools/closure-compiler-v20171203.jar
 PRETTY=" --compilation_level ADVANCED_OPTIMIZATIONS "
 if [ "$1" == "pretty" ]
 then

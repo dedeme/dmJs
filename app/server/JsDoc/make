@@ -1,10 +1,11 @@
 #!/bin/bash
 
-SOURCES="src /deme/dmjs17/libs/basic_201709/src /deme/dmjs17/libs/widgets_201709/src"
+JS_ROOT="../../.."
+SOURCES="src $JS_ROOT/libs/basic/src $JS_ROOT/libs/widgets/src"
 
 # DON'T CHANGE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-COMPILER=/deme/dmjs17/tools/closure-compiler-v20170806.jar
+COMPILER=$JS_ROOT/tools/closure-compiler-v20171203.jar
 PRETTY=" --compilation_level ADVANCED_OPTIMIZATIONS "
 if [ "$1" == "pretty" ]
 then
@@ -17,33 +18,13 @@ do
 done
 
 compile () {
-  PAGES="Main Auth Paths Logout Chpass Index Module Code Expired"
-
-  for PAGE in $PAGES
-  do
-    echo $(ls -R --full-time /deme/dmjs17/libs/basic_201709/src) > src/mk2$PAGE
-    echo $(ls -R --full-time /deme/dmjs17/libs/widgets_201709/src) >> src/mk2$PAGE
-    echo $(ls -R --full-time src/Lib) >> src/mk2$PAGE
-    echo $(ls -R --full-time src/$PAGE) >> src/mk2$PAGE
-    MAIN_TIME=$(cat src/mk$PAGE)
-    MAIN_TIME_NEW=$(cat src/mk2$PAGE)
-
-    if [ ! "$MAIN_TIME" = "$MAIN_TIME_NEW" ]
-    then
-      java -jar $COMPILER \
-        --warning_level VERBOSE \
-        --dependency_mode=STRICT \
-        $SS \
-        --entry_point $PAGE \
-        --js_output_file www/$PAGE/index.js \
-        $PRETTY
-      rm src/mk$PAGE
-      mv src/mk2$PAGE src/mk$PAGE
-    else
-      rm src/mk2$PAGE
-    fi
-  done
-
+  java -jar $COMPILER \
+    --warning_level VERBOSE \
+    --dependency_mode=STRICT \
+    $SS \
+    --entry_point Main \
+    --js_output_file www/index.js \
+    $PRETTY
 }
 
 echo "Compiling..."

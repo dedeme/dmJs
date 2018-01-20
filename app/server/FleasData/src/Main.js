@@ -9,8 +9,9 @@ goog.provide("Main");
 goog.require("github_dedeme");
 goog.require("I18n");
 goog.require("Dom");
-goog.require("Db");
-goog.require("FleasData");
+goog.require("Conf");
+goog.require("Quote");
+goog.require("Trace");
 goog.require("user_Expired");
 goog.require("user_Auth");
 goog.require("user_Chpass");
@@ -32,15 +33,33 @@ Main = class {
 
     /** @private */
     this._dom = new Dom(this);
+    /**
+     * @private
+     * @type {!Array<string>}
+     */
+    this._backups = [];
+    /**
+     * @private
+     * @type {!Array<string>}
+     */
+    this._trash = [];
+    /**
+     * @private
+     * @type {Object<string,!Array<Flea>>}
+     */
+    this._bests = null;
+
+    /**
+     * @private
+     * @type {number}
+     */
+    this._bestsLastUpdate = 0;
+
+
     /** @private */
     this._view = null
     /** @private */
-    this._db = null;
-    /**
-     * @private
-     * @type {FleasData}
-     */
-    this._fleasData = null;
+    this._conf = null;
   }
 
   /** @return {string} */
@@ -56,6 +75,11 @@ Main = class {
   /** @return {number} */
   static maxQuotes () {
     return 550;
+  }
+
+  /** @return {number} */
+  static testInterval () {
+    return 25;
   }
 
   /** @return {string} */
@@ -83,56 +107,113 @@ Main = class {
     return this._dom;
   }
 
-  /** @return {!Db} */
-  db () {
-    if (this._db) {
-      return this._db;
+  /** @return {!Conf} */
+  conf () {
+    if (this._conf) {
+      return this._conf;
     }
-    throw ("Data base has not been created");
+    throw ("Conf has not been created");
   }
 
-  /** @return {!FleasData} */
-  fleasData () {
-    if (this._fleasData === null) {
-      throw ("fleasData is null");
+  /** @return {!Array<string>} */
+  backups () {
+    return this._backups;
+  }
+
+  /** @return {!Array<string>} */
+  trash () {
+    return this._trash;
+  }
+
+  /** @return {!Object<string,!Array<Flea>>} */
+  bests () {
+    if (this._bests) {
+      return this._bests;
     }
-    return this._fleasData;
+    throw ("Bests have not been created");
+  }
+
+  /** @return {number} */
+  bestsLastUpdate () {
+    return this._bestsLastUpdate;
   }
 
   run2 () {
     const self = this;
 
-    let data = {"rq": "getDb"};
+    let data = {"rq": "getConf"};
     self._client.send(data, rp => {
-      self._db = Db.restore(
-        /** @type {!Object<string, ?>} */ (JSON.parse(rp["db"]))
+      self._conf = Conf.restore(
+        /** @type {!Array<?>} */ (JSON.parse(rp["conf"]))
       );
-      const db = self._db;
-      db.language() === "es" ? I18n.es() : I18n.en();
+      self._conf.lang() === "es" ? I18n.es() : I18n.en();
 
-      switch (db.page()) {
+      switch (self._conf.page()) {
         case "run":
           self._view = new view_Run(self);
+          self._view.show();
           break;
         case "bests":
-          self._view = new view_Bests(self);
+          data = {"rq": "readBests"};
+          self._client.send(data, rp => {
+            this._bestsLastUpdate = rp["time"];
+            self._view = new view_Bests(self, rp["bests"]);
+            self._view.show();
+          });
           break;
         case "statistics":
           self._view = new view_Statistics(self);
+          self._view.show();
           break;
         case "trace":
-          self._view = new view_Trace(self);
+          data = {"rq": "readTraces"}
+          self._client.send(data, rp => {
+            const traces = rp["traces"];
+            if (traces) {
+              const flea0 = Flea.restore(traces[0]);
+              if (flea0 === null) {
+                throw ("flea ought not to be null");
+              }
+              /** @type {!Flea} */
+              const flea = flea0;
+              const ts = It.from(traces[1]).map(t => Trace.restore(t)).to();
+              const nicks = {};
+              It.from(ts).each(t => { nicks[t.nick()] = "" });
+              const quotes = {};
+              It.keys(nicks).sync(
+                function (n, f) {
+                  data = {"rq": "readQuotes", "nick": n};
+                  self._client.send(data, rq => {
+                    quotes[n] = Quote.fromString(rq["quotes"]);
+                    f();
+                  });
+                },
+                function () {
+                  self._view = new view_Trace(self, flea, ts, quotes);
+                  self._view.show();
+                }
+              );
+            } else {
+              view_Trace.emptyPage(this);
+            }
+          });
           break;
         case "backups":
-          self._view = new view_Backups(self);
+          data = {"rq": "readBackLists"};
+          self._client.send(data, rp => {
+            self._backups = rp["backups"];
+            self._trash = rp["trash"];
+            self._view = new view_Backups(self);
+            self._view.show();
+          });
           break;
         case "settings":
           self._view = new view_Settings(self);
+          self._view.show();
           break;
         default:
-          throw("Page '" + db.page() + "' is unknown");
+          throw("Page '" + self._conf.page() + "' is unknown");
       }
-      self._view.show();
     });
   }
 
@@ -140,12 +221,7 @@ Main = class {
     const self = this;
     self._client.connect(ok => {
       if (ok) {
-        self.readLastModification(time => {
-          self.readFleasData(0, d => {
-            self._fleasData = FleasData.restore(self, time, d);
-            self.run2();
-          });
-        });
+        self.run2();
       } else {
         new user_Auth(self, self._client).show();
       }
@@ -197,10 +273,12 @@ Main = class {
    * @param {function():void} f
    * @return {void}
    */
-  sendDb (f) {
+  sendConf (f) {
     const self = this;
-    const db = self.db();
-    const data = {"rq": "setDb", "db": JSON.stringify(db.serialize())};
+    const data = {
+      "rq": "setConf",
+      "conf": JSON.stringify(self.conf().serialize())
+    };
     self._client.send(data, rp => {
       f();
     });
@@ -212,13 +290,9 @@ Main = class {
    */
   go (target) {
     const self = this;
-    switch (self.db().page()) {
-      case "bests":
-        console.log("clearInterval");
-        clearInterval(self._view.interval());
-    }
-    self.db().setPage(target);
-    self.sendDb(() => { self.run2(); });
+    self.conf().setSubpage("");
+    self.conf().setPage(target);
+    self.sendConf(() => { self.run2(); });
   }
 
   /**
@@ -230,12 +304,13 @@ Main = class {
     self._client.send(data, rp => { new view_Bye(self).show(); });
   }
 
+// Settings ----------------------------------------------------------
+
   /** @return {void} */
   changeLanguage () {
     const self = this;
-    const db = self._db;
-    db.setLanguage(db.language() === "en" ? "es" : "en");
-    self.sendDb(() => { self.run2(); });
+    self.conf().setLang(self.conf().lang() === "en" ? "es" : "en");
+    self.sendConf(() => { self.run2(); });
   }
 
   /** @return {void} */
@@ -269,6 +344,8 @@ Main = class {
     });
   }
 
+// Backups -----------------------------------------------------------
+
   /**
    * Downloads a backup
    * @param {function(string):void} action This callback passes the name of
@@ -294,7 +371,7 @@ Main = class {
     reader.onerror/**/ = evt => {
       alert(_args(_("'%0' can not be read"), file.name/**/));
       const data = {"rq": "restoreAbort"};
-      this._client.send(data, () => {
+      self._client.send(data, () => {
         new view_Backups(self).show();
       });
     }
@@ -307,7 +384,7 @@ Main = class {
             "rq": "restoreAppend",
             "data": B64.encodeBytes(bindata)
           };
-          this._client.send(data, rp => {
+          self._client.send(data, rp => {
             start += step;
             var blob = file.slice(start, start + step);
             reader.readAsArrayBuffer(blob);
@@ -315,7 +392,7 @@ Main = class {
         } else {
           progress(file.size/**/);
           const data = {"rq": "restoreEnd"};
-          this._client.send(data, (rp) => {
+          self._client.send(data, (rp) => {
             const fail = rp["fail"];
             if (fail === "restore:unzip") {
               alert(_("Fail unzipping backup"));
@@ -334,8 +411,56 @@ Main = class {
     }
 
     const data = {"rq": "restoreStart"};
-    this._client.send(data, () => {
+    self._client.send(data, () => {
       append();
+    });
+  }
+
+  /** @return {void} */
+  clearTrash () {
+    const self = this;
+    const data = {"rq": "clearTrash"};
+    self._client.send(data, () => {
+      self.run();
+    });
+  }
+
+  /**
+   * @param {string} f
+   * @return {void}
+   */
+  autorestore (f) {
+    const self = this;
+    const data = {"rq": "autorestore", "file": f};
+    self._client.send(data, () => {
+      self.run();
+    });
+  }
+
+  /**
+   * @param {string} f
+   * @return {void}
+   */
+  restoreTrash (f) {
+    const self = this;
+    const data = {"rq": "restoreTrash", "file": f};
+    this._client.send(data, () => {
+      self.run();
+    });
+  }
+
+// Bests -------------------------------------------------------------
+
+  /** @param {function():void} f */
+  updateBests (f) {
+    const self = this;
+    const data = {"rq": "bestsTime"};
+    self._client.send(data, rq => {
+      const time = rq["time"];
+      if (time > self._bestsLastUpdate) {
+        self._bestsLastUpdate = time;
+        f();
+      }
     });
   }
 
@@ -346,8 +471,34 @@ Main = class {
    */
   setBestsId (id) {
     const self = this;
-    self._db.setBestsId(id);
-    self.sendDb(() => { self.run2(); })
+    self.conf().setSubpage(id);
+    self.sendConf(() => { self.run2(); });
+  }
+
+// Statistics --------------------------------------------------------
+
+  /** @param {function():void} f */
+  updateStatistics (f) {
+    const self = this;
+    const data = {"rq": "bestsTime"};
+    self._client.send(data, rq => {
+      const time = rq["time"];
+      if (time > self._bestsLastUpdate) {
+        self._bestsLastUpdate = time;
+        f();
+      }
+    });
+  }
+
+  /**
+   * Changes the selectefd faly
+   * @param {string} sel
+   * @return {void}
+   */
+  setStatisticsSelection (sel) {
+    const self = this;
+    self.conf().setSubpage(sel);
+    self.sendConf(() => { self.run2(); });
   }
 }
 new Main().run();

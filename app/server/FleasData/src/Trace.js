@@ -2,6 +2,7 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 goog.provide("Trace");
+goog.provide("PortfolioEntry");
 
 goog.require("Quote");
 
@@ -9,17 +10,17 @@ Trace = class {
   /**
    * @param {!Quote} quote
    * @param {number} beforeCash
-   * @param {!Object<string, number>} beforePortfolio
+   * @param {!Array<!PortfolioEntry>} beforePortfolio
    * @param {string} nick
    * @param {number} cash
    * @param {number} stocks
    * @param {number} afterCash
-   * @param {!Object<string, number>} afterPortfolio
-   * @param {?} data
+   * @param {!Array<!PortfolioEntry>} afterPortfolio
+   * @param {?} extra Jsonized extra data
    */
   constructor (
     quote, beforeCash, beforePortfolio,
-    nick, cash, stocks, afterCash, afterPortfolio, data
+    nick, cash, stocks, afterCash, afterPortfolio, extra
   ) {
     /** @private */
     this._quote = quote;
@@ -38,7 +39,7 @@ Trace = class {
     /** @private */
     this._afterPortfolio = afterPortfolio;
     /** @private */
-    this._data = data;
+    this._extra = extra;
   }
 
   /** @return {!Quote} */
@@ -51,7 +52,7 @@ Trace = class {
     return this._beforeCash;
   }
 
-  /** @return {!Object<string, number>} */
+  /** @return {!Array<!PortfolioEntry>} */
   beforePortfolio () {
     return this._beforePortfolio;
   }
@@ -76,28 +77,32 @@ Trace = class {
     return this._afterCash;
   }
 
-  /** @return {!Object<string, number>} */
+  /** @return {!Array<!PortfolioEntry>} */
   afterPortfolio () {
     return this._afterPortfolio;
   }
 
   /** @return {?} */
-  data () {
-    return this._data;
+  extra () {
+    return this._extra;
   }
 
   /** @return {!Array<?>} */
   serialize () {
+    const qserial = this._quote.serialize();
+    const date = qserial.shift();
     return [
-      this._quote,
+      date,
+      qserial,
       this._beforeCash,
-      this._beforePortfolio,
+      It.from(this._beforePortfolio).map(e => e.serialize()).to(),
       this._nick,
       this._cash,
       this._stocks,
       this._afterCash,
+      It.from(this._afterPortfolio).map(e => e.serialize()).to(),
       this._afterPortfolio,
-      this._data
+      this._extra
     ];
   }
 
@@ -106,16 +111,62 @@ Trace = class {
    * @return {!Trace}
    */
   static restore (serial) {
+    const squote = serial[1];
+    squote.unshift(serial[0]);
+    const quote = Quote.restore(squote);
     return new Trace (
-      serial[0],
-      serial[1],
+      quote,
       serial[2],
-      serial[3],
+      It.from(serial[3]).map(s => PortfolioEntry.restore(s)).to(),
       serial[4],
       serial[5],
       serial[6],
       serial[7],
-      serial[8]
+      It.from(serial[8]).map(s => PortfolioEntry.restore(s)).to(),
+      serial[9]
     );
   }
 }
+
+PortfolioEntry = class {
+  /**
+   * @param {string} nick
+   * @param {number} stocks
+   */
+  constructor (nick, stocks) {
+    /** @private */
+    this._nick = nick;
+    /** @private */
+    this._stocks = stocks;
+  }
+
+  /** @return {string} */
+  nick () {
+    return this._nick;
+  }
+
+  /** @return {number} */
+  stocks () {
+    return this._stocks;
+  }
+
+  /** @return {!Array<?>} */
+  serialize () {
+    return [
+      this._nick,
+      this._stocks
+    ];
+  }
+
+  /**
+   * @param {!Array<?>} serial
+   * @return {!PortfolioEntry}
+   */
+  static restore (serial) {
+    return new PortfolioEntry (
+      serial[0],
+      serial[1]
+    );
+  }
+}
+

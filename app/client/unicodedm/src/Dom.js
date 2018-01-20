@@ -12,7 +12,7 @@ Dom = class {
 
   /** @private */
   static version () {
-    return "- &copy; &deg;Deme. unicodedm (v. 201709) -";
+    return "- &copy; &deg;Deme. unicodedm (v. 201801) -";
   }
 
   static bodyDiv () {

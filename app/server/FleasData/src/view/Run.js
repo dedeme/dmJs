@@ -17,7 +17,6 @@ view_Run = class {
    */
   show () {
     const control = this._control;
-    const db = control.db();
 
     control.dom().show("run", $("div").style("text-align:center")
       .add($("h2").html(_("Run")))
