@@ -77,7 +77,7 @@ families_Rsi = class {
     }
 
     function trace(intFormat, floatFormat, head, body) {
-      return $("span").html(_("BH trace data"))
+      return $("span").html(_("Rsi trace data"))
     }
 
     function traceError(quotes, t, r) {

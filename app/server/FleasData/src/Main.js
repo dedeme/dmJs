@@ -156,14 +156,18 @@ Main = class {
         case "bests":
           data = {"rq": "readBests"};
           self._client.send(data, rp => {
-            this._bestsLastUpdate = rp["time"];
+            self._bestsLastUpdate = rp["time"];
             self._view = new view_Bests(self, rp["bests"]);
             self._view.show();
           });
           break;
         case "statistics":
-          self._view = new view_Statistics(self);
-          self._view.show();
+          data = {"rq": "bestsTime"};
+          self._client.send(data, rq => {
+            self._bestsLastUpdate = rq["time"];
+            self._view = new view_Statistics(self);
+            self._view.show();
+          });
           break;
         case "trace":
           data = {"rq": "readTraces"}
@@ -226,47 +230,6 @@ Main = class {
         new user_Auth(self, self._client).show();
       }
     });
-  }
-
-  /**
-   * @param {function(number):void} f 'f' has the string read as argument.
-   * @return {void}
-   */
-  readLastModification (f) {
-    const self = this;
-    const data = {"rq": "fleasDataTime"};
-    self._client.send(data, rp => {
-      const time = /** @type {number} */ (rp["time"])
-      f(time);
-    });
-  }
-
-  /**
-   * @param {number} time LastModification of server file
-   * @param {function(string):void} f 'f' has the string read as argument.
-   * @return {void}
-   */
-  readFleasData (time, f) {
-    const self = this;
-    let s = "";
-    function getData(ix) {
-      const data = {"rq": "fleasData", "time": time, "ix": ix};
-      self._client.send(data, rp => {
-        const newTime = rp["restart"];
-        if (newTime !== 0 ) {
-          self.readFleasData(newTime, f);
-        } else {
-          const data = rp["data"];
-          if (data !== "") {
-            s += data;
-            getData(ix + 1);
-          } else {
-            f(s);
-          }
-        }
-      })
-    }
-    getData(0);
   }
 
   /**

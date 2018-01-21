@@ -3,6 +3,8 @@
 
 goog.provide("view_Statistics");
 
+goog.require("view_FleasTable");
+
 view_Statistics = class {
   /**
    * @param {!Main} control
@@ -67,6 +69,7 @@ view_Statistics = class {
       let n = 0;
       let topCycle = 0;
       const familyNumber = {};
+      const fleas = [];
 
       let cycleAvg = 0;
       let cycleMax = 0;
@@ -85,6 +88,7 @@ view_Statistics = class {
       let incomesMin = 99999e99;
 
       function showGeneralData() {
+        const fleasTableDiv = $("div");
         function th() {
           return $("td").klass("frame4")
             .style("font-family:monospace;text-align:right");
@@ -93,6 +97,9 @@ view_Statistics = class {
           return $("td").klass("frame")
             .style("font-family:monospace;text-align:right");
         }
+
+        fleas.sort((f1, f2) => f2.stats().cash() - f1.stats().cash());
+
         generalDataDiv.removeAll()
           .add($("table").att("align", "center")
             .addIt(It.keys(familyNumber).map(fn =>
@@ -130,6 +137,34 @@ view_Statistics = class {
               .add(td().html(floatFormat(incomesMin)))
             )
           )
+          .add($("p").html(" "))
+          .add($("table").att("align", "center")
+            .addIt(It.range(Math.floor(fleas.length / 1000) + 1)
+              .map(i => $("tr")
+                .addIt(It.range(10).map(j => {
+                    const min = i * 1000 + j *100;
+                    if (min > fleas.length) {
+                      return $("td");
+                    }
+                    let max = min + 100;
+                    if (max > fleas.length) {
+                      max = fleas.length;
+                    }
+                    const n = "000" + (i * 10 + j + 1);
+                    return td().add(Ui.link(ev => {
+                        fleasTableDiv.removeAll().add(
+                          new view_FleasTable(
+                            control,
+                            It.from(fleas)
+                              .take(max)
+                              .drop(min)
+                              .to()
+                          ).make()
+                        );
+                      }).klass("link").html(n.substring(n.length - 4)));
+                  })))))
+          .add($("p").html(" "))
+          .add(fleasTableDiv)
         ;
       }
 
@@ -146,18 +181,15 @@ view_Statistics = class {
           }
           const fsSerial =
             /** @type {!Array<!Array<*>>} */ (JSON.parse(rp["fleas"]));
+
           if (fsSerial.length > 0) {
             It.from(fsSerial)
               .map(fserial => Flea.restore(fserial))
-//              .map(f => {
-//                  if (f.family() === Flea.rsi()) {
-//                    console.log(f.id(), f.extraData().type());
-//                  }
-//                  return f;
-//                })
               .filter(ft)
               .filter(f => f.cycle() < topCycle)
               .each(flea => {
+                fleas.push(flea);
+
                 const ffm = flea.family();
                 const ffmN = familyNumber[ffm];
                 if (ffmN) {
@@ -206,6 +238,11 @@ view_Statistics = class {
               })
             averages(ix + 1);
           } else {
+            cycleMin = 0;
+            betMin = 0;
+            ibexMin = 0;
+            incomesMin = 0;
+
             showGeneralData();
           }
         });

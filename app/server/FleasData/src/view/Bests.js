@@ -94,28 +94,21 @@ view_Bests = class {
     function th() {
       return $("td").klass("frame4").style("font-family:monospace;");
     }
-
     function thl() {
       return $("td").klass("frame4")
         .style("text-align:right;font-family:monospace;");
     }
-
     function td() {
       return $("td").klass("frame");
     }
-
     function tdl() {
       return $("td").klass("frame").style("text-align:right");
     }
 
-    function spanSpecial (f) {
-      return f.extra().fields();
-    }
-
     let span = 1;
     It.from(bests[selected]).each(f => {
-      if (f != null && spanSpecial(f) > span) {
-        span = spanSpecial(f);
+      if (f != null && f.extra().fields() > span) {
+        span = f.extra().fields();
       }
     })
     const thSpecialData = $("td").klass("frame4").att("colspan", span)

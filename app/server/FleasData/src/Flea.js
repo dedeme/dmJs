@@ -9,6 +9,7 @@ goog.require("families_BuyAndHold");
 goog.require("families_MovingAverage");
 goog.require("families_WmovingAverage");
 goog.require("families_Rsi");
+goog.require("families_Follow");
 
 Flea = class {
   /**
@@ -97,6 +98,9 @@ Flea = class {
             gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2]),
             gen(serial[6][3])
           ).mkFamily();
+        case Flea.follow(): return new families_Follow(
+            gen(serial[6][0]), gen(serial[6][1])
+          ).mkFamily();
         default: throw ("'" + family + "': Unkon family");
       }
     }
@@ -142,8 +146,13 @@ Flea = class {
   }
 
   /** @return {number} */
-  static familyNumber () {
+  static follow () {
     return 4;
+  }
+
+  /** @return {number} */
+  static familyNumber () {
+    return 5;
   }
 
   /**
@@ -156,7 +165,8 @@ Flea = class {
     case Flea.movingAverage(): return "MovingAverage";
     case Flea.wmovingAverage(): return "WmovingAverage";
     case Flea.rsi(): return "Rsi";
-    default: throw ("'" + family + "': Unkon family");
+    case Flea.follow(): return "Follow";
+    default: throw ("'" + family + "': Unkown family");
     }
   }
 
