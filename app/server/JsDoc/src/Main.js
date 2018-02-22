@@ -82,7 +82,7 @@ Main = class {
     client.connect(ok => {
       if (ok) {
         const data = {"page": "Main", "rq": "get"};
-        client.send(data, rp => {
+        client.send0(data, rp => {
           self._conf = Conf.restore(
             /** @type {!Array<?>} */ (JSON.parse(rp["conf"]))
           );
@@ -99,8 +99,9 @@ Main = class {
               "rq": "set",
               "conf": self._conf.serialize()
             };
-            client.send(data, rp => {
+            client.send0(data, rp => {
               if (path === "@") {
+                this._client.setPageId();
                 new paths_Control(self).run();
               } else if (path.indexOf("@") === -1) {
                 new index_Control(self).run();
@@ -128,7 +129,7 @@ Main = class {
   bye () {
     const self = this;
     const data = {"rq": "logout"};
-    self._client.send(data, rp => { new Bye(self).show(); });
+    self._client.send0(data, rp => { new Bye(self).show(); });
   }
 
   /**

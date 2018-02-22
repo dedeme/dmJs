@@ -6,10 +6,13 @@ goog.provide("Flea");
 goog.require("Stat");
 goog.require("Gen");
 goog.require("families_BuyAndHold");
+goog.require("families_UpDown");
 goog.require("families_MovingAverage");
 goog.require("families_WmovingAverage");
 goog.require("families_Rsi");
 goog.require("families_Follow");
+goog.require("families_FollowMa");
+goog.require("families_FollowWma");
 
 Flea = class {
   /**
@@ -88,6 +91,9 @@ Flea = class {
       switch (family) {
         case Flea.buyAndHold(): return new families_BuyAndHold(
           ).mkFamily();
+        case Flea.upDown(): return new families_UpDown(
+            gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2])
+          ).mkFamily();
         case Flea.movingAverage(): return new families_MovingAverage(
             gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2])
           ).mkFamily();
@@ -95,11 +101,18 @@ Flea = class {
             gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2])
           ).mkFamily();
         case Flea.rsi(): return new families_Rsi(
+            gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2])
+          ).mkFamily();
+        case Flea.follow(): return new families_Follow(
+            gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2])
+          ).mkFamily();
+        case Flea.followMa(): return new families_FollowMa(
             gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2]),
             gen(serial[6][3])
           ).mkFamily();
-        case Flea.follow(): return new families_Follow(
-            gen(serial[6][0]), gen(serial[6][1])
+        case Flea.followWma(): return new families_FollowWma(
+            gen(serial[6][0]), gen(serial[6][1]), gen(serial[6][2]),
+            gen(serial[6][3])
           ).mkFamily();
         default: throw ("'" + family + "': Unkon family");
       }
@@ -131,28 +144,43 @@ Flea = class {
   }
 
   /** @return {number} */
-  static movingAverage () {
+  static upDown () {
     return 1;
   }
 
   /** @return {number} */
-  static wmovingAverage () {
+  static movingAverage () {
     return 2;
   }
 
   /** @return {number} */
-  static rsi () {
+  static wmovingAverage () {
     return 3;
   }
 
   /** @return {number} */
-  static follow () {
+  static rsi () {
     return 4;
   }
 
   /** @return {number} */
-  static familyNumber () {
+  static follow () {
     return 5;
+  }
+
+  /** @return {number} */
+  static followMa () {
+    return 6;
+  }
+
+  /** @return {number} */
+  static followWma () {
+    return 7;
+  }
+
+  /** @return {number} */
+  static familyNumber () {
+    return 8;
   }
 
   /**
@@ -162,10 +190,13 @@ Flea = class {
   static familyNames(family) {
     switch(family) {
     case Flea.buyAndHold(): return "BuyAndHold";
+    case Flea.upDown(): return "Up-Down";
     case Flea.movingAverage(): return "MovingAverage";
     case Flea.wmovingAverage(): return "WmovingAverage";
     case Flea.rsi(): return "Rsi";
     case Flea.follow(): return "Follow";
+    case Flea.followMa(): return "FollowMa";
+    case Flea.followWma(): return "FollowWma";
     default: throw ("'" + family + "': Unkown family");
     }
   }

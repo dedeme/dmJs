@@ -134,6 +134,7 @@ Main = class {
       .add($("img").style("width:12px;height:12px").att("src", "img/wait.gif"))
       .add($("span").html(" · "));
     client.connect(ok => {
+      this._client.setPageId();
       if (ok) {
         let data = {"rq": "getDb"};
         client.send(data, rp => {

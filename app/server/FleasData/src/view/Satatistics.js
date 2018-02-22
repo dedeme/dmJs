@@ -67,17 +67,17 @@ view_Statistics = class {
     function generalData () {
       const ft = subpage === "" ? f => true : f => f.family() === +subpage;
       let n = 0;
-      let topCycle = 0;
       const familyNumber = {};
       const fleas = [];
+      const highValue = 99999e99;
 
       let cycleAvg = 0;
       let cycleMax = 0;
-      let cycleMin = 99999e99;
+      let cycleMin = highValue;
 
       let betAvg = 0;
       let betMax = 0;
-      let betMin = 99999e99;
+      let betMin = highValue;
 
       let ibexAvg = 0;
       let ibexMax = 0;
@@ -85,7 +85,7 @@ view_Statistics = class {
 
       let incomesAvg = 0;
       let incomesMax = 0;
-      let incomesMin = 99999e99;
+      let incomesMin = highValue;
 
       function showGeneralData() {
         const fleasTableDiv = $("div");
@@ -102,7 +102,11 @@ view_Statistics = class {
 
         generalDataDiv.removeAll()
           .add($("table").att("align", "center")
-            .addIt(It.keys(familyNumber).map(fn =>
+            .addIt(It.keys(familyNumber)
+              .sortf((f1, f2) =>
+                Flea.familyNames(+f1) > Flea.familyNames(+f2) ? 1 : -1
+              )
+              .map(fn =>
                 $("tr")
                   .add($("td").klass("frame4").style("text-align:left")
                     .html(Flea.familyNames(+fn)))
@@ -176,9 +180,6 @@ view_Statistics = class {
         ;
         const data = {"rq": "readFleas", "ix": "" + ix};
         client.send(data, rp => {
-          if (ix === 0) {
-            topCycle = rp["cycle"] - Main.testInterval();
-          }
           const fsSerial =
             /** @type {!Array<!Array<*>>} */ (JSON.parse(rp["fleas"]));
 
@@ -186,7 +187,6 @@ view_Statistics = class {
             It.from(fsSerial)
               .map(fserial => Flea.restore(fserial))
               .filter(ft)
-              .filter(f => f.cycle() < topCycle)
               .each(flea => {
                 fleas.push(flea);
 
@@ -207,7 +207,7 @@ view_Statistics = class {
                   cycleMin = cycle;
                 }
 
-                const bet = (flea.bet() + 1) * 5000;
+                const bet = 5000 + flea.bet() * 1000;
                 betAvg += bet;
                 if (bet > betMax) {
                   betMax = bet;
@@ -238,10 +238,18 @@ view_Statistics = class {
               })
             averages(ix + 1);
           } else {
-            cycleMin = 0;
-            betMin = 0;
-            ibexMin = 0;
-            incomesMin = 0;
+            if (cycleMin === highValue) {
+              cycleMin = 0;
+            }
+            if (betMin === highValue) {
+              betMin = 0;
+            }
+            if (ibexMin === highValue) {
+              ibexMin = 0;
+            }
+            if (incomesMin === highValue) {
+              incomesMin = 0;
+            }
 
             showGeneralData();
           }

@@ -8,7 +8,7 @@ goog.require("Flea");
 view_Bests = class {
   /**
    * @param {!Main} control
-   * @param {!Array<string>} bests
+   * @param {!Array<!Array<?>>} bests
    */
   constructor (control, bests) {
     /** @private */
@@ -19,16 +19,12 @@ view_Bests = class {
      * @type {!Object<string,!Array<Flea>>}
      */
     this._bests = {};
-    It.from(bests).each(jbests => {
-      const bests =
-        /** @type {!Array<!Array<*>>} */ (JSON.parse(jbests));
-      It.from(bests).each(cycleBests => {
+    It.from(bests).each(cycleBests => {
         const cycle = /** @type {string} */ (cycleBests[0]);
         const fsSerial =
           /** @type {!Array<!Array<*>>} */ (cycleBests[1]);
         const fleas = It.from(fsSerial).map(s => Flea.restore(s)).to();
         this._bests[cycle] = fleas;
-      });
     });
 
     /**
@@ -81,7 +77,7 @@ view_Bests = class {
       }
       const preIx = It.from(pre).indexf(e => e != null && e.id() === fid);
       if (preIx === -1) {
-        return "blank";
+        return "flag";
       }
       const dif = preIx - ix;
       return dif > 10 ? "up2"
@@ -165,7 +161,7 @@ view_Bests = class {
             .add(tdl().html(intFormat(f.id())))
             .add(td().html(Flea.familyNames(f.family())))
             .add(tdl().html(intFormat(f.cycle())))
-            .add(tdl().html(intFormat((f.bet() + 1) * 5000)))
+            .add(tdl().html(intFormat(5000 + f.bet() * 1000)))
             .add(td().html(
                 f.ibex() === 0 ? _("Out")
                 : f.ibex() === 1 ? _("In") : _("Mix")
@@ -197,7 +193,7 @@ view_Bests = class {
 
     const left = $("td").style("width:5px;vertical-align:top;")
       .add($("table").klass("frame")
-        .add($("tr").add($("td").html(_("FLEAS"))))
+        .add($("tr").add($("td").html(_("CYCLES"))))
         .add($("tr").add($("td").html("<hr>")))
         .addIt(It.from(keys).map(k =>
             $("tr").add($("td").style("text-align:right")

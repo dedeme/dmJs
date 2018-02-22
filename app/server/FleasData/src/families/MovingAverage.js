@@ -61,7 +61,7 @@ families_MovingAverage = class {
     function bests(intFormat, floatFormat, span) {
       return It.from([
           tdl().att("title", _("Length"))
-            .html(intFormat((self.len() + 1) * 5)),
+            .html(intFormat(self.len() + 5)),
           tdl().att("title", _("Buy Strip"))
             .html(floatFormat(self.buyStrip() * 0.5) + "%"),
           tdl().att("title", _("Sell Strip"))
@@ -82,7 +82,7 @@ families_MovingAverage = class {
         .add($("tr")
           .addIt(body)
           .addIt(It.from([
-              tdl().html(intFormat((self.len() + 1) * 5)),
+              tdl().html(intFormat(self.len() + 5)),
               tdl().html(floatFormat(self.buyStrip() * 0.5) + "%"),
               tdl().html(floatFormat(self.sellStrip() * 0.5) + "%")
             ]))
@@ -91,7 +91,7 @@ families_MovingAverage = class {
 
     function traceError(quotes, t, r) {
       const textra = t.extra();
-      const len =  (self.len() + 1) * 5;
+      const len =  self.len() + 5;
       const quotesExp = Quote.getN(quotes, t.nick(), t.quote(). date(), len);
       const closesExp = It.from(quotesExp).map(q => "" + q.close()).to();
       const sum = It.from(quotesExp).reduce(0, (s, e) => s + e.close());
@@ -113,7 +113,7 @@ families_MovingAverage = class {
      */
     function traceBody(quotes, t) {
       const textra = t.extra();
-      const len = (self.len() + 1) * 5;
+      const len = self.len() + 5;
       const quotesExp = Quote.getN(
         quotes, t.nick(), t.quote().date(), len
       );

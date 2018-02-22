@@ -1,34 +1,29 @@
-// Copyright 21-Jan-2017 ºDeme
+// Copyright 22-Dic-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-goog.provide("families_Follow");
+goog.provide("families_UpDown");
 goog.require("Family");
 
-families_Follow = class {
+families_UpDown = class {
   /**
-   * @param {number} interval
    * @param {number} len
-   * @param {number} level
+   * @param {number} buyStrip
+   * @param {number} sellStrip
    */
-  constructor (interval, len, level) {
+  constructor (len, buyStrip, sellStrip) {
     /** @private */
     this._fieldsNumber = 3;
     /** @private */
-    this._interval = interval;
-    /** @private */
     this._len = len;
     /** @private */
-    this._level = level;
+    this._buyStrip = buyStrip;
+    /** @private */
+    this._sellStrip = sellStrip;
   }
 
   /** @return {number} */
   id () {
-    return Flea.follow();
-  }
-
-  /** @return {number} */
-  interval () {
-    return this._interval;
+    return Flea.upDown();
   }
 
   /** @return {number} */
@@ -36,9 +31,14 @@ families_Follow = class {
     return this._len;
   }
 
-  /** @return {number} percentage */
-  level () {
-    return this._level;
+  /** @return {number} */
+  buyStrip () {
+    return this._buyStrip;
+  }
+
+  /** @return {number} */
+  sellStrip () {
+    return this._sellStrip;
   }
 
   mkFamily () {
@@ -61,17 +61,14 @@ families_Follow = class {
     }
 
     function bests(intFormat, floatFormat, span) {
-      function tdl() {
-        return $("td").klass("frame").style("text-align:right");
-      }
       return It.from([
-        tdl().att("title", _("Interval"))
-          .html(intFormat(self.interval() + 5)),
-        tdl().att("title", _("Length"))
-          .html(intFormat(self.len() + 5)),
-        tdl().att("title", _("Level"))
-          .html(intFormat(self.level()) + "%")
-      ]).addIt(It.range(span - self._fieldsNumber).map(i => tdl()));
+          tdl().att("title", _("Length"))
+            .html(intFormat(self.len() + 5)),
+          tdl().att("title", _("Buy Strip"))
+            .html(floatFormat(self.buyStrip() * 0.5) + "%"),
+          tdl().att("title", _("Sell Strip"))
+            .html(floatFormat(self.sellStrip() * 0.5) + "%")
+        ]).addIt(It.range(span - self._fieldsNumber).map(i => tdl()));
     }
 
     function trace(intFormat, floatFormat, head, body) {
@@ -79,48 +76,52 @@ families_Follow = class {
         .add($("tr")
           .addIt(head)
           .addIt(It.from([
-              thl().html(_("Interval")),
               thl().html(_("Length")),
-              thl().html(_("Level"))
+              thl().html(_("Buy Strip")),
+              thl().html(_("Sell Strip"))
             ]))
         )
         .add($("tr")
           .addIt(body)
           .addIt(It.from([
-              tdl().html(intFormat(self.interval() + 5)),
               tdl().html(intFormat(self.len() + 5)),
-              tdl().html(intFormat(self.level()) + "%")
+              tdl().html(floatFormat(self.buyStrip() * 0.5) + "%"),
+              tdl().html(floatFormat(self.sellStrip() * 0.5) + "%")
             ]))
         );
     }
 
     function traceError(quotes, t, r) {
       const textra = t.extra();
-      const len = self.len() + 5;
+      const len =  self.len() + 5;
       const quotesExp = Quote.getN(
-        quotes, t.nick(), t.quote().date(), len
-      );
-      const closesExp = It.from(quotesExp).map(q => q.close()).to();
+        quotes, t.nick(), t.quote(). date(), len - 1)
+      ;
+      const closesExp = It.from(quotesExp).map(q => "" + q.close()).to();
       const old = closesExp[0];
-      const lastClose = closesExp[len - 1];
-      const inc = new Dec((lastClose - old) / old, 4).value();
+      const lastClose = closesExp[len - 2];
 
       return r ||
-        !It.from(textra[0]).eq(It.from(closesExp)) ||
-        Math.abs(textra[1] - inc) >= 0.0002
+        !It.from(textra[0]).map(c => "" + c).eq(It.from(closesExp)) ||
+        lastClose < old !== textra[1] ||
+        lastClose > old !== textra[2]
       ;
     }
 
+    /**
+     * @param {!Object<string, !Array<!Quote>>} quotes
+     * @param {!Trace} t
+     * @return {!It<!Domo>}
+     */
     function traceBody(quotes, t) {
       const textra = t.extra();
       const len = self.len() + 5;
       const quotesExp = Quote.getN(
-        quotes, t.nick(), t.quote().date(), len
+        quotes, t.nick(), t.quote().date(), len - 1
       );
       const closesExp = It.from(quotesExp).map(q => q.close()).to();
       const old = closesExp[0];
-      const lastClose = closesExp[len - 1];
-      const inc = new Dec((lastClose - old) / old, 4).value();
+      const lastClose = closesExp[len - 2];
 
       return It.from([
         $("tr")
@@ -134,9 +135,17 @@ families_Follow = class {
               It.from(closesExp).map(c => "" + c), "; "
             ))),
         $("tr")
-          .add(tdIf(Math.abs(textra[1] - inc) < 0.0002).html(_("Increment")))
-          .add(td().html("" + textra[1]))
-          .add(td().html("" + inc))
+          .add(tdIf(lastClose < old === textra[1]).html(_("Can buy")))
+          .add(td().html(textra[1]))
+          .add(td().html(
+              "" + lastClose + " < " + old + " => " + (lastClose < old)
+            )),
+        $("tr")
+          .add(tdIf(lastClose > old === textra[2]).html(_("Can sell")))
+          .add(td().html(textra[2]))
+          .add(td().html(
+              "" + lastClose + " > " + old + " => " + (lastClose > old)
+            ))
       ]);
     }
 

@@ -169,7 +169,7 @@ view_Trace = class {
           tdl().html(intFormat(f.id())),
           td().html(Flea.familyNames(f.family())),
           tdl().html(f.cycle()),
-          tdl().html(intFormat(f.bet() * 5000)),
+          tdl().html(intFormat(5000 + f.bet() * 1000)),
           tdl().html(intFormat(f.ibex())),
           tdl().html(floatFormat(f.stats().cash())),
           tdl().html(intFormat(f.stats().buys())),

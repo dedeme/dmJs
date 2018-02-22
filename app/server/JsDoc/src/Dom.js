@@ -80,7 +80,7 @@ Dom = class {
                   "page": "Main",
                   "rq": "logout"
                 };
-                self._control.client().send(data, rp => {
+                self._control.client().send0(data, rp => {
                   new user_Expired(self._control).show();
                 });
               })

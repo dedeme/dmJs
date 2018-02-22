@@ -60,9 +60,12 @@ JavascriptFT_02_WD=
 
 [files]
 current_page=0
-FILE_NAME_0=14551;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2FMain.js;0;2
-FILE_NAME_1=1244;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2FDom.js;0;2
+FILE_NAME_0=14459;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2FMain.js;0;2
+FILE_NAME_1=1522;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2FDom.js;0;2
 FILE_NAME_2=950;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2Fview%2FCreate.js;0;2
+FILE_NAME_3=0;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2Fview%2FUpdate.js;0;2
+FILE_NAME_4=3647;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2FDb.js;0;2
+FILE_NAME_5=0;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FBolsaData%2Fsrc%2Fview%2FBackups.js;0;2
 
 [editor]
 line_wrapping=false

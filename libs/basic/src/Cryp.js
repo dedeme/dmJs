@@ -40,6 +40,7 @@ github_dedeme.Cryp/**/ = class {
     for (let i = 0; i < lenk; ++i) {
       sum += k[i];
     }
+
     let lg2 = lg + lenk;
     let r = new Uint8Array(lg2);
     let r1 = new Uint8Array(lg2);

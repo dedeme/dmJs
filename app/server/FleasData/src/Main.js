@@ -77,11 +77,6 @@ Main = class {
     return 550;
   }
 
-  /** @return {number} */
-  static testInterval () {
-    return 25;
-  }
-
   /** @return {string} */
   static langStore () {
     return Main.app() + "__lang";
@@ -154,11 +149,33 @@ Main = class {
           self._view.show();
           break;
         case "bests":
-          data = {"rq": "readBests"};
-          self._client.send(data, rp => {
-            self._bestsLastUpdate = rp["time"];
-            self._view = new view_Bests(self, rp["bests"]);
-            self._view.show();
+          data = {"rq": "bestsTime"};
+          self._client.send(data, rq => {
+            self._bestsLastUpdate = rq["time"];
+            let more = true;
+            let bests = [];
+            It.range(1, 9).sync(
+              (i, f) => {
+                if (more) {
+                  data = {"rq": "readBests", "ix": "" + i};
+                  self._client.send(data, rp => {
+                    const moreBests =
+                      /** @type {!Array<?>} */ (JSON.parse(rp["bests"]));
+                    if (moreBests.length === 0) {
+                      more = false;
+                    } else {
+                      bests = bests.concat(moreBests);
+                    }
+                    f();
+                  });
+                } else {
+                  f();
+                }
+              }, () => {
+                self._view = new view_Bests(self, bests);
+                self._view.show();
+              }
+            );
           });
           break;
         case "statistics":

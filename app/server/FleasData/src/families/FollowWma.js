@@ -1,29 +1,32 @@
-// Copyright 21-Jan-2017 ºDeme
+// Copyright 22-Jan-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-goog.provide("families_Follow");
+goog.provide("families_FollowWma");
 goog.require("Family");
 
-families_Follow = class {
+families_FollowWma = class {
   /**
    * @param {number} interval
-   * @param {number} len
+   * @param {number} lenShort
+   * @param {number} lenLong
    * @param {number} level
    */
-  constructor (interval, len, level) {
+  constructor (interval, lenShort, lenLong, level) {
     /** @private */
-    this._fieldsNumber = 3;
+    this._fieldsNumber = 4;
     /** @private */
     this._interval = interval;
     /** @private */
-    this._len = len;
+    this._lenShort = lenShort;
+    /** @private */
+    this._lenLong = lenLong;
     /** @private */
     this._level = level;
   }
 
   /** @return {number} */
   id () {
-    return Flea.follow();
+    return Flea.followWma();
   }
 
   /** @return {number} */
@@ -32,8 +35,13 @@ families_Follow = class {
   }
 
   /** @return {number} */
-  len () {
-    return this._len;
+  lenShort () {
+    return this._lenShort;
+  }
+
+  /** @return {number} */
+  lenLong () {
+    return this._lenLong;
   }
 
   /** @return {number} percentage */
@@ -67,8 +75,10 @@ families_Follow = class {
       return It.from([
         tdl().att("title", _("Interval"))
           .html(intFormat(self.interval() + 5)),
-        tdl().att("title", _("Length"))
-          .html(intFormat(self.len() + 5)),
+        tdl().att("title", _("Short Length"))
+          .html(intFormat(self.lenShort() + 5)),
+        tdl().att("title", _("Long Length"))
+          .html(intFormat(self.lenLong() + 5)),
         tdl().att("title", _("Level"))
           .html(intFormat(self.level()) + "%")
       ]).addIt(It.range(span - self._fieldsNumber).map(i => tdl()));
@@ -80,7 +90,8 @@ families_Follow = class {
           .addIt(head)
           .addIt(It.from([
               thl().html(_("Interval")),
-              thl().html(_("Length")),
+              thl().html(_("Short Length")),
+              thl().html(_("Long Length")),
               thl().html(_("Level"))
             ]))
         )
@@ -88,7 +99,8 @@ families_Follow = class {
           .addIt(body)
           .addIt(It.from([
               tdl().html(intFormat(self.interval() + 5)),
-              tdl().html(intFormat(self.len() + 5)),
+              tdl().html(intFormat(self.lenShort() + 5)),
+              tdl().html(intFormat(self.lenLong() + 5)),
               tdl().html(intFormat(self.level()) + "%")
             ]))
         );
@@ -96,46 +108,25 @@ families_Follow = class {
 
     function traceError(quotes, t, r) {
       const textra = t.extra();
-      const len = self.len() + 5;
-      const quotesExp = Quote.getN(
-        quotes, t.nick(), t.quote().date(), len
-      );
-      const closesExp = It.from(quotesExp).map(q => q.close()).to();
-      const old = closesExp[0];
-      const lastClose = closesExp[len - 1];
-      const inc = new Dec((lastClose - old) / old, 4).value();
 
-      return r ||
-        !It.from(textra[0]).eq(It.from(closesExp)) ||
-        Math.abs(textra[1] - inc) >= 0.0002
-      ;
+      const avgS = textra[0] / (self.lenShort() + 5);
+      const avgL = textra[1] / (self.lenLong() + 5);
+      const inc = new Dec((avgS - avgL) / avgL, 4).value();
+
+      return r || Math.abs(textra[2] - inc) >= 0.0002;
     }
 
     function traceBody(quotes, t) {
       const textra = t.extra();
-      const len = self.len() + 5;
-      const quotesExp = Quote.getN(
-        quotes, t.nick(), t.quote().date(), len
-      );
-      const closesExp = It.from(quotesExp).map(q => q.close()).to();
-      const old = closesExp[0];
-      const lastClose = closesExp[len - 1];
-      const inc = new Dec((lastClose - old) / old, 4).value();
+
+      const avgS = textra[0] / (self.lenShort() + 5);
+      const avgL = textra[1] / (self.lenLong() + 5);
+      const inc = new Dec((avgS - avgL) / avgL, 4).value();
 
       return It.from([
         $("tr")
-          .add(tdIf(It.from(textra[0]).map(c => "" + c).eq(
-            It.from(quotesExp).map(q => "" + q.close())
-          )).html(_("Closes")))
-          .add(td().html(It.join(
-              It.from(textra[0]).map(c => "" + c), "; "
-            )))
-          .add(td().html(It.join(
-              It.from(closesExp).map(c => "" + c), "; "
-            ))),
-        $("tr")
-          .add(tdIf(Math.abs(textra[1] - inc) < 0.0002).html(_("Increment")))
-          .add(td().html("" + textra[1]))
+          .add(tdIf(Math.abs(textra[2] - inc) < 0.0002).html(_("Increment")))
+          .add(td().html("" + textra[2]))
           .add(td().html("" + inc))
       ]);
     }

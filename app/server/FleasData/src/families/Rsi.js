@@ -6,14 +6,13 @@ goog.require("Family");
 
 families_Rsi = class {
   /**
-   * @param {number} type
    * @param {number} len
    * @param {number} upLevel
    * @param {number} downLevel
    */
-  constructor (type, len, upLevel, downLevel) {
+  constructor (len, upLevel, downLevel) {
     /** @private */
-    this._type = type;
+    this._fieldsNumber = 3;
     /** @private */
     this._len = len;
     /** @private */
@@ -25,17 +24,6 @@ families_Rsi = class {
   /** @return {number} */
   id () {
     return Flea.rsi();
-  }
-
-  /**
-   * @return {number} Its meaning is:
-   *    0: Normal rsi
-   *    1: Anti rsi
-   *    2: Double rsi (sell when crossing down upLevel and buy when crossing
-   *       up downlevel.
-   */
-  type () {
-    return this._type;
   }
 
   /** @return {number} */
@@ -61,19 +49,13 @@ families_Rsi = class {
         return $("td").klass("frame").style("text-align:right");
       }
       return It.from([
-        tdl().att("title", _("Type"))
-          .html(
-            self.type() === 0
-              ? _("Normal")
-              : self.type() === 1 ? _("Anti") : _("Double")
-          ),
         tdl().att("title", _("Length"))
-          .html(intFormat((self.len() + 1) * 5)),
+          .html(intFormat(self.len() + 5)),
         tdl().att("title", _("Up Level"))
-          .html(intFormat(60 + self.upLevel()) + "%"),
+          .html(floatFormat(50 + (self.upLevel() + 1) * 0.01) + "%"),
         tdl().att("title", _("Down level"))
-          .html(intFormat(40 - self.downLevel()) + "%")
-      ]).addIt(It.range(span - 4).map(i => tdl()));
+          .html(floatFormat(50 - (self.downLevel() + 1) * 0.01)  + "%")
+      ]).addIt(It.range(span - self._fieldsNumber).map(i => tdl()));
     }
 
     function trace(intFormat, floatFormat, head, body) {
@@ -89,12 +71,11 @@ families_Rsi = class {
     }
 
     return new Family(
-      4,
+      self._fieldsNumber,
       bests,
       trace,
       traceError,
       traceBody
     );
   }
-
 }

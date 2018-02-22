@@ -59,11 +59,11 @@ JavascriptFT_02_CM=
 JavascriptFT_02_WD=
 
 [files]
-current_page=2
-FILE_NAME_0=1633;Go;0;EUTF-8;0;1;0;%2Fdeme%2FdmGo%2Fsrc%2Fgithub.com%2Fdedeme%2Fgo%2FJsDoc%2FJsDoc.go;0;2
-FILE_NAME_1=2041;C;0;EUTF-8;0;1;0;%2Fdeme%2FdmC18%2Fcgi%2FJsDoc%2Fsrc%2FJsDoc.c;0;2
-FILE_NAME_2=2929;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FJsDoc%2Fsrc%2FMain.js;0;2
-FILE_NAME_3=139;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FJsDoc%2Fsrc%2FBye.js;0;2
+current_page=3
+FILE_NAME_0=2950;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FJsDoc%2Fsrc%2FMain.js;0;2
+FILE_NAME_1=139;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FJsDoc%2Fsrc%2FBye.js;0;2
+FILE_NAME_2=8511;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Flibs%2Fbasic%2Fsrc%2FClient.js;0;2
+FILE_NAME_3=2422;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FJsDoc%2Fsrc%2FDom.js;0;2
 
 [editor]
 line_wrapping=false

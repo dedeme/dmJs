@@ -59,8 +59,11 @@ JavascriptFT_02_CM=
 JavascriptFT_02_WD=
 
 [files]
-current_page=0
+current_page=3
 FILE_NAME_0=546;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Flibs%2Fbasic%2Ftests%2Fsrc%2FMain.js;0;2
+FILE_NAME_1=548;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Flibs%2Fbasic%2Ftests%2Fsrc%2FB64Test.js;0;2
+FILE_NAME_2=966;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Flibs%2Fbasic%2Ftests%2Fsrc%2FCrypTest.js;0;2
+FILE_NAME_3=1437;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Flibs%2Fbasic%2Fsrc%2FCryp.js;0;2
 
 [editor]
 line_wrapping=false

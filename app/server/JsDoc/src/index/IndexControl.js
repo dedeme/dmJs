@@ -41,7 +41,7 @@ index_Control = class {
     const conf = control.conf();
 
     const data = {"page": "Paths", "rq": "get"};
-    client.send(data, rp => {
+    client.send0(data, rp => {
       const pathsJArray = rp["paths"]
       self._paths = It.from(pathsJArray).map(row => Path.restore(row)).to();
       const selected = Ui.url()["0"];
@@ -56,7 +56,7 @@ index_Control = class {
         "rq": "path",
         "path" : p.path()
       }
-      client.send(data, rp => {
+      client.send0(data, rp => {
         const tree = index_Tree.restore(rp["tree"]);
         if (tree.help() === null && tree.entries() === null) {
           alert(_args(_("Error reading %0"), selected))

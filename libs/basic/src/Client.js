@@ -86,6 +86,12 @@ github_dedeme.Client/**/ = class {
     this._pageId = "";
 
     /**
+     * @private
+     * @type {string}
+     */
+    this._connectionId = "";
+
+    /**
      * When a request is sent 'this._lock' is set to 'true' and is not posible
      * to send new requests until request.readyState === 4.
      * @private
@@ -107,7 +113,7 @@ github_dedeme.Client/**/ = class {
    * @param {string} value
    */
   setSessionId (value) {
-    Store.put("Client_sessionId_" + this._appName, value)
+    Store.put("Client_sessionId_" + this._appName, value);
   }
 
   /**
@@ -123,12 +129,19 @@ github_dedeme.Client/**/ = class {
    * @param {string} value
    */
   setKey (value) {
-    Store.put("Client_key_" + this._appName, value)
+    Store.put("Client_key_" + this._appName, value);
   }
 
   /** @return {string} */
   user () {
     return Store.get("Client_user_" + this._appName) || "";
+  }
+
+  /** @return {void} */
+  setPageId() {
+    const value = Cryp.genK(250);
+    Store.put("Client_pageId_" + this._appName, value)
+    this._pageId = value;
   }
 
   /**
@@ -184,7 +197,7 @@ github_dedeme.Client/**/ = class {
               f(false);
             } else {
               self.setKey(key);
-              self._pageId = data["pageId"];
+              self._connectionId = data["connectionId"];
               f(true);
             }
           }
@@ -240,13 +253,17 @@ github_dedeme.Client/**/ = class {
   }
 
   /**
+   * @private
    * @param {!Object<string, ?>} data
    * @param {function (!Object<string, ?>):void} f
+   * @param {boolean} withConnectionId
    * @return {void}
    */
-  send (data, f) {
+  _send (data, f, withConnectionId) {
     let self = this;
-    data["pageId"] = self._pageId;
+    if (withConnectionId) {
+      data["connectionId"] = self._connectionId;
+    }
     self.sendServer(
       self.sessionId() + ":" + Cryp.cryp(self.key(), JSON.stringify(data)),
       rp => {
@@ -256,12 +273,7 @@ github_dedeme.Client/**/ = class {
           if (data["error"] !== "") {
             console.log("SERVER ERROR: " + data["error"])
           } else {
-            let expired = data["expired"] || false;
-            if (expired) {
-              self._fexpired();
-            } else {
-              f(data);
-            }
+            f(data);
           }
         } catch (e) {
           try {
@@ -282,6 +294,25 @@ github_dedeme.Client/**/ = class {
         }
       }
     );
+  }
+
+  /**
+   * @param {!Object<string, ?>} data
+   * @param {function (!Object<string, ?>):void} f
+   * @return {void}
+   */
+  send0 (data, f) {
+    this._send(data, f, false);
+  }
+
+  /**
+   * send checks if connectionId is correct,
+   * @param {!Object<string, ?>} data
+   * @param {function (!Object<string, ?>):void} f
+   * @return {void}
+   */
+  send (data, f) {
+    this._send(data, f, true);
   }
 
   /**

@@ -60,7 +60,9 @@ JavascriptFT_02_WD=
 
 [files]
 current_page=0
-FILE_NAME_0=377;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fclient%2FDmSudoku%2Fsrc%2FMain.js;0;2
+FILE_NAME_0=6964;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fclient%2FDmSudoku%2Fsrc%2FMain.js;0;2
+FILE_NAME_1=0;None;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fclient%2FDmSudoku%2Fi18n%2Fen.txt;0;2
+FILE_NAME_2=0;None;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fclient%2FDmSudoku%2Fi18n%2Fes.txt;0;2
 
 [editor]
 line_wrapping=false

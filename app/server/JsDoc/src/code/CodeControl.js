@@ -41,7 +41,7 @@ code_Control = class {
     const conf = control.conf();
 
     const data = {"page": "Paths", "rq": "get"};
-    client.send(data, rp => {
+    client.send0(data, rp => {
       const pathsJArray = rp["paths"]
       self._paths = It.from(pathsJArray).map(row => Path.restore(row)).to();
       const url = Ui.url();
@@ -60,7 +60,7 @@ code_Control = class {
         "rq": "code",
         "path" : path
       }
-      client.send(data, rp => {
+      client.send0(data, rp => {
         new code_View(self).show(
           self.paths(), selected, relative, url["1"], rp["text"]
         );
