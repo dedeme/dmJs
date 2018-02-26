@@ -59,9 +59,13 @@ JavascriptFT_02_CM=
 JavascriptFT_02_WD=
 
 [files]
-current_page=0
+current_page=5
 FILE_NAME_0=1498;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FFleasData%2Fsrc%2FMain.js;0;2
-FILE_NAME_1=5913;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FFleasData%2Fsrc%2Fview%2FSatatistics.js;0;2
+FILE_NAME_1=165;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FFleasData%2Fsrc%2Fview%2FSatatistics.js;0;2
+FILE_NAME_2=2215;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FFleasData%2Fsrc%2Ffamilies%2FMovingAverage.js;0;2
+FILE_NAME_3=2259;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FFleasData%2Fsrc%2Ffamilies%2FUpDown.js;0;2
+FILE_NAME_4=2218;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FFleasData%2Fsrc%2Ffamilies%2FWmovingAverage.js;0;2
+FILE_NAME_5=1165;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fserver%2FFleasData%2Fsrc%2Fview%2FFleasTable.js;0;2
 
 [editor]
 line_wrapping=false

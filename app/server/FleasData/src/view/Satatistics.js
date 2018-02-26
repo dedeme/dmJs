@@ -186,6 +186,7 @@ view_Statistics = class {
           if (fsSerial.length > 0) {
             It.from(fsSerial)
               .map(fserial => Flea.restore(fserial))
+              .filter(flea => flea.stats().cash() > 1000)
               .filter(ft)
               .each(flea => {
                 fleas.push(flea);

@@ -65,9 +65,9 @@ families_UpDown = class {
           tdl().att("title", _("Length"))
             .html(intFormat(self.len() + 5)),
           tdl().att("title", _("Buy Strip"))
-            .html(floatFormat(self.buyStrip() * 0.5) + "%"),
+            .html(floatFormat(self.buyStrip() * 0.1) + "%"),
           tdl().att("title", _("Sell Strip"))
-            .html(floatFormat(self.sellStrip() * 0.5) + "%")
+            .html(floatFormat(self.sellStrip() * 0.1) + "%")
         ]).addIt(It.range(span - self._fieldsNumber).map(i => tdl()));
     }
 
@@ -85,8 +85,8 @@ families_UpDown = class {
           .addIt(body)
           .addIt(It.from([
               tdl().html(intFormat(self.len() + 5)),
-              tdl().html(floatFormat(self.buyStrip() * 0.5) + "%"),
-              tdl().html(floatFormat(self.sellStrip() * 0.5) + "%")
+              tdl().html(floatFormat(self.buyStrip() * 0.1) + "%"),
+              tdl().html(floatFormat(self.sellStrip() * 0.1) + "%")
             ]))
         );
     }
