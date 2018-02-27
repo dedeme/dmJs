@@ -130,6 +130,9 @@ Main = class {
       f(nick);
     };
 
+    self._waitDiv.removeAll()
+      .add($("img").style("width:12px;height:12px").att("src", "img/wait.gif"))
+      .add($("span").html(" · "));
     client.connect(ok => {
       this._client.setPageId();
       if (ok) {
@@ -142,46 +145,41 @@ Main = class {
           const db = self._db;
 
           db.language() === "es" ? I18n.es() : I18n.en();
-
-          switch (db.page()) {
-            case "update":
-              self._waitDiv.removeAll()
-                .add($("img").style("width:12px;height:12px")
-                  .att("src", "img/wait.gif"))
-                .add($("span").html(" · "));
-              It.keys(db.invertiaId()).sync(
-                (nick, f) => {
-                  let data = {"rq": "getQuotes", "nick": nick};
-                  client.send(data, rp => {
-                    let quotes = rp["quotes"];
-                    if (!quotes) {
-                      quotes = "";
-                    }
-                    db.quotes()[nick] = It.from(rp["quotes"].split("\n"))
-                      .map(q => Quote.from(q))
-                      .to();
-                    f();
-                  })
-                },
-                () => {
-                  db.verify();
-                  self._waitDiv.removeAll();
-                  new view_Update(self).show();
+          It.keys(db.invertiaId()).sync(
+            (nick, f) => {
+              let data = {"rq": "getQuotes", "nick": nick};
+              client.send(data, rp => {
+                let quotes = rp["quotes"];
+                if (!quotes) {
+                  quotes = "";
                 }
-              );
-              break;
-            case "create":
-              new view_Create(self).show();
-              break;
-            case "backups":
-              new view_Backups(self).show();
-              break;
-            case "settings":
-              new view_Settings(self).show();
-              break;
-            default:
-              throw("Page '" + db.page() + "' is unknown");
-          }
+                db.quotes()[nick] = It.from(rp["quotes"].split("\n"))
+                  .map(q => Quote.from(q))
+                  .to();
+                f();
+              })
+            },
+            () => {
+              db.verify();
+              self._waitDiv.removeAll();
+              switch (db.page()) {
+                case "update":
+                  new view_Update(self).show();
+                  break;
+                case "create":
+                  new view_Create(self).show();
+                  break;
+                case "backups":
+                  new view_Backups(self).show();
+                  break;
+                case "settings":
+                  new view_Settings(self).show();
+                  break;
+                default:
+                  throw("Page '" + db.page() + "' is unknown");
+              }
+            }
+          );
         });
       } else {
         new user_Auth(self, self._client).show();
@@ -198,9 +196,26 @@ Main = class {
   sendDb (f) {
     const self = this;
     const db = self.db();
+    self._waitDiv.removeAll()
+      .add($("img").style("width:12px;height:12px").att("src", "img/wait.gif"))
+      .add($("span").html(" · "));
+    db.verify();
     const data = {"rq": "setDb", "db": JSON.stringify(db.serialize())};
     self._client.send(data, rp => {
-      f();
+      It.keys(db.invertiaId()).sync(
+        (nick, fsync) => {
+          const data = {
+            "rq": "setQuotes",
+            "nick": nick,
+            "quotes": db.quotes()[nick].join("\n")
+          };
+          self._client.send(data, rp => { fsync(); });
+        },
+        () => {
+            self._waitDiv.removeAll();
+            f();
+          }
+      );
     });
   }
 
@@ -668,4 +683,3 @@ Main = class {
 
 }
 new Main().run();
-
