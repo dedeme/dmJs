@@ -1,14 +1,11 @@
 // Copyright 13-Oct-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-goog.provide("Main");
+import Model from "./Model.js";
+import Dom from "./Dom.js";
+import {I18n} from "./I18n.js";
 
-goog.require("github_dedeme");
-goog.require("I18n");
-goog.require("Model");
-goog.require("Dom");
-
-Main = class {
+export default class Main {
 
   constructor () {
     /** @private */
@@ -23,7 +20,7 @@ Main = class {
     }
   }
 
-  /** @return {!Model} */
+  /** @return {!Model} Model */
   model () {
     return this._model;
   }
@@ -32,4 +29,3 @@ Main = class {
     this._dom.show();
   }
 }
-new Main().run();

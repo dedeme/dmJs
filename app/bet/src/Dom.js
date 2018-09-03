@@ -1,18 +1,25 @@
 // Copyright 13-Oct-2017 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-goog.provide("Dom");
+import Ui from "./dmjs/Ui.js";
+import It from "./dmjs/It.js";
+import Dec from "./dmjs/Dec.js";
+import {_, _args} from "./I18n.js";
+// eslint-disable-next-line
+import Domo from "./dmjs/Domo.js";
+// eslint-disable-next-line
+import Main from "./Main.js";
 
-goog.require("github_dedeme");
+const $ = Ui.$;
 
-Dom = class {
-  /** @param {!Main} control */
+export default class Dom {
+  /** @param {!Main} control Control */
   constructor (control) {
     /** @private */
     this._control = control;
   }
 
-  /** @return  {void} */
+  /** @return {void} */
   show () {
     const self = this;
     const control = self._control;
@@ -36,10 +43,10 @@ Dom = class {
           return _("There are missing values");
         }
         if (!Dec.isNumber(v)) {
-          return _args(_("%0 is not a valid number"), v)
+          return _args(_("%0 is not a valid number"), v);
         }
-        if (+v <= 1) {
-          return _args(_("%0: values must be greater than 1"), v)
+        if (Number(v) <= 1) {
+          return _args(_("%0: values must be greater than 1"), v);
         }
         return "";
       });
@@ -48,13 +55,15 @@ Dom = class {
         return;
       }
       const r = model.calculate(
-        It.from(bets).map(e => +e.value().trim().replace(",", ".")).to()
+        bets.map(e => Number(e.value().trim().replace(",", ".")))
       );
       profits.value(lang === "es" ? r.toEu() : r.toEn());
     }
 
     function clear () {
-      It.from(bets).each(e => { e.value(""); });
+      It.from(bets).each(e => {
+        e.value("");
+      });
       profits.value("");
     }
 
@@ -62,41 +71,44 @@ Dom = class {
       const next = i === model.options() - 1 ? "calculate" : "bet-" + (i + 1);
       const r = Ui.field(next).att("id", "bet-" + i).klass("frame")
         .style("width:60px;color:#000000;")
-        .on("focus", ev => { ev.target/**/.select(); })
+        .on("focus", ev => {
+          ev.target.select();
+        })
         .on("mousedown", ev => {
-          if (ev.button/**/ !== 0) {
+          if (ev.button !== 0) {
             profits.value("");
           }
-        }).on("keydown", ev => { profits.value(""); });
+        }).on("keydown", () => {
+          profits.value("");
+        });
       return lang === "es" ? Ui.changePoint(r) : r;
     }
 
-    function updateBets() {
+    function updateBets () {
       const lg = bets.length;
       const op = model.options();
 
-      bets = It.range(op).map(i => {
+      bets = [...It.range(op).map(i => {
         const field = mkBet(i);
         if (i < lg) {
           field.value(bets[i].value());
         }
         return field;
-      }).to();
-
+      }).to()];
       betsDiv.removeAll().add($("table").att("align", "center")
-        .addIt(It.from(bets).map(e => $("tr").add($("td").add(e))))
+        .adds(bets.map(e => $("tr").add($("td").add(e))))
       );
       profits.value("");
 
       bets[0].e().focus();
     }
 
-    function op(n) {
+    function op (n) {
       return $("td").klass("frame")
-        .add(Ui.link(ev => {
-              model.setOptions(n);
-              updateBets();
-            })
+        .add(Ui.link(() => {
+          model.setOptions(n);
+          updateBets();
+        })
           .add($("span").style("font-family:monospace")
             .html("&nbsp;" + n + "&nbsp")));
     }
@@ -106,7 +118,7 @@ Dom = class {
         .add($("p").klass("title").html(model.appName()))
         .add($("hr"))
         .add($("table").att("align", "center").add($("tr")
-          .addIt(It.range(2, 7).map(i => op(i)))))
+          .adds([...It.range(2, 7).map(i => op(i)).to()])))
         .add($("br"))
         .add($("table").att("align", "center")
           .add($("tr")
@@ -131,7 +143,7 @@ Dom = class {
       ;
     }
 
-    $$("body").next().removeAll().add(
+    Ui.$$("body")[0].removeAll().add(
       $("div")
         .add(body())
         .add($("p").html("&nbsp;"))

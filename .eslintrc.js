@@ -44,9 +44,6 @@ module.exports = {
         "guard-for-in": [
             "error"
         ],
-        "no-alert": [
-            "error"
-        ],
         "no-else-return": [
             "error",
             {"allowElseIf": false}
@@ -72,10 +69,6 @@ module.exports = {
         "no-new-wrappers": [
             "error"
         ],
-        "no-param-reassign": [
-            "error",
-            { "props": true }
-        ],
         "no-use-before-define": [
             "error"
         ],
@@ -99,9 +92,6 @@ module.exports = {
             "as-needed"
         ],
         "require-await": [
-            "error"
-        ],
-        "no-undefined": [
             "error"
         ],
         "new-parens": [
@@ -178,6 +168,42 @@ module.exports = {
         ],
         "switch-colon-spacing": [
             "error"
-        ]
+        ],
+        "arrow-spacing": [
+            "error"
+        ],
+        "no-duplicate-imports": [
+            "error"
+        ],
+        "no-useless-computed-key": [
+            "error"
+        ],
+        "no-useless-constructor": [
+            "error"
+        ],
+        "no-useless-rename": [
+            "error"
+        ],
+        "no-var": [
+            "error"
+        ],
+        "object-shorthand": [
+            "error"
+        ],
+        "prefer-const": [
+            "error"
+        ],
+        "prefer-rest-params": [
+            "error"
+        ],
+        "prefer-spread": [
+            "error"
+        ],
+        "rest-spread-spacing": [
+            "error"
+        ],
+        "template-curly-spacing": [
+            "error"
+        ],
     }
 };

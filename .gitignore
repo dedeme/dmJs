@@ -1,4 +1,5 @@
 tools
 lib
-index.js
+**/www/index.js
+**/www/js
 *.geany
