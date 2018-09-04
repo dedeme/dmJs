@@ -37,13 +37,18 @@ export class I18n {
 
   /**
    * @private
-   * @return {!Object<string, string>} Result
+   * @return {!Object<string, string>} Dictionary
    */
   static lang () {
     return lang;
   }
 }
 
+
+/**
+ * @param {string} key Value
+ * @return {string} Translation
+ */
 export function _ (key) {
   const v = I18n.lang()[key];
   if (v !== undefined) {
@@ -52,6 +57,11 @@ export function _ (key) {
   return key;
 }
 
+/**
+ * @param {string} key Template
+ * @param {...string} args Values
+ * @return {string} Translation
+ */
 export function _args (key, ...args) {
   let bf = "";
   const v = _(key);
@@ -80,4 +90,3 @@ export function _args (key, ...args) {
   }
   return bf;
 }
-

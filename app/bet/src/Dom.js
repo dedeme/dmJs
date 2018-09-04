@@ -94,7 +94,7 @@ export default class Dom {
           field.value(bets[i].value());
         }
         return field;
-      }).to()];
+      })];
       betsDiv.removeAll().add($("table").att("align", "center")
         .adds(bets.map(e => $("tr").add($("td").add(e))))
       );
@@ -118,7 +118,7 @@ export default class Dom {
         .add($("p").klass("title").html(model.appName()))
         .add($("hr"))
         .add($("table").att("align", "center").add($("tr")
-          .adds([...It.range(2, 7).map(i => op(i)).to()])))
+          .adds([...It.range(2, 7).map(i => op(i))])))
         .add($("br"))
         .add($("table").att("align", "center")
           .add($("tr")
