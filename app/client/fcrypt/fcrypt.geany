@@ -28,7 +28,7 @@ NF_00_CM=firefox "/deme/dmjs18/app/client/fcrypt/www/index.html"
 EX_00_LB=
 EX_00_CM=
 EX_00_WD=
-filetypes=dmjs;Javascript;
+filetypes=Javascript;
 EX_01_LB=
 EX_01_CM=
 EX_01_WD=
@@ -60,9 +60,12 @@ JavascriptFT_02_WD=
 
 [files]
 current_page=0
-FILE_NAME_0=2201;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fclient%2Ffcrypt%2Fsrc%2Fmain.js;0;2
+FILE_NAME_0=0;Javascript;0;EUTF-8;0;1;0;%2Fdm%2FdmJs%2Fapp%2Fclient%2Ffcrypt%2Fsrc%2Fmain.js;0;2
 
 [editor]
 line_wrapping=false
 line_break_column=80
 auto_continue_multiline=true
+
+[VTE]
+last_dir=/home/deme/dm/dmC/app/dmstack/tests/problems

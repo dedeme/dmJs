@@ -32,9 +32,6 @@ module.exports = {
             "always"
         ],
 
-        "valid-jsdoc": [
-            "error"
-        ],
         "array-callback-return": [
             "error"
         ],
@@ -98,9 +95,6 @@ module.exports = {
             "error"
         ],
         "block-spacing":  [
-            "error"
-        ],
-        "brace-style": [
             "error"
         ],
         "comma-spacing": [
@@ -188,7 +182,7 @@ module.exports = {
             "error"
         ],
         "object-shorthand": [
-            "error"
+            "error", "never"
         ],
         "prefer-const": [
             "error"

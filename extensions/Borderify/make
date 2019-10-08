@@ -1,0 +1,33 @@
+#!/bin/bash
+
+NAME="borderify"
+JS_ROOT="../.."
+LIBS="lib/dmjs"
+
+# DON'T CHANGE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+COMPILER=$JS_ROOT/tools/closure-compiler-v20180805.jar
+
+cp -fR lib/dmjs src
+
+compile () {
+  java -jar $COMPILER \
+    --warning_level VERBOSE \
+    --dependency_mode STRICT \
+    --module_resolution BROWSER \
+    --js_module_root "src" \
+    --dependency_mode  NONE \
+    --js src \
+    --compilation_level=ADVANCED_OPTIMIZATIONS \
+    --entry_point index.js \
+    --js_output_file www/$NAME.js
+}
+
+echo "Compiling..."
+compile
+echo "... end compilation."
+
+rm -fR src/dmjs
+
+cd www
+zip -r -FS ../$NAME.zip *

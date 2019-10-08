@@ -28,7 +28,7 @@ NF_00_CM=firefox http://localhost/unicodedm
 EX_00_LB=
 EX_00_CM=
 EX_00_WD=
-filetypes=dmjs;Javascript;
+filetypes=Javascript;
 EX_01_LB=
 EX_01_CM=
 EX_01_WD=
@@ -59,11 +59,14 @@ JavascriptFT_02_CM=
 JavascriptFT_02_WD=
 
 [files]
-current_page=0
-FILE_NAME_0=195;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fclient%2Funicodedm%2Fsrc%2FMain.js;0;2
-FILE_NAME_1=357;Javascript;0;EUTF-8;0;1;0;%2Fdeme%2Fdmjs18%2Fapp%2Fclient%2Funicodedm%2Fsrc%2FDom.js;0;2
+current_page=1
+FILE_NAME_0=161;Javascript;0;EUTF-8;0;1;0;%2Fdm%2FdmJs%2Fapp%2Fclient%2Funicodedm%2Fsrc%2FMain.js;0;2
+FILE_NAME_1=492;Sh;0;EUTF-8;0;1;0;%2Fdm%2FdmJs%2Fapp%2Fclient%2Funicodedm%2Fmake;0;2
 
 [editor]
 line_wrapping=false
 line_break_column=80
 auto_continue_multiline=true
+
+[VTE]
+last_dir=/home/deme/dm/dmH/doc
