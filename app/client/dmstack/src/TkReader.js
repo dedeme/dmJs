@@ -364,12 +364,12 @@ export default class TkReader {
         const a = [];
         let tk = TkReader.next(subr);
         while (tk !== null) {
-          if (tk.type === Token.SYMBOL) tk = subr.symbolId(a, tk);
-
-          if (tk.type === Token.STRING) {
-            for (const t of reader.interpolation(tk)) {
+          if (tk.type === Token.SYMBOL) {
+            for (const t of reader.symbolId(a, tk))
               a.push(t);
-            }
+          } else if (tk.type === Token.STRING) {
+            for (const t of reader.interpolation(tk))
+              a.push(t);
           } else {
             a.push(tk);
           }

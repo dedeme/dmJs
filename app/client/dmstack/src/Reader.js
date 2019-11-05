@@ -91,8 +91,15 @@ export default class Reader {
     let tk = TkReader.next(this);
 
     while (tk !== null) {
-      if (tk.type === Token.SYMBOL) tk = this.symbolId(r, tk);
-      r.push(tk);
+      if (tk.type === Token.SYMBOL) {
+        for (const t of this.symbolId(r, tk))
+          r.push(t);
+      } else if (tk.type === Token.STRING) {
+        for (const t of reader.interpolation(tk))
+          r.push(t);
+      } else {
+        r.push(tk);
+      }
       tk = TkReader.next(this);
     }
 
@@ -102,10 +109,12 @@ export default class Reader {
   /**
     @param {!Array<!Token>} prg
     @param {!Token} tk
-    @return {!Token} tk
+    @return {!Array<!Token>} tk
   **/
   symbolId (prg, tk) {
     const sym = tk.symbolValue;
+    const symStr = Symbol.toStr(sym);
+    const symChar = symStr.charAt(0);
     if (sym === Symbol.IMPORT) {
       if (prg.length === 0) this.fail("Import source is missing");
       const t = prg[prg.length - 1];
@@ -132,38 +141,48 @@ export default class Reader {
       this._syms = this._syms.cons(new SymbolKv(key, newSym));
     } else if (sym === Symbol.THIS) {
       if (tk.pos !== null)
-        return Token.mkSymbolPos(this._source, this._source, tk.pos.line);
+        return [Token.mkSymbolPos(this._source, this._source, tk.pos.line)];
       throw new Error("tk.pos is null");
-    } else if (Symbol.toStr(sym).charAt(0) === "@") {
+    } else if (symChar === "." && symStr !== ".") {
+      return [
+        Token.mkStringPos(symStr.substring(1), this._source, tk.pos.line),
+        Token.mkSymbolPos(Symbol.mk("obj"), this._source, tk.pos.line),
+        Token.mkSymbolPos(Symbol.mk("get"), this._source, tk.pos.line)
+      ];
+    } else if (symChar === "@") {
       if (tk.pos === null) throw new Error("tk.pos is null");
       const line = tk.pos.line;
-      const name = Symbol.toStr(sym);
-      if (name.charAt(name.length - 1) === "?") {
-        this._nextTk = Token.mkSymbolPos(
-          Symbol.STACK_CHECK, this._source, line
-        );
-        return Token.mkListPos([Token.mkSymbolPos(
-          Symbol.mk(name.substring(1, name.length - 1)), this._source, line
-        )], this._source, line);
+      if (symStr.charAt(symStr.length - 1) === "?") {
+        return [
+          Token.mkListPos([Token.mkSymbolPos(
+            Symbol.mk(symStr.substring(1, symStr.length - 1)),
+            this._source, line
+          )], this._source, line),
+          Token.mkSymbolPos(Symbol.STACK_CHECK, this._source, line)
+        ];
       }
       if (Args.debug) {
-        this._nextTk = Token.mkSymbolPos(Symbol.STACK, this._source, line);
-        return Token.mkListPos([Token.mkSymbolPos(
-          Symbol.mk(name.substring(1)), this._source, line
-        )], this._source, line);
+        return [
+          Token.mkListPos([Token.mkSymbolPos(
+            Symbol.mk(symStr.substring(1)), this._source, line
+          )], this._source, line),
+          Token.mkSymbolPos(Symbol.STACK, this._source, line)
+        ];
       }
-      return Token.mkSymbolPos(Symbol.NOP, this._source, line);
+      return [];
     } else {
       let syms = this._syms;
       while (!syms.isEmpty()) {
         if (syms.head.key === sym) {
           if (tk.pos === null) throw new Error("tk.pos is null");
-          return Token.mkSymbolPos(syms.head.value, this._source, tk.pos.line);
+          return [
+            Token.mkSymbolPos(syms.head.value, this._source, tk.pos.line)
+          ];
         }
         syms = syms.tail;
       }
     }
-    return tk;
+    return [tk];
   }
 
   /**
@@ -194,12 +213,16 @@ export default class Reader {
         this, s.substring(ix + 2, ix2), nline
       );
 
+      /** @type !Array<!Token> */
       const prg = [];
       let tk = TkReader.next(subr);
       while (tk !== null) {
-        if (tk.type === Token.SYMBOL)
-          tk = this.symbolId(prg, tk);
-        prg.push(tk);
+        if (tk.type === Token.SYMBOL) {
+          for (const t of this.symbolId(prg, tk))
+            prg.push(t);
+        } else {
+          prg.push(tk);
+        }
         tk = TkReader.next(subr);
       }
 

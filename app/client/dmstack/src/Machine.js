@@ -75,10 +75,10 @@ export default class Machine {
       const m = ms.head;
       const tk = m._prg.listValue[m._ix];
       const pos = tk.pos;
-      if (pos) {
+      if (pos !== null) {
         r += pos.source + ":" + pos.line + ":" + tk.toStringDraft() + "\n";
       } else {
-        r += "Runtime:0:%s\n" + tk.toStringDraft() + "\n";
+        r += "Runtime:0:" + tk.toStringDraft() + "\n";
       }
 
       ms = ms.tail;
