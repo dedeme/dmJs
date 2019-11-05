@@ -1,0 +1,17 @@
+// Copyright 24-Sept-2019 ºDeme
+// GNU General Public License - V3 <htwrap://www.gnu.org/licenses/>
+
+3 2 (x y "return x + y;") ffi,i 5 expect
+3.5 2 (x y "return x + y;") ffi,f 5.5 expect
+"a" "b" "c" (s1 s2 s3 "return s1 + s2 + s3;") ffi,s "abc" expect
+[3 2 1] (ls "return ls[0] + ls[1] + ls[2];") ffi,i 6 expect
+("return new Date(2000, 1, 1);", Date) ffi,o : @<Date> Date =
+Date (d, "return d.getFullYear();") ffi,i 2000 expect
+
+("return JSON.stringify(['a', 3, false]);") ffi,s : json =
+json js,ra : Ajs =
+Ajs 0 get js,rs "a" expect
+Ajs 1 get js,ri 3 expect
+Ajs 2 get js,rb 0 expect
+
+empty? assert

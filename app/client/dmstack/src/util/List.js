@@ -57,5 +57,55 @@ export default class List {
     return n;
   }
 
+  /**
+    @template T
+    @return {!List<T>}
+  **/
+  reverse () {
+    let l = this; // eslint-disable-line
+    let r = new List();
+    while (l._tail !== null) {
+      r = r.cons(l._head);
+      l = l._tail;
+    }
+    return r;
+  }
+
+  /**
+    @template T
+    @return {!Array<T>}
+  **/
+  toArray () {
+    const a = [];
+    let l = this; // eslint-disable-line
+    while (l._tail !== null) {
+      a.push(l._head);
+      l = l._tail;
+    }
+    return a;
+  }
+
+  /**
+    @template T
+    @param {!Array<T>} a
+    @return {!List<T>}
+  **/
+  static fromArray (a) {
+    let r = new List();
+    for (let i = a.length - 1; i >= 0; --i) r = r.cons(a[i]);
+    return r;
+  }
+
+  /**
+    @template T
+    @param {!Array<T>} a
+    @return {!List<T>}
+  **/
+  static fromArrayReverse (a) {
+    let r = new List();
+    for (const e of a) r = r.cons(e);
+    return r;
+  }
+
 }
 

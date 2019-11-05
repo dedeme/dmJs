@@ -1,0 +1,43 @@
+// Copyright 07-Sep-2019 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Int tests
+
+(
+  "0" int,fromStr 0 expect
+  "45" int,fromStr 45 expect
+  "-452" int,fromStr -452 expect
+
+  -0 int,abs 0 expect
+  45 int,abs 45 expect
+  -452 int,abs 452 expect
+
+//   2345 int,rnd puts
+//   2345 int,rnd puts
+
+  43 5 int,div; 3 expect; 8 expect
+
+  5 5 int,max 5 expect
+  2 5 int,max 5 expect
+  5 2 int,max 5 expect
+
+  5 5 int,min 5 expect
+  12 5 int,min 5 expect
+  5 12 int,min 5 expect
+
+  0 i =
+  i ++ i =; i 1 expect
+  i ++ i =; i 2 expect
+  i -- i =; i 1 expect
+  i -- i =; i 0 expect
+
+  5 2 int,& 0 expect
+  5 2 int,| 7 expect
+  5 5 int,^ 0 expect
+  2 int,~ int,~ 2 expect
+  1 2 int,<< 4 expect
+  4 2 int,>> 1 expect
+
+  empty? assert
+) run
+

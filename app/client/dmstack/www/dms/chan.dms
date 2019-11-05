@@ -1,0 +1,24 @@
+// Copyright 22-Sep-2019 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Chan tests.
+
+chan,new : Ch =
+200 ("a" Ch chan,send) sys,delay pop
+(v =; v "a" expect) Ch chan,recv
+
+chan,new : Ch2 =
+0 wrap,ref : Sum =
+0 wrap,ref : Ix =
+(Ix >> ix =; Ix ix 1 + <<; ix Ch2 chan,send) : Fn* =
+Fn* sys,go
+( ix =;
+  ix 10 < (Sum (ix +) ^^; Fn* sys,go) (Sum >> 45 expect) elif
+) Ch2 chan,recv
+
+chan,new : Ch3 =
+(1 Ch3 chan,send) sys,go
+(n =; (n 1 + Ch3 chan,send) sys,go) Ch3 chan,recv
+(2 expect) Ch3 chan,recv
+
+empty? assert

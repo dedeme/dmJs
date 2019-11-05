@@ -1,6 +1,64 @@
 // Copyright 03-Oct-2019 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
+() blob,from B0 =
+(1, 2, 3) blob,from B3 =
 
-1 puts
+1 a =; a clone b =; a b expect
+1.6 a =; a clone b =; a b expect
+"" a =; a clone b =; a b expect
+"abc" a =; a clone b =; a b expect
+B0:& A =; A:& clone B =; A:& B expect
+B3:& A =; A:& clone B =; A:& B:& expect
+() A =; A:& clone B =; A:& B:& expect
+[1, 1.56, (23 ()) "abc"] A =; A:& clone B =; A:& B:& expect
+A:& 3 "four" set+ 0 "zero" set
+A:& 0 get "zero" expect
+A:& 3 get "four" expect
 
+"" size ! assert
+"abc" size 3 expect
+
+B0:& blob,size ! assert
+B3:& blob,size 3 expect
+B3:& 1 blob,get 2 expect
+B3:& dup 2 blob,get swap 0 blob,get; assert; 3 expect
+
+B0:& blob,to size ! assert
+B3 blob,to size 3 expect
+B3 blob,to 1 get 2 expect
+B3 blob,to dup 2 get swap 0 get; assert; 3 expect
+B3 0 10 blob,set+ 2 12 blob,set
+B3 0 blob,get 10 expect
+B3 2 blob,get 12 expect
+
+() size ! assert
+[1, 1.5, "a", []] Ls =
+Ls size 4 expect
+Ls 1 get 1.5 expect
+Ls dup 3 get swap 0 get; assert; size ! assert
+
+(4 6 +) run 10 expect
+
+"()" eval () expect
+"4 3 +" eval 7 expect
+"(4 3 +) run" eval 7 expect
+"\"(4, 3, +)\" eval run" eval 7 expect
+
+8 n =
+("a") A =
+(4 + 2 -) fn =>
+[ 4, 3 n +, A "b" lst,push+, 7 fn ] data
+  (4, 11, ("a", "b"), 9) expect
+
+{ ("1": 4), ("2": 3 n +) data, ("3": 7 fn) data } data
+  (("1", 4), ("2", 11), ("3", 9)) expect
+
+[4] data Ref =
+Ref >> 4 expect
+Ref 2 <<+; >> 2 expect
+Ref 10 <<; Ref >> 10 expect
+Ref (2 *) ^^+; >> 20 expect
+Ref (2 +) ^^; Ref >> 22 expect
+
+empty? assert

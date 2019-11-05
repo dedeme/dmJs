@@ -8,6 +8,7 @@ import {Symbol} from "./Symbol.js";
 import Primitives from "./Primitives.js";
 import Reader from "./Reader.js";
 import Machine from "./Machine.js";
+import Fails from "./Fails.js";
 import List from "./util/List.js";
 
 /** Main page. */
@@ -28,14 +29,51 @@ export default class Main {
     path = Path.canonical(path);
     const pathId = path.substring(0, path.length - 4);
     const ssource = Symbol.mk(pathId);
-    Imports.putOnWay(ssource);
 
-    const code = await Imports.load(path);
-    Main.process(path, pathId, code);
+
+    const code = await Imports.load("Main:0", path);
+    const r = new Reader(pathId, code);
+    const mainPrg = r.process();
+    Imports.addCache(ssource, mainPrg);
+
+    for (const lPId of r.imports) {
+      const [line, pId] = lPId.split(":");
+      const ssource = Symbol.mk(pathId);
+      Imports.putOnWay(ssource);
+      await Main.read(r.source + ":" + line, pId);
+      Imports.quitOnWay(ssource);
+    }
+
+    try {
+      Machine.isolateProcess(path, new List(), mainPrg);
+    } catch (e) {
+      if (typeof (e) === "string") {
+        console.log(e); // eslint-disable-line
+      } else {
+        Fails.fromException(e);
+      }
+    }
   }
 
-  static process (path, pathId, code) {
+  static async read (source, pathId) {
+    const ssource = Symbol.mk(pathId);
+    let prg = Imports.takeCache(ssource);
+    if (prg) return;
+
+    if (Imports.isOnWay(ssource))
+      throw new Error("Cyclic imports in " + pathId + ".dms");
+
+    const code = await Imports.load(source, pathId + ".dms");
     const r = new Reader(pathId, code);
-    Machine.isolateProcess(path, new List(), r.process());
+    prg = r.process();
+    Imports.addCache(ssource, prg);
+
+    for (const lPId of r.imports) {
+      const [line, pId] = lPId.split(":");
+      const ssource = Symbol.mk(pathId);
+      Imports.putOnWay(ssource);
+      await Main.read(r.source + ":" + line, pId);
+      Imports.quitOnWay(ssource);
+    }
   }
 }

@@ -1,0 +1,494 @@
+// Copyright 25-Oct-2019 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/** Ui management */
+
+/* eslint no-console: "off" */
+
+import {Pmodule, PmoduleEntry} from "../Pmodule.js"; // eslint-disable-line
+import Machine from "../Machine.js"; // eslint-disable-line
+import {Symbol} from "../Symbol.js";
+import Token from "../Token.js"; // eslint-disable-line
+import {Heap} from "../Heap.js"; // eslint-disable-line
+import Imports from "../Imports.js"; // eslint-disable-line
+import Tk from "../Tk.js"; // eslint-disable-line
+import Fails from "../Fails.js"; // eslint-disable-line
+
+/** Create a Js Element from a string */
+function element (s) {
+  return s.charAt(0) === "#"
+    ? document.getElementById(s.substring(1))
+    : s.charAt(0) === "@"
+      ? document.querySelector(s.substring(1))
+      : document.createElement(s)
+  ;
+}
+
+/** Create a token from a Js Element */
+function elementTk (element) {
+  return Token.fromPointer(Symbol.ELEMENT_, element);
+}
+
+/** Checks if a token is an ELEMENT_ */
+function isElement (tk) {
+  return tk.type === Token.NATIVE && tk.nativeSymbol === Symbol.ELEMENT_;
+}
+
+/** Process a token in a isolateProcess an returns its result */
+function isolateProcess (m, tk) {
+  const prg = tk.type === Token.LIST ? tk : Token.mkList([tk]);
+  const m2 = Machine.isolateProcess("", m.pmachines, prg);
+  if (m2.stack.length !== 1) Fails.listSize(m, m2.stack, 1);
+  return m2.stack[0];
+}
+
+/** Checks and pop an ELEMENT_ object or null */
+function popOptElement (m) {
+  const stk = m.stack;
+  const len = stk.length;
+  if (len === 0) m.fail("Stack is empty");
+  return isElement(stk[len - 1]) ? stk.pop() : null;
+}
+
+/**
+  Read a callback without arguments.
+  @param {!Machine} m
+  @param {!Array<!Token>} atts Symbol - List (program without argument)
+  @return {!Array<?>} Array with two elements:
+    - {string} ev - Event type: "click", "change", etc.
+    - {function ():void} fn - Callback
+**/
+function event (m, atts) {
+  if (atts.length === 0) m.fail("Value of 'on' is missing.");
+  const tks = Array.from(Tk.listValue(m, atts.shift()));
+  if (tks.length !== 2) Fails.listSize(m, tks, 2);
+  const ev = Symbol.toStr(Tk.symbolValue(m, tks.shift()));
+  const prg = tks.shift();
+  if (prg.type !== Token.LIST) Fails.typeIn(m, Token.LIST, prg);
+  function fn () {
+    Machine.isolateProcess("", m.pmachines, prg);
+  }
+  return [ev, fn];
+}
+
+/**
+  Read a callback with an event as argument.
+  @param {!Machine} m
+  @param {!Array<!Token>} atts Symbol - List (program with EVENT_ argument)
+  @return {!Array<?>} Array with two elements:
+    - {string} ev - Event type: "click", "change", etc.
+    - {function (Event):void} fn - Callback
+**/
+
+function eventEv (m, atts) {
+  if (atts.length === 0) m.fail("Value of 'on' is missing.");
+  const tks = Array.from(Tk.listValue(m, atts.shift()));
+  if (tks.length !== 2) Fails.listSize(m, tks, 2);
+  const ev = Symbol.toStr(Tk.symbolValue(m, tks.shift()));
+  const prg = tks.shift();
+  if (prg.type !== Token.LIST) Fails.typeIn(m, Token.LIST, prg);
+  function fn (ev) {
+    const ls = Array.from(prg.listValue);
+    ls.unshift(Token.fromPointer(Symbol.EVENT_, ev));
+    const p = prg.pos === null
+      ? Token.mkList(ls)
+      : Token.mkListPos(ls, prg.pos.source, prg.pos.line)
+    ;
+    Machine.isolateProcess("", m.pmachines, p);
+  }
+  return [ev, fn];
+}
+
+/**
+  Sets attributes of an Js Element.
+  Read a callback with an event as argument.
+  @param {!Machine} m
+  @param {*} e Js Element.
+  @param {!Array<!Token>} atts Token list.
+  @return {void}
+**/
+function attrs (m, e, atts) {
+  function read (att, type) {
+    if (atts.length === 0) m.fail("Value of '" + att + "' is missing.");
+    const tk = isolateProcess(m, atts.shift());
+    if (tk.type !== type)
+      m.fail(
+        "Expected value of type '" + Token.typeToString(type) +
+        "', found '" + tk.toStringDraft() + "'"
+      );
+    return tk;
+  }
+
+  function read2 (att) {
+    if (atts.length === 0) m.fail("Key of '" + att + "' is missing.");
+    const key = Symbol.toStr(Tk.symbolValue(m, atts.shift()));
+    const value = read(key, Token.STRING).stringValue;
+    return [key, value];
+  }
+
+  while (atts.length !== 0) {
+    const attTk = atts.shift();
+    if (attTk.type !== Token.SYMBOL)
+      m.fail("Expected symbol, found '" + attTk.toString() + "'");
+    const att = Symbol.toStr(attTk.symbolValue);
+    switch (att) {
+    case "removeAll":
+      e.innerHTML = "";
+      break;
+    case "focus":
+      e.focus();
+      break;
+    case "style": {
+      const tk = read("style", Token.STRING);
+      e.setAttribute("style", tk.stringValue);
+      break;
+    }
+    case "text": {
+      const tk = read("text", Token.STRING);
+      e.textContent = tk.stringValue;
+      break;
+    }
+    case "html": {
+      const tk = read("html", Token.STRING);
+      e.innerHTML = tk.stringValue;
+      break;
+    }
+    case "class": {
+      const tk = read("class", Token.STRING);
+      e.className = tk.stringValue;
+      break;
+    }
+    case "value": {
+      const tk = read("value", Token.STRING);
+      e.value = tk.stringValue;
+      break;
+    }
+    case "checked": {
+      const tk = read("checked", Token.INT);
+      e.checked = tk.intValue !== 0;
+      break;
+    }
+    case "disabled": {
+      const tk = read("disabled", Token.INT);
+      e.checked = tk.intValue !== 0;
+      break;
+    }
+    case "att": {
+      const tks = read2("att");
+      e.setAttribute(tks[0], tks[1]);
+      break;
+    }
+    case "styleOf": {
+      const kv = read2("setStyle");
+      e.style[kv[0]] = kv[1];
+      break;
+    }
+    case "on": {
+      const evFn = event(m, atts);
+      e.addEventListener(evFn[0], evFn[1], false);
+      break;
+    }
+    case "onEv": {
+      const evFn = eventEv(m, atts);
+      e.addEventListener(evFn[0], evFn[1], false);
+      break;
+    }
+    default: m.fail("Unkown attribute '" + att + "'");
+    }
+  }
+}
+
+/**
+  Adds children to a Js Element
+  @param {!Machine} m
+  @param {*} parent Js Element.
+  @param {!Array<!Token>} adds Token list.
+  @return {void}
+**/
+function addEls (m, parent, adds) {
+  while (adds.length !== 0) {
+    const tk = isolateProcess(m, adds.shift());
+    if (
+      tk.type !== Token.STRING &&
+      tk.type !== Token.SYMBOL &&
+      !isElement(tk)
+    )
+      m.fail(
+        "Expected token type 'String', 'Symbol' or 'Element', found " +
+        tk.toStringDraft()
+      );
+    let e = null;
+    if (tk.type === Token.STRING) {
+      e = element(tk.stringValue);
+    } else if (tk.type === Token.NATIVE) {
+      e = tk.nativeObject;
+    } else {
+      const sym = tk.symbolValue;
+      let t = Heap.take(m.heap, sym);
+      if (t === null) t = Heap.take(Imports.base, sym);
+      if (t === null) {
+        let pms = m._pmachines;
+        for (;;) {
+          if (pms.isEmpty()) break;
+          const mch = pms.head;
+          t = Heap.take(mch._heap, sym);
+          if (t !== null) break;
+          pms = pms.tail;
+        }
+      }
+      if (t === null) {
+        m.fail("Symbol '" + Symbol.toStr(sym) + "' not found");
+      }
+      e = Tk.nativeValue(m, /** @type {!Token} */ (t), Symbol.ELEMENT_);
+    }
+
+    if (
+      adds.length !== 0 &&
+      adds[0].type === Token.LIST &&
+      !isElement(adds[0])
+    ) {
+      const atts = Array.from(Tk.listValue(m, adds.shift()));
+      attrs(m, e, atts);
+      if (
+        adds.length !== 0 &&
+        adds[0].type === Token.LIST &&
+        !isElement(adds[0])
+      ) {
+        addEls(m, e, Array.from(adds.shift().listValue));
+      }
+    }
+    parent.appendChild(e);
+  }
+}
+
+/**
+  Sets a property of a Js Element.
+  @param {!Machine} m
+  @param {*} e Js Element.
+  @param {!Token} tk Property (Symbol token).
+  @return {void}
+**/
+function prop1 (m, e, tk) {
+  const att = Symbol.toStr(Tk.symbolValue(m, tk));
+  switch (att) {
+  case "removeAll":
+    e.innerHTML = "";
+    break;
+  case "focus":
+    e.focus();
+    break;
+  case "style":
+    m.push(Token.mkString(e.getAttribute("style")));
+    break;
+  case "text":
+    m.push(Token.mkString(e.textContent));
+    break;
+  case "html":
+    m.push(Token.mkString(e.innerHTML));
+    break;
+  case "class":
+    m.push(Token.mkString(e.className));
+    break;
+  case "value":
+    m.push(Token.mkString(e.value));
+    break;
+  case "checked":
+    m.push(Token.mkInt(e.checked ? 1 : 0));
+    break;
+  case "disabled":
+    m.push(Token.mkInt(e.disabled ? 1 : 0));
+    break;
+  default: m.fail("Unkown attribute '" + att + "'");
+  }
+}
+
+/**
+  Sets a property of a Js Element.
+  @param {!Machine} m
+  @param {*} e Js Element.
+  @param {!Token} tk1 Property id (Symbol token).
+  @param {!Token} tk2 Property value.
+  @return {void}
+**/
+function prop2 (m, e, tk1, tk2) {
+  const att = Symbol.toStr(Tk.symbolValue(m, tk1));
+  switch (att) {
+  case "style":
+    e.setAttribute("style", Tk.stringValue(m, isolateProcess(m, tk2)));
+    break;
+  case "text":
+    e.textContent = Tk.stringValue(m, isolateProcess(m, tk2));
+    break;
+  case "html":
+    e.innerHTML = Tk.stringValue(m, isolateProcess(m, tk2));
+    break;
+  case "class":
+    e.className = Tk.stringValue(m, isolateProcess(m, tk2));
+    break;
+  case "value":
+    e.value = Tk.stringValue(m, isolateProcess(m, tk2));
+    break;
+  case "checked":
+    e.checked = Tk.intValue(m, isolateProcess(m, tk2)) !== 0;
+    break;
+  case "disabled":
+    e.checked = Tk.intValue(m, isolateProcess(m, tk2)) !== 0;
+    break;
+  case "att":
+    m.push(Token.mkString(
+      e.getAttribute(Symbol.toStr(Tk.symbolValue(m, tk2)))
+    ));
+    break;
+  case "styleOf":
+    m.push(Token.mkString(
+      e.style[Symbol.toStr(Tk.symbolValue(m, tk2))]
+    ));
+    break;
+  case "on": {
+    const evFn = event(m, [tk2]);
+    e.addEventListener(evFn[0], evFn[1], false);
+    break;
+  }
+  case "onEv": {
+    const evFn = eventEv(m, [tk2]);
+    e.addEventListener(evFn[0], evFn[1], false);
+    break;
+  }
+  default: m.fail("Unkown attribute '" + att + "'");
+  }
+}
+
+/**
+  Sets a property of a Js Element.
+  @param {!Machine} m
+  @param {*} e Js Element.
+  @param {!Token} tk1 Property id (Symbol token).
+  @param {!Token} tk2 Property value.
+  @param {!Token} tk3 Property value.
+  @return {void}
+**/
+function prop3 (m, e, tk1, tk2, tk3) {
+  const att = Symbol.toStr(Tk.symbolValue(m, tk1));
+  switch (att) {
+  case "att":
+    e.setAttribute(
+      Symbol.toStr(Tk.symbolValue(m, tk2)),
+      Tk.stringValue(m, isolateProcess(m, tk3))
+    );
+    break;
+  case "styleOf":
+    e.style[Symbol.toStr(Tk.symbolValue(m, tk2))] =
+      Tk.stringValue(m, isolateProcess(m, tk3));
+    break;
+  default: m.fail("Unkown attribute '" + att + "'");
+  }
+}
+
+/** @type function (!Machine):void} */
+const dolar = m => {
+  let tk = m.popOpt(Token.STRING);
+  if (tk !== null) {
+    m.push(elementTk(element(tk.stringValue)));
+    return;
+  }
+  tk = popOptElement(m);
+  if (tk !== null) {
+    m.push(tk);
+    return;
+  }
+
+  let atts = Array.from(Tk.popList(m));
+  tk = m.popOpt(Token.STRING);
+  if (tk !== null) {
+    const e = element(tk.stringValue);
+    attrs(m, e, atts);
+    m.push(elementTk(e));
+    return;
+  }
+  tk = popOptElement(m);
+  if (tk !== null) {
+    const e = tk.nativeObject;
+    attrs(m, e, atts);
+    m.push(tk);
+    return;
+  }
+
+  const adds = atts;
+  atts = Array.from(Tk.popList(m));
+  tk = m.popOpt(Token.STRING);
+  if (tk !== null) {
+    const e = element(tk.stringValue);
+    attrs(m, e, atts);
+    addEls(m, e, adds);
+    m.push(elementTk(e));
+    return;
+  }
+  tk = popOptElement(m);
+  if (tk !== null) {
+    const e = tk.nativeObject;
+    attrs(m, e, atts);
+    addEls(m, e, adds);
+    m.push(tk);
+    return;
+  }
+
+  m.fail(
+    "Expected 'String' or 'Element', found '" +
+    Token.typeToString(m.peek().type) + "'"
+  );
+};
+
+/** @type function (!Machine):void} */
+const dolarMinus = m => {
+  dolar(m);
+  m.pop();
+};
+
+/** @type function (!Machine):void} */
+const prop = m => {
+  const ls = Tk.popList(m);
+  const e = Tk.nativeValue(m, m.pop(), Symbol.ELEMENT_);
+
+  if (ls.length === 1) {
+    prop1(m, e, ls[0]);
+    return;
+  }
+
+  if (ls.length === 2) {
+    prop2(m, e, ls[0], ls[1]);
+    return;
+  }
+
+  if (ls.length === 3) {
+    prop3(m, e, ls[0], ls[1], ls[2]);
+    return;
+  }
+
+  m.fail(
+    "List " + Token.mkList(ls).toString() +
+    "\nExpected size: 1, 2 or 3. Actual size: " + ls.length
+  );
+};
+
+/** Ui management. */
+export default class ModUi {
+  /** @return {!Array<!PmoduleEntry>} */
+  static mk () {
+    const r = Pmodule.mk();
+
+    /**
+      @param {string} name
+      @param {function (!Machine):void} fn
+      @return void
+    **/
+    function add (name, fn) {
+      Pmodule.add(r, Symbol.mk(name), fn);
+    }
+
+    add("$", dolar);
+    add("$-", dolarMinus);
+    add("prop", prop);
+
+    return r;
+  }
+}

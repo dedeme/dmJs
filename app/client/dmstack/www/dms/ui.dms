@@ -1,0 +1,45 @@
+// Copyright 31-Oct-2019 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+"i18n" import
+
+"A message" : tx =
+(Ev =; tx " with " Ev toStr + + (tx "alert(tx);") ffi,v) : fn =>
+
+("Message 2" sys,alert) : fn2 =>
+
+"p" { text: "Text predefined"} ui,$ : P =
+"button" ui,$ : Bt =
+Bt {text: ("house" i18n,_)} ui,prop
+Bt {styleOf: width ("300" "px" +)} ui,prop
+Bt {on: {click: ("Button msg" sys,alert)} } ui,prop
+
+("p" { text : "From function" } ui,$) : mkP =>
+(tx =; "p" { text : tx } ui,$) : mkP2 =>
+
+"@body" { removeAll } [
+  "div" {} [
+    "p" {
+      style: "background: #ffaaff"
+      text: ("A text" i18n,_)
+      onEv: {click: (fn)}
+    }
+    "p" { text: "Other text" }
+    P {
+      style: "background: #aaffff",
+      text: (P (text) ui,prop " more" +)
+      on: {click: (fn2)}
+    }
+    Bt
+    mkP
+    mkP {text : "change2"} ["p" {text: "syb"}]
+    ("With text" mkP2)
+    "hr"
+  ]
+] ui,$ : Body =
+
+(["p" {html: "new1"} mkP]) : mkPs =>
+
+Body {} ["p" {html: "new0"}] mkPs + ui,$-
+
+

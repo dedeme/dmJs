@@ -6,7 +6,7 @@ import Machine from "./Machine.js"; // eslint-disable-line
 import Fails from "./Fails.js";
 import {Symbol} from "./Symbol.js";
 
-/** Application arguments. */
+/** Token management. */
 export default class Tk {
   /**
     @param {!Machine} m
@@ -64,21 +64,14 @@ export default class Tk {
     @param {number} sym
     @return {*}
   **/
-  static pointerValue (m, t, sym) {
-    if (t.type !== Token.LIST) Fails.typeIn(m, Token.LIST, t);
-    const a = t.listValue;
-    if (a.length !== 2) Fails.listSize(m, a, 2);
-    const symTk = a[0];
-    if (symTk.type !== Token.SYMBOL) Fails.typeIn(m, Token.SYMBOL, symTk);
-    if (symTk.symbolValue !== sym)
+  static nativeValue (m, t, sym) {
+    if (t.type !== Token.NATIVE) Fails.typeIn(m, Token.NATIVE, t);
+    if (t.nativeSymbol !== sym)
       m.fail(
-        "Expected pointer of type '" + sym.toString() +
-        "', found one of type '" + Symbol.toStr(symTk.symbolValue) + "'"
+        "Expected object of type '" + Symbol.toStr(sym) +
+        "', found one of type '" + Symbol.toStr(t.nativeSymbol) + "'"
       );
-    const p = a[1];
-    if (p.type !== Token.POINTER) Fails.typeIn(m, Token.POINTER, p);
-
-    return p.pointerValue;
+    return t.nativeObject;
   }
 
   /**
@@ -126,8 +119,8 @@ export default class Tk {
     @param {number} symbol
     @return {*}
   **/
-  static popPointer (m, symbol) {
-    return Tk.pointerValue(m, m.pop(), symbol);
+  static popNative (m, symbol) {
+    return Tk.nativeValue(m, m.pop(), symbol);
   }
 
   /**
@@ -175,8 +168,8 @@ export default class Tk {
     @param {number} symbol
     @return {*}
   **/
-  static peekPointer (m, symbol) {
-    return Tk.pointerValue(m, m.peek(), symbol);
+  static peekNative (m, symbol) {
+    return Tk.nativeValue(m, m.peek(), symbol);
   }
 
 }

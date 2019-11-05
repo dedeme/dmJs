@@ -1,0 +1,22 @@
+// Copyright 25-Oct-2019 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+{
+  "en": {
+    "car": "car"
+    "house": "house"
+  }
+  "es": {
+    "car": "coche"
+    "house": "casa"
+  }
+} data : Dics =
+
+"en" wrap,ref : Dic =
+
+(this,Dic swap <<) init =>
+
+( key =
+  this,Dics : this,Dic >> : obj,get : Cdic =
+  Cdic key obj,has? (Cdic key obj,get) (key) elif
+) _ =>

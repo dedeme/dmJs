@@ -1,0 +1,52 @@
+// Copyright 22-Sept-2019 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+(
+  "./" path,canonical "./" expect
+  "..//xxx/vd/.././" path,canonical "../xxx" expect
+  "..//../xxx/vd/.././m" path,canonical "../../xxx/m" expect
+
+  "" "" path,+ "" expect
+  "a" "" path,+ "a/" expect
+  "" "a" path,+ "a" expect
+  "a" "b" path,+ "a/b" expect
+
+  ["", ""] path,cat "" expect
+  ["a", ""] path,cat "a/" expect
+  ["", "a"] path,cat "a" expect
+  ["a", "b"] path,cat "a/b" expect
+
+  "" path,name "" == assert
+  "/" path,name "" == assert
+  "ab" path,name "ab" == assert
+  "/ab.c" path,name "ab.c" == assert
+  "cd/" path,name "" expect
+  "c/ab.c" path,name "ab.c" == assert
+
+  "" path,parent "./" == assert
+  "/" path,parent "./" == assert
+  "ab" path,parent "./" == assert
+  "/ab.c" path,parent "./" == assert
+  "cd/" path,parent "cd" expect
+  "cg/r/ab.c" path,parent "cg/r" == assert
+
+  "" path,extension "" == assert
+  "/" path,extension "" == assert
+  "ab" path,extension "" == assert
+  "/ab.c" path,extension ".c" == assert
+  "cd/" path,extension "" == assert
+  "cd/ab.c" path,extension ".c" == assert
+  "cd/." path,extension "." == assert
+  "cd/f." path,extension "." == assert
+
+  "" path,onlyName "" == assert
+  "/" path,onlyName "" expect
+  "ab" path,onlyName "ab" == assert
+  "/ab.c" path,onlyName "ab" == assert
+  "cd/" path,onlyName "" == assert
+  "/cd/a.b" path,onlyName "a" == assert
+  "cd/." path,onlyName "" == assert
+  "cd/f." path,onlyName "f" == assert
+
+  empty? assert
+) run

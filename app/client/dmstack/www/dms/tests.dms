@@ -1,8 +1,37 @@
 // Copyright 03-Oct-2019 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
-"float" import
 
-// "global" import
+"i18n" import
+"es" i18n,init
+
+"stk" import
+("float" fl) import
+"int" import
+"blob" import
+"global" import
+"logic" import
+"smath" import
+"lst" import
+"it" import
+"obj" import
+"map" import
+"str" import
+"js" import
+"exc" import
+"loop" import
+"recursive" import
+"wrap" import
+"b64" import
+"cryp" import
+"path" import
+"clock" import
+"time" import
+"chan" import
+"types" import
+"ffi" import
+"ui" import
 
 "Tests finished" puts
+
+

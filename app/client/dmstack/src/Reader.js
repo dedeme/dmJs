@@ -18,7 +18,8 @@ export default class Reader {
   constructor (source, prg) {
     /** @type {boolean} */
     this._isFile = true;
-    this._source = source;
+    /** @type {number} */
+    this._source = Symbol.mk(source);
     /** @type {number} */
     this._nline = 1;
     this._prg = prg;
@@ -26,8 +27,10 @@ export default class Reader {
     this._prgIx = 0;
     /** @type {Token} */
     this._nextTk = null;
-    /** @type {List<SymbolKv>} */
+    /** @type {!List<!SymbolKv>} */
     this._syms = new List();
+    /** @type {!Array<string>} Paths wihout extension. */
+    this._imports = [];
   }
 
   /**
@@ -38,7 +41,7 @@ export default class Reader {
     @return {!Reader}
   **/
   static fromReader (parent, prg, nline) {
-    const r = new Reader(parent._source, prg);
+    const r = new Reader(Symbol.toStr(parent._source), prg);
     r._isFile = false;
     r._nline = nline;
     r._syms = parent._syms;
@@ -48,7 +51,7 @@ export default class Reader {
   /** @return {boolean} */
   get isFile () { return this._isFile }
 
-  /** @return {string} */
+  /** @return {number} */
   get source () { return this._source }
 
   /** @return {string} */
@@ -75,57 +78,8 @@ export default class Reader {
   /** @param {number} value */
   set nline (value) { this._nline = value }
 
-  /**
-    @param {!Array<!Token>} prg
-    @param {!Token} tk
-  **/
-  symbolId (prg, tk) {
-    const sym = tk.symbolValue;
-    if (sym === Symbol.IMPORT) {
-      if (prg.length === 0) this.fail("Import source is missing");
-      const t = prg[prg.length - 1];
-      const eSymKv = Imports.readSymbol(t);
-      if (eSymKv.left !== "") this.fail(eSymKv.left);
-
-      const symKv = eSymKv.right;
-      const sym = symKv.value;
-      const f = sym.toString();
-      const fc = Path.canonical(Path.cat(
-        [Path.parent(this._source), f + ".dms"]
-      ));
-
-      const newSym = Symbol.mk(fc.substring(0, fc.length - 4));
-      let key = symKv.key;
-      if (key === -1) key = Symbol.mk(Path.name(f));
-      this._syms = this._syms.cons(new SymbolKv(key, newSym));
-    } else if (sym === Symbol.THIS) {
-      return Token.mkSymbol(tk.line, Symbol.mk(this._source));
-    } else if (sym.toString().charAt(0) === "@") {
-      const line = tk.line;
-      const name = sym.toString();
-      if (name.charAt(name.length - 1) === "?") {
-        this._nextTk = Token.mkSymbol(line, Symbol.STACK_CHECK);
-        return Token.mkList(line, [Token.mkSymbol(
-          line, Symbol.mk(name.substring(1, name.length - 1))
-        )]);
-      }
-      if (Args.debug) {
-        this._nextTk = Token.mkSymbol(line, Symbol.STACK);
-        return Token.mkList(line, [Token.mkSymbol(
-          line, Symbol.mk(name.substring(1))
-        )]);
-      }
-      return Token.mkSymbol(line, Symbol.NOP);
-    } else {
-      let syms = this._syms;
-      while (!syms.isEmpty()) {
-        if (syms.head.key === sym)
-          return Token.mkSymbol(tk.line, syms.head.value);
-        syms = syms.tail;
-      }
-    }
-    return tk;
-  }
+  /** @return {!Array<string>} nline:Path wihout extension. */
+  get imports () { return this._imports }
 
   /**
     @return {!Token} Token type LIST containing a program.
@@ -142,7 +96,141 @@ export default class Reader {
       tk = TkReader.next(this);
     }
 
-    return Token.mkList(nline, r);
+    return Token.mkListPos(r, this._source, nline);
+  }
+
+  /**
+    @param {!Array<!Token>} prg
+    @param {!Token} tk
+    @return {!Token} tk
+  **/
+  symbolId (prg, tk) {
+    const sym = tk.symbolValue;
+    if (sym === Symbol.IMPORT) {
+      if (prg.length === 0) this.fail("Import source is missing");
+      const t = prg[prg.length - 1];
+      const eSymKv = Imports.readSymbol(t);
+      if (eSymKv.left !== "") this.fail(eSymKv.left);
+
+      const symKv = eSymKv.right;
+      const sym = symKv.value;
+      const f = Symbol.toStr(sym);
+
+      const fc = Path.canonical(Path.cat(
+        [Path.parent(Symbol.toStr(this._source)), f + ".dms"]
+      ));
+
+      const fid = fc.substring(0, fc.length - 4);
+      if (tk.pos !== null)
+        this._imports.push(tk.pos.line + ":" + fid);
+      else
+        this._imports.push("0:" + fid);
+      const newSym = Symbol.mk(fc.substring(0, fc.length - 4));
+
+      let key = symKv.key;
+      if (key === -1) key = Symbol.mk(Path.name(f));
+      this._syms = this._syms.cons(new SymbolKv(key, newSym));
+    } else if (sym === Symbol.THIS) {
+      if (tk.pos !== null)
+        return Token.mkSymbolPos(this._source, this._source, tk.pos.line);
+      throw new Error("tk.pos is null");
+    } else if (Symbol.toStr(sym).charAt(0) === "@") {
+      if (tk.pos === null) throw new Error("tk.pos is null");
+      const line = tk.pos.line;
+      const name = Symbol.toStr(sym);
+      if (name.charAt(name.length - 1) === "?") {
+        this._nextTk = Token.mkSymbolPos(
+          Symbol.STACK_CHECK, this._source, line
+        );
+        return Token.mkListPos([Token.mkSymbolPos(
+          Symbol.mk(name.substring(1, name.length - 1)), this._source, line
+        )], this._source, line);
+      }
+      if (Args.debug) {
+        this._nextTk = Token.mkSymbolPos(Symbol.STACK, this._source, line);
+        return Token.mkListPos([Token.mkSymbolPos(
+          Symbol.mk(name.substring(1)), this._source, line
+        )], this._source, line);
+      }
+      return Token.mkSymbolPos(Symbol.NOP, this._source, line);
+    } else {
+      let syms = this._syms;
+      while (!syms.isEmpty()) {
+        if (syms.head.key === sym) {
+          if (tk.pos === null) throw new Error("tk.pos is null");
+          return Token.mkSymbolPos(syms.head.value, this._source, tk.pos.line);
+        }
+        syms = syms.tail;
+      }
+    }
+    return tk;
+  }
+
+  /**
+    @param {!Token} tk
+    @return {!Array<!Token>}
+  **/
+  interpolation (tk) {
+    const s = tk.stringValue;
+    if (tk.pos === null) throw new Error("tk.pos is null");
+    let nline = tk.pos.line;
+
+    const r = [];
+    let pos = 0;
+    let ix = s.indexOf("${");
+    while(ix !== -1) {
+      r.push(Token.mkStringPos(s.substring(pos, ix), this._source, nline));
+      if (pos !== 0)
+        r.push(Token.mkSymbolPos(Symbol.PLUS, this._source, nline));
+
+      let p = pos;
+      while (p < ix) if (s.charAt(p++) === "\n") ++nline;
+
+      const ix2 = s.indexOf("}", ix);
+      if (ix2 === -1)
+        this.fail("Interpolation '}' not found");
+
+      const subr = Reader.fromReader(
+        this, s.substring(ix + 2, ix2), nline
+      );
+
+      const prg = [];
+      let tk = TkReader.next(subr);
+      while (tk !== null) {
+        if (tk.type === Token.SYMBOL)
+          tk = this.symbolId(prg, tk);
+        prg.push(tk);
+        tk = TkReader.next(subr);
+      }
+
+      p = ix + 2;
+      while (p < ix2) if (s.charAt(p++) === "\n") ++nline;
+
+      if (prg.length > 0) {
+        r.push(Token.mkListPos(prg, this._source, nline));
+        r.push(Token.mkSymbolPos(Symbol.DATA, this._source, nline));
+        r.push(Token.mkSymbolPos(Symbol.REF_OUT, this._source, nline));
+        r.push(Token.mkSymbolPos(Symbol.TO_STR, this._source, nline));
+        r.push(Token.mkSymbolPos(Symbol.PLUS, this._source, nline));
+      } else {
+        r.push(Token.mkStringPos("", this._source, nline));
+        r.push(Token.mkSymbolPos(Symbol.PLUS, this._source, nline));
+      }
+
+      pos = ix2 + 1;
+      ix = s.indexOf("${", pos);
+    }
+
+    r.push(Token.mkStringPos(s.substring(pos, s.length), this._source, nline));
+
+    if (r.length > 1) {
+      let p = pos;
+      const pEnd = s.length;
+      while (p < pEnd) if (s.charAt(p++) === "\n") ++nline;
+      r.push(Token.mkSymbolPos(Symbol.PLUS, this._source, nline));
+    }
+
+    return r;
   }
 
   /**
@@ -150,7 +238,9 @@ export default class Reader {
   **/
   fail (msg) {
     // eslint-disable-next-line
-    console.log(this._source + ".dms:" + this._nline + ": " + msg);
+    console.log(
+      Symbol.toStr(this._source) + ".dms:" + this._nline + ": " + msg
+    );
     throw ("");
   }
 }

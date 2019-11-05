@@ -1,0 +1,60 @@
+// Copyright 77-Sep-2019 ºDeme
+// GNU General Public License - V3 <http://www.gnu.org/licenses/>
+
+/// Map tests.
+
+(
+  map,new M =
+
+  M dup map,sort () == assert
+  M map,keys () == assert
+  M map,values () == assert
+
+  M "b" 2 map,put+; "c" 33 map,put+; "a" 1 map,put+; "c" 3 map,put
+  M "a" map,has? assert
+  M "b" map,has? assert
+  M "c" map,has? assert
+  M "d" map,has? ! assert
+  M "a" map,get (1) == assert
+  M "b" map,get (2) == assert
+  M "c" map,get (3) == assert
+
+  M clone M2 =;
+  M2 "a" map,remove
+  M2 "b" (100 +) map,up+ "c" (200 +) map,up
+    M2 (("b", 102), ("c", 203)) expect
+
+  M {("b": 2), ("c": 3), ("a": 1)} == assert
+  M dup map,sort
+    {
+      ("a": 1)
+      ("b": 2)
+      ("c": 3)
+    } == assert
+
+  M "a" map,has? assert
+  M "b" map,has? assert
+  M "c" map,has? assert
+  M "d" map,has? ! assert
+  M map,keys ("a", "b", "c") == assert
+  M map,values (1, 2, 3) == assert
+
+  M "c" map,remove
+  M "a" map,get (1) == assert
+  M "b" map,get (2) == assert
+  M size 2 == assert
+
+  // fromJs - toJs
+
+  {} (js,wi) map,toJs "{}" == assert
+  {("a": 1)} (js,wi) map,toJs "{\"a\":1}" expect
+  {("a": 1), ("b": 2), ("c", 3)} (js,wi) map,toJs
+    "{\"a\":1,\"b\":2,\"c\":3}" == assert
+
+  {} (js,wi) map,toJs (js,ri) map,fromJs {} == assert
+  {("a": 1)} (js,wi) map,toJs (js,ri) map,fromJs {("a": 1)} == assert
+  {("a": 1), ("b": 2), ("c", 3)} (js,wi) map,toJs (js,ri) map,fromJs
+    {("a": 1), ("b": 2), ("c", 3)} == assert
+
+  empty? assert
+)run

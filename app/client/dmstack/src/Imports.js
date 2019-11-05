@@ -17,6 +17,9 @@ let onway = [];
 /** @type {!Array<!HeapEntry>} */
 const _base = Heap.mk();
 
+/** @type {!Array<!HeapEntry>} */
+const _cache = Heap.mk();
+
 /** Imports management. */
 export default class Imports {
   /** @return {void} */
@@ -66,8 +69,25 @@ export default class Imports {
   }
 
   /** @return {!Array<!HeapEntry>} */
-  static base () {
+  static get base () {
     return _base;
+  }
+
+  /**
+    @param {number} symbolKey
+    @param {!Token} prg
+    @return {void}
+  **/
+  static addCache (symbolKey, prg) {
+    Heap.add(_cache, symbolKey, prg);
+  }
+
+  /**
+    @param {number} symbolKey
+    @return {Token}
+  **/
+  static takeCache (symbolKey) {
+    return Heap.take(_cache, symbolKey);
   }
 
   /**
@@ -75,8 +95,9 @@ export default class Imports {
     return {!Either<!SymbolKv>}
   **/
   static readSymbol (tk) {
-    if (tk.type === Token.STRING)
+    if (tk.type === Token.STRING) {
       return Either.mkRight(new SymbolKv(-1, Symbol.mk(tk.stringValue)));
+    }
 
     if (tk.type !== Token.LIST) {
       return Either.mkLeft(
@@ -97,9 +118,9 @@ export default class Imports {
     if (tk1.type !== Token.STRING)
       return Either.mkLeft("Expected String as first list element in import");
     const tk2 = a[1];
-    if (tk2.type !== Token.STRING)
+    if (tk2.type !== Token.SYMBOL)
       return Either.mkLeft(
-        "Expected String as second list element in import"
+        "Expected Symbol as second list element in import"
       );
     return Either.mkRight(new SymbolKv(
       tk2.symbolValue, Symbol.mk(tk1.stringValue)
@@ -107,10 +128,11 @@ export default class Imports {
   }
 
   /**
+    @param {string} source
     @param {string} f
     @return {!Promise}
   **/
-  static load (f) {
+  static load (source, f) {
     return new Promise(function (resolve, reject) {
       const request = new XMLHttpRequest();
 
@@ -118,11 +140,13 @@ export default class Imports {
         if (request.status === 200) {
           resolve(request.responseText.trim());
         } else {
+          console.log(source + ": Fail reading " + f); // eslint-disable-line
           reject(Error(request.statusText));
         }
       };
 
       request.onerror = () => {
+        console.log(source + ": Fail reading " + f); // eslint-disable-line
         reject(Error("Network Error"));
       };
 

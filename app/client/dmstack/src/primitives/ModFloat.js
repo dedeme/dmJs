@@ -15,7 +15,7 @@ import Tk from "../Tk.js";
 function fn2 (m, f) {
   const n2 = Tk.popFloat(m);
   const n1 = Tk.popFloat(m);
-  m.push(Token.mkFloat(0, f(n1, n2)));
+  m.push(Token.mkFloat(f(n1, n2)));
 }
 
 /**
@@ -37,26 +37,26 @@ function decimalAdjust (type, value, exp) {
   // Shift
   let vals = value.toString().split("e");
   value = Math[type](
-    Number(vals[0] + "e" + (vals[1] ? (Number(vals[1]) - exp) : -exp))
+    Number(vals[0] + "e" + (vals[1] ? (Number(vals[1]) + exp) : exp))
   );
   // Shift back
   vals = value.toString().split("e");
-  return Number(vals[0] + "e" + (vals[1] ? (Number(vals[1]) + exp) : exp));
+  return Number(vals[0] + "e" + (vals[1] ? (Number(vals[1]) - exp) : -exp));
 }
 
 /** @type function (!Machine):void} */
 const fromStr = m => {
-  m.push(Token.mkFloat(0, Number(Tk.popString(m))));
+  m.push(Token.mkFloat(Number(Tk.popString(m))));
 };
 
 /** @type function (!Machine):void} */
 const abs = m => {
-  m.push(Token.mkFloat(0, Math.abs(Tk.popFloat(m))));
+  m.push(Token.mkFloat(Math.abs(Tk.popFloat(m))));
 };
 
 /** @type function (!Machine):void} */
 const rnd = m => {
-  m.push(Token.mkFloat(0, Math.random()));
+  m.push(Token.mkFloat(Math.random()));
 };
 
 /** @type function (!Machine):void} */
@@ -71,14 +71,14 @@ const min = m => {
 
 /** @type function (!Machine):void} */
 const round = m => {
-  m.push(Token.mkFloat(0, decimalAdjust("round", Tk.popFloat(m), 0)));
+  m.push(Token.mkFloat(decimalAdjust("round", Tk.popFloat(m), 0)));
 };
 
 /** @type function (!Machine):void} */
 const roundn = m => {
   let scale = Tk.popInt(m);
   if (scale < 0) scale = 0;
-  m.push(Token.mkFloat(0, decimalAdjust("round", Tk.popFloat(m), scale)));
+  m.push(Token.mkFloat(decimalAdjust("round", Tk.popFloat(m), scale)));
 };
 
 /** @type function (!Machine):void} */
@@ -86,12 +86,12 @@ const eq = m => {
   const gap = Tk.popFloat(m);
   const n2 = Tk.popFloat(m);
   const n1 = Tk.popFloat(m);
-  m.push(Token.mkInt(0, n2 < n1 + gap && n2 > n1 - gap ? 1 : 0));
+  m.push(Token.mkInt(n2 < n1 + gap && n2 > n1 - gap ? 1 : 0));
 };
 
 /** @type function (!Machine):void} */
 const toInt = m => {
-  m.push(Token.mkInt(0, Tk.popFloat(m)));
+  m.push(Token.mkInt(Tk.popFloat(m)));
 };
 
 /** Global symbols. */

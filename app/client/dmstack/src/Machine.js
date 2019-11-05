@@ -3,7 +3,8 @@
 
 /* eslint no-console: "off" */
 
-import {Heap} from "./Heap.js";
+import Global from "./Global.js";
+import {Heap, HeapEntry} from "./Heap.js"; // eslint-disable-line
 import Imports from "./Imports.js";
 import Fails from "./Fails.js";
 import List from "./util/List.js"; // eslint-disable-line
@@ -11,6 +12,7 @@ import Token from "./Token.js";
 import {Symbol} from "./Symbol.js";
 import Reader from "./Reader.js";
 import Primitives from "./Primitives.js";
+import Types from "./Types.js";
 import Path from "./util/Path.js";
 
 /** Virtual machine. */
@@ -25,13 +27,66 @@ export default class Machine {
     this._pmachines = pmachines.cons(this);
     /** @type {!Array<!Token>} */
     this._stack = [];
+    /** @type {!Array<!HeapEntry>} */
     this._heap = Heap.mk();
     this._prg = prg;
     this._ix = 0;
   }
 
+  /** @return {string} */
+  get source () {
+    if (this._source !== "") return this._source;
+    let pms = this._pmachines;
+    while (pms.head._source === "") pms = pms.tail;
+    return pms.head._source;
+  }
+
+  /** @return {!List<!Machine>} */
+  get pmachines () { return this._pmachines }
+
   /** @return {!Array<!Token>} */
   get stack () { return this._stack }
+
+  /** @return {!Array<!HeapEntry>} */
+  get heap () { return this._heap }
+
+  /** @return {string} */
+  get stackTrace () {
+    let r = "  Stack:\n";
+    const a = Array.from(this._stack);
+    if (a.length === 0) {
+      r += "    [EMPTY]\n";
+    } else {
+      r += "    ";
+      let c = 0;
+      while (a.length !== 0 && c < Global.MAX_ERR_STACK) {
+        r += a.pop().toStringDraft() + " ";
+        ++c;
+      }
+      r += "\n";
+    }
+
+    let c = 0;
+    let ms = this._pmachines;
+    while (!ms.isEmpty()) {
+      if (c >= Global.MAX_ERR_TRACE) break;
+      ++c;
+
+      const m = ms.head;
+      const tk = m._prg.listValue[m._ix];
+      const pos = tk.pos;
+      if (pos) {
+        r += pos.source + ":" + pos.line + ":" + tk.toStringDraft() + "\n";
+      } else {
+        r += "Runtime:0:%s\n" + tk.toStringDraft() + "\n";
+      }
+
+      ms = ms.tail;
+    }
+
+    return r;
+  }
+
 
   // Private -------------------------------------------------------------------
 
@@ -52,8 +107,8 @@ export default class Machine {
     @param {string} module
   **/
   _runMod (module) {
-    const runner = Token.mkList(0, [
-      this.popExc(Token.LIST), Token.mkSymbol(0, Symbol.mk("run"))
+    const runner = Token.mkList([
+      this.popExc(Token.LIST), Token.mkSymbol(Symbol.mk("run"))
     ]);
     Machine.process(module + ".dms", this._pmachines, runner);
   }
@@ -65,34 +120,212 @@ export default class Machine {
     const fn = a[1].symbolValue;
     const f = Primitives.take(module, fn);
     if (fn === null)
-      this.fail(
-        "Symbol " + Symbol.toStr(module) + " " +
-        Symbol.toStr(fn) + " not found"
-      );
+      this.fail("Symbol " + Symbol.toStr(module) + " not found");
     f(this);
   }
 
   /** @private */
-  async _import () {
+  _data () {
+    const prg = this.popExc(Token.LIST);
+    const m = Machine.isolateProcess("", this._pmachines, prg);
+    this.push(Token.mkList(m._stack));
+  }
+
+  /** @private */
+  _elif () {
+    const prgNot = this.popExc(Token.LIST);
+    const prgYes = this.popExc(Token.LIST);
+    if (this.popExc(Token.INT).intValue)
+      Machine.process("", this._pmachines, prgYes);
+    else
+      Machine.process("", this._pmachines, prgNot);
+  }
+
+  /** @private */
+  _if () {
+    const prg = this.popOpt(Token.LIST);
+    if (prg !== null) {
+      const tk = this.popOpt(Token.INT);
+      if (tk !== null) {
+        if (tk.intValue !== 0) Machine.process("", this._pmachines, prg);
+        return;
+      }
+    } else {
+      const tk = this.peekOpt(Token.SYMBOL);
+      if (tk === null || tk.symbolValue !== Symbol.ELSE)
+        this.fail("Expected List or 'else'");
+    }
+
+    const a = [];
+    let tk = this.peekOpt(Token.SYMBOL);
+    while (tk !== null && tk.symbolValue === Symbol.ELSE) {
+      this.pop();
+      a.push(this.popExc(Token.LIST));
+      a.push(this.popExc(Token.LIST));
+      tk = this._stack.length > 0 ? this.peekOpt(Token.SYMBOL) : null;
+    }
+
+    if (a.length > 0) {
+      let rprg = true;
+      while (a.length > 0) {
+        Machine.process("", this._pmachines, a.pop());
+        if (this.popExc(Token.INT).intValue !== 0) {
+          Machine.process("", this._pmachines, a.pop());
+          rprg = false;
+          break;
+        }
+        a.pop();
+      }
+      if (rprg && prg !== null) Machine.process("", this._pmachines, prg);
+    } else if (prg === null) {
+      this.fail("Expected List");
+    }
+  }
+
+  /** @private */
+  _loop () {
+    const prg = this.popExc(Token.LIST);
+
+    for (;;) {
+      Machine.process("", this._pmachines, prg);
+      if (this._stack.length > 0) {
+        const tk = this.peekOpt(Token.SYMBOL);
+        if ((tk !== null) && tk.symbolValue === Symbol.BREAK) {
+          this.pop();
+          break;
+        }
+      }
+    }
+  }
+
+  /** @private */
+  _while () {
+    const prg = this.popExc(Token.LIST);
+    const cond = this.popExc(Token.LIST);
+
+    for (;;) {
+      Machine.process("", this._pmachines, cond);
+      if (this.popExc(Token.INT).intValue !== 0) {
+        Machine.process("", this._pmachines, prg);
+        if (this._stack.length > 0) {
+          const tk = this.peekOpt(Token.SYMBOL);
+          if (tk !== null && tk.symbolValue === Symbol.BREAK) {
+            this.pop();
+            break;
+          }
+        }
+      } else {
+        break;
+      }
+    }
+  }
+
+  /** @private */
+  _for () {
+    const prg = this.popExc(Token.LIST);
+    let cond = this.popOpt(Token.INT);
+    if (cond !== null) {
+      for (let i = 0; i < cond.intValue; ++i) {
+        this.push(Token.mkInt(i));
+        Machine.process("", this._pmachines, prg);
+        if (this._stack.length > 0) {
+          const tk = this.peekOpt(Token.SYMBOL);
+          if (tk !== null && tk.symbolValue === Symbol.BREAK) {
+            this.pop();
+            break;
+          }
+        }
+      }
+      return;
+    }
+
+    cond = this.popOpt(Token.LIST);
+
+    if (cond === null) {
+      Fails.types(this, [Token.INT, Token.LIST]);
+      throw "Unreachable";
+    }
+
+    const m2 = Machine.isolateProcess("", this._pmachines, cond);
+
+    const a = m2._stack;
+    const size = a.length;
+    if (size < 1) this.fail("Expected al least one one value in 'for'");
+    if (size > 4) this.fail("Expected as much three values in 'for'");
+
+    const tk = a[0];
+    if (tk.type !== Token.INT)
+      this.fail("Expected an Int as first value in 'for'");
+
+    let begin = tk.intValue;
+    let end = begin;
+    if (size > 1) {
+      const tk = a[1];
+      if (tk.type !== Token.INT)
+        this.fail("Expected an Int as second value in 'for'");
+      end = tk.intValue;
+    } else {
+      begin = 0;
+    }
+    let step = 1;
+    if (size === 3) {
+      const tk = a[2];
+      if (tk.type !== Token.INT)
+        this.fail("Expected an Int as third value in 'for'");
+      step = tk.intValue;
+      if (step === 0) this.fail("No valid '0' value as step in 'for'");
+    }
+
+    for (;;) {
+      if (step > 0 && begin >= end) break;
+      else if (step < 0 && begin <= end) break;
+      this.push(Token.mkInt(begin));
+      Machine.process("", this._pmachines, prg);
+      if (this._stack.length > 0) {
+        const tk = this.peekOpt(Token.SYMBOL);
+        if (tk !== null && tk.symbolValue === Symbol.BREAK) {
+          this.pop();
+          break;
+        }
+      }
+      begin += step;
+    }
+  }
+
+  /** @private */
+  _recursive () {
+    const prg = this.popExc(Token.LIST);
+
+    for (;;) {
+      Machine.process("", this._pmachines, prg);
+      if (this._stack.length > 0) {
+        const tk = this.peekOpt(Token.SYMBOL);
+        if (tk !== null && tk.symbolValue === Symbol.CONTINUE) {
+          this.pop();
+          continue;
+        }
+      }
+      break;
+    }
+  }
+
+  /** @private */
+  _import () {
     const errorSymKv = Imports.readSymbol(this.pop());
     if (errorSymKv.left !== "") this.fail(errorSymKv.left);
     const source = errorSymKv.right.value;
 
     const sid = Symbol.toStr(source);
     const f = Path.canonical(
-      Path.cat([Path.parent(this._source), sid + ".dms"])
+      Path.cat([Path.parent(this.source), sid + ".dms"])
     );
     const fid = f.substring(0, f.length - 4);
     const ssource = Symbol.mk(fid);
 
-    if (!Imports.isOnWay(ssource) && Imports.take(ssource) === null) {
-      Imports.putOnWay(ssource);
-      const code = await Imports.load(f);
-      const r = new Reader(fid, code);
-      const m = Machine.isolateProcess(f, this._pmachines, r.process());
-      Imports.add(ssource, m._heap);
-      Imports.quitOnWay(ssource);
-    }
+    const prg = Imports.takeCache(ssource);
+    if (prg === null) throw "In Machine.import: 'prg' is null.";
+    const m = Machine.isolateProcess(f, this._pmachines, prg);
+    Imports.add(ssource, m._heap);
   }
 
   // Public --------------------------------------------------------------------
@@ -107,13 +340,8 @@ export default class Machine {
     const m = new Machine(source, pmachines, prg);
     if (!pmachines.isEmpty()) m._stack = pmachines.head._stack;
 
-    try {
-      return m.cprocess();
-    } catch (e) {
-      if (e.name === "RuntimeError") throw e;
-      Fails.fromException(m, e);
-      return this; // Unreachable
-    }
+    m.cprocess();
+    return m;
   }
 
   /**
@@ -126,38 +354,9 @@ export default class Machine {
     const m = new Machine(source, pmachines, prg);
     if (source !== "")
       Imports.add(Symbol.mk(source.substring(0, source.length - 4)), m._heap);
-    try {
-      return m.cprocess();
-    } catch (e) {
-      if (e.name === "RuntimeError") throw e;
-      Fails.fromException(m, e);
-      return this; // Unreachable
-    }
-  }
 
-  /** @private */
-  exit () {
-    console.log("  Stack:");
-    if (this._stack.length === 0) {
-      console.log("    [EMPTY]");
-    } else {
-      let msg = "    ";
-      this._stack.reverse();
-      for (const tk of this._stack)
-        msg += tk.toString() + " ";
-      console.log(msg);
-    }
-
-    let ms = this._pmachines;
-    while (!ms.isEmpty()) {
-      const m = ms.head;
-      const tk = m._prg.listValue[m._ix];
-      console.log(m._source + ":" + tk.line + ":" + tk.toString());
-      ms = ms.tail;
-    }
-    const e = new Error();
-    e.name = "RuntimeError";
-    throw e;
+    m.cprocess();
+    return m;
   }
 
   /**
@@ -166,8 +365,9 @@ export default class Machine {
   **/
   _assert () {
     if (this.popExc(Token.INT).intValue === 1) return;
-    console.log("Assert error:" + this._pmachines.count() + 1 + ":");
-    this.exit();
+    console.log("Assert error:" + (this._pmachines.count() + 1) + ":");
+    console.log(this.stackTrace);
+    throw "Assert error";
   }
 
   /**
@@ -179,11 +379,12 @@ export default class Machine {
     const actual = this.pop();
     if (expect.eq(actual)) return;
     console.log(
-      "Expect error:" + this._pmachines.count() + 1 + ":" +
-      "\n  Expected: " + expect.toString() +
-      "\n  Actual  : " + actual.toString()
+      "Expect error:" + (this._pmachines.count() + 1) + ":" +
+      "\n  Expected: " + expect.toStringDraft() +
+      "\n  Actual  : " + actual.toStringDraft()
     );
-    this.exit();
+    console.log(this.stackTrace);
+    throw "Expect error";
   }
 
   /**
@@ -191,8 +392,9 @@ export default class Machine {
     @return {void}
   **/
   fail (msg) {
-    console.log("Runtime error:" + this._pmachines.count() + 1 + ": " + msg);
-    this.exit();
+    console.log("Runtime error:" + (this._pmachines.count() + 1) + ": " + msg);
+    console.log(this.stackTrace);
+    throw "Runtime error";
   }
 
   /**
@@ -266,13 +468,14 @@ export default class Machine {
     @return {Token}
   */
   popOpt (type) {
-    const tk = this._stack.pop();
-    if (tk === undefined)
-      this.fail("Stack is empty");
-    return tk.type === type ? tk : null;
+    const stk = this._stack;
+    const len = stk.length;
+    if (len === 0) this.fail("Stack is empty");
+    const tk = stk[len - 1];
+    return tk.type === type ? stk.pop() : null;
   }
 
-  async cprocess () {
+  cprocess () {
     let module = -1; // Symbol
     let moduleh = null; // Array<HeapEntry>
     let sym = -1; // Symbol
@@ -281,7 +484,6 @@ export default class Machine {
     for (let ix = 0; ix < prg.length; ++ix) {
       this._ix = ix;
       const tk = prg[ix];
-
       if (sym !== -1) {
         let t = null;
         if (moduleh !== null) {
@@ -299,21 +501,23 @@ export default class Machine {
                 continue;
               }
             }
-          } else
+          } else {
+            --this._ix;
             this.fail(
-              "Symbol " + Symbol.toStr(module) + " " +
+              "Symbol " + Symbol.toStr(module) + "," +
               Symbol.toStr(sym) + " not found"
             );
+          }
         } else {
           t = Heap.take(this._heap, sym);
-          if (t === null) t = Heap.take(Imports.base(), sym);
+          if (t === null) t = Heap.take(Imports.base, sym);
           if (t !== null) {
-            if (t.type === Token.SYMBOL) {
-              const symbol = t.symbolValue;
+            if (tk.type === Token.SYMBOL) {
+              const symbol = tk.symbolValue;
               if (symbol === Symbol.EQUALS) {
                 const tk = this.pop();
                 if (tk.type === Token.LIST) {
-                  const ch = Symbol.toStr(symbol).charAt(0);
+                  const ch = Symbol.toStr(sym).charAt(0);
                   if (ch < "A" || ch > "Z")
                     this.fail(
                       "List or object name must start with uppercase [A-Z]"
@@ -327,8 +531,8 @@ export default class Machine {
                 const tk = this.pop();
                 if (tk.type !== Token.LIST)
                   this.fail("Symbol => not used with function");
-                const ch = Symbol.toStr(symbol).charAt(0);
-                if (ch >= "A" || ch <= "Z")
+                const ch = Symbol.toStr(sym).charAt(0);
+                if (ch >= "A" && ch <= "Z")
                   this.fail(
                     "Function must name not start with uppercase [A-Z]"
                   );
@@ -348,7 +552,7 @@ export default class Machine {
               if (symbol === Symbol.EQUALS) {
                 const tk = this.pop();
                 if (tk.type === Token.LIST) {
-                  const ch = Symbol.toStr(symbol).charAt(0);
+                  const ch = Symbol.toStr(sym).charAt(0);
                   if (ch < "A" || ch > "Z")
                     this.fail(
                       "List or object name must start with uppercase [A-Z]"
@@ -362,8 +566,8 @@ export default class Machine {
                 const tk = this.pop();
                 if (tk.type !== Token.LIST)
                   this.fail("Symbol => not used with function");
-                const ch = Symbol.toStr(symbol).charAt(0);
-                if (ch >= "A" || ch <= "Z")
+                const ch = Symbol.toStr(sym).charAt(0);
+                if (ch >= "A" && ch <= "Z")
                   this.fail(
                     "Function must name not start with uppercase [A-Z]"
                   );
@@ -437,9 +641,23 @@ export default class Machine {
         else if (symbol === Symbol.EVAL) this._eval();
         else if (symbol === Symbol.RUN) this._run();
         else if (symbol === Symbol.MRUN) this._mrun();
+        else if (symbol === Symbol.DATA) this._data();
+        else if (symbol === Symbol.ELIF) this._elif();
+        else if (symbol === Symbol.ELSE) this.push(tk);
+        else if (symbol === Symbol.IF) this._if();
+        else if (symbol === Symbol.BREAK || symbol === Symbol.CONTINUE) {
+          this._stack.push(tk);
+          return;
+        }
+        else if (symbol === Symbol.LOOP) this._loop();
+        else if (symbol === Symbol.WHILE) this._while();
+        else if (symbol === Symbol.FOR) this._for();
+        else if (symbol === Symbol.RECURSIVE) this._recursive();
+        else if (symbol === Symbol.IMPORT) this._import();
         else if (symbol === Symbol.ASSERT) this._assert();
         else if (symbol === Symbol.EXPECT) this._expect();
-        else if (symbol === Symbol.IMPORT) await this._import();
+        else if (symbol === Symbol.STACK) Types.fail(this);
+        else if (symbol === Symbol.STACK_CHECK) Types.check(this);
         else {
           const h = Imports.take(symbol);
           if (h === null) {
@@ -458,14 +676,15 @@ export default class Machine {
       let t = null;
       if (moduleh !== null) {
         t = Heap.take(moduleh, sym);
-        if (t === null)
+        if (t === null) {
           this.fail(
-            "Symbol " + Symbol.toStr(module) + " " +
+            "Symbol " + Symbol.toStr(module) + "," +
             Symbol.toStr(sym) + " not found"
           );
+        }
       } else {
         t = Heap.take(this._heap, sym);
-        if (t === null) t = Heap.take(Imports.base(), sym);
+        if (t === null) t = Heap.take(Imports.base, sym);
         if (t === null) {
           let pms = this._pmachines;
           for (;;) {
@@ -477,7 +696,6 @@ export default class Machine {
           }
         }
         if (t === null) {
-          --this._ix;
           this.fail("Symbol '" + Symbol.toStr(sym) + "' not found");
         }
       }
@@ -499,8 +717,6 @@ export default class Machine {
     } else if (module !== -1) {
       this.fail("Expected a symbol of module '" + Symbol.toStr(module) + "'");
     }
-
-    return this;
   }
 
 }

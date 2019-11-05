@@ -1,124 +1,211 @@
 // Copyright 04-Oct-2019 ºDeme
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
+/** Symbols management */
+
+let sharp = 0;
+
 /** @type {!Array<string>} */
 const syms = [];
+
+let i = 0;
+const IMPORT = ++i;
+const IF = ++i;
+const ELIF = ++i;
+const ELSE = ++i;
+const BREAK = ++i;
+const EQUALS = ++i;
+const FUNCTION = ++i;
+const AMPERSAND = ++i;
+const NOP = ++i;
+const EVAL = ++i;
+const RUN = ++i;
+const MRUN = ++i;
+const DATA = ++i;
+const SYNC = ++i;
+const LOOP = ++i;
+const WHILE = ++i;
+const FOR = ++i;
+const CONTINUE = ++i;
+const RECURSIVE = ++i;
+const ASSERT = ++i;
+const EXPECT = ++i;
+const THIS = ++i;
+const STACK = ++i;
+const STACK_CHECK = ++i;
+
+const PLUS = ++i;
+const TO_STR = ++i;
+const REF_OUT = ++i;
+
+const BLOB_ = ++i;
+const ITERATOR_ = ++i;
+const EXC_ = ++i;
+const DATE_ = ++i;
+const TIMER_ = ++i;
+const ELEMENT_ = ++i;
+const EVENT_ = ++i;
+
+const SYSTEM_COUNT = ++i;
 
 /** Symbols management. */
 export class Symbol {
 
   /** @return {number} Symbol identifier. */
-  static get IMPORT () { return 0 }
+  static get IMPORT () { return IMPORT }
 
   /** @return {number} Symbol identifier. */
-  static get IF () { return Symbol.IMPORT + 1 }
+  static get IF () { return IF }
 
   /** @return {number} Symbol identifier. */
-  static get ELIF () { return Symbol.IF + 1 }
+  static get ELIF () { return ELIF }
 
   /** @return {number} Symbol identifier. */
-  static get ELSE () { return Symbol.ELIF + 1 }
+  static get ELSE () { return ELSE }
 
   /** @return {number} Symbol identifier. */
-  static get BREAK () { return Symbol.ELSE + 1 }
+  static get BREAK () { return BREAK }
 
   /** @return {number} Symbol identifier. */
-  static get EQUALS () { return Symbol.BREAK + 1 }
+  static get EQUALS () { return EQUALS }
 
   /** @return {number} Symbol identifier. */
-  static get FUNCTION () { return Symbol.EQUALS + 1 }
+  static get FUNCTION () { return FUNCTION }
 
   /** @return {number} Symbol identifier. */
-  static get AMPERSAND () { return Symbol.FUNCTION + 1 }
+  static get AMPERSAND () { return AMPERSAND }
 
   /** @return {number} Symbol identifier. */
-  static get NOP () { return Symbol.AMPERSAND + 1 }
+  static get NOP () { return NOP }
 
   /** @return {number} Symbol identifier. */
-  static get EVAL () { return Symbol.NOP + 1 }
+  static get EVAL () { return EVAL }
 
   /** @return {number} Symbol identifier. */
-  static get RUN () { return Symbol.EVAL + 1 }
+  static get RUN () { return RUN }
 
   /** @return {number} Symbol identifier. */
-  static get MRUN () { return Symbol.RUN + 1 }
+  static get MRUN () { return MRUN }
 
   /** @return {number} Symbol identifier. */
-  static get DATA () { return Symbol.MRUN + 1 }
+  static get DATA () { return DATA }
 
   /** @return {number} Symbol identifier. */
-  static get SYNC () { return Symbol.DATA + 1 }
+  static get SYNC () { return SYNC }
 
   /** @return {number} Symbol identifier. */
-  static get LOOP () { return Symbol.SYNC + 1 }
+  static get LOOP () { return LOOP }
 
   /** @return {number} Symbol identifier. */
-  static get WHILE () { return Symbol.LOOP + 1 }
+  static get WHILE () { return WHILE }
 
   /** @return {number} Symbol identifier. */
-  static get FOR () { return Symbol.WHILE + 1 }
+  static get FOR () { return FOR }
 
   /** @return {number} Symbol identifier. */
-  static get ASSERT () { return Symbol.FOR + 1 }
+  static get CONTINUE () { return CONTINUE }
 
   /** @return {number} Symbol identifier. */
-  static get EXPECT () { return Symbol.ASSERT + 1 }
+  static get RECURSIVE () { return RECURSIVE }
 
   /** @return {number} Symbol identifier. */
-  static get THIS () { return Symbol.EXPECT + 1 }
+  static get ASSERT () { return ASSERT }
 
   /** @return {number} Symbol identifier. */
-  static get STACK () { return Symbol.THIS + 1 }
+  static get EXPECT () { return EXPECT }
 
   /** @return {number} Symbol identifier. */
-  static get STACK_CHECK () { return Symbol.STACK + 1 }
+  static get THIS () { return THIS }
+
+  /** @return {number} Symbol identifier. */
+  static get STACK () { return STACK }
+
+  /** @return {number} Symbol identifier. */
+  static get STACK_CHECK () { return STACK_CHECK }
 
   // ---------------------------------------------
 
   /** @return {number} Symbol identifier. */
-  static get BLOB_ () { return Symbol.STACK_CHECK + 1 }
+  static get PLUS () { return PLUS }
 
   /** @return {number} Symbol identifier. */
-  static get ITERATOR_ () { return Symbol.BLOB_ + 1 }
+  static get TO_STR () { return TO_STR }
+
+  /** @return {number} Symbol identifier. */
+  static get REF_OUT () { return REF_OUT }
 
   // ---------------------------------------------
 
   /** @return {number} Symbol identifier. */
-  static get SYSTEM_COUNT () { return Symbol.ITERATOR_ + 1 }
+  static get BLOB_ () { return BLOB_ }
+
+  /** @return {number} Symbol identifier. */
+  static get ITERATOR_ () { return ITERATOR_ }
+
+  /** @return {number} Symbol identifier. */
+  static get EXC_ () { return EXC_ }
+
+  /** @return {number} Symbol identifier. */
+  static get DATE_ () { return DATE_ }
+
+  /** @return {number} Symbol identifier. */
+  static get TIMER_ () { return TIMER_ }
+
+  /** @return {number} Symbol identifier. */
+  static get ELEMENT_ () { return ELEMENT_ }
+
+  /** @return {number} Symbol identifier. */
+  static get EVENT_ () { return EVENT_ }
+
+  // ---------------------------------------------
+
+  /** @return {number} Symbol identifier. */
+  static get SYSTEM_COUNT () { return SYSTEM_COUNT }
 
   // ---------------------------------------------
   // ---------------------------------------------
 
   /** @return {void} */
   static init () {
-    for (let i = 0; i < Symbol.SYSTEM_COUNT; ++i) syms.push("");
+    for (let i = 0; i < SYSTEM_COUNT; ++i) syms.push("");
 
-    syms[Symbol.IMPORT] = "import";
-    syms[Symbol.IF] = "if";
-    syms[Symbol.ELIF] = "elif";
-    syms[Symbol.ELSE] = "else";
-    syms[Symbol.BREAK] = "break";
-    syms[Symbol.EQUALS] = "=";
-    syms[Symbol.FUNCTION] = "=>";
-    syms[Symbol.AMPERSAND] = "&";
-    syms[Symbol.NOP] = "nop";
-    syms[Symbol.EVAL] = "eval";
-    syms[Symbol.RUN] = "run";
-    syms[Symbol.MRUN] = "mrun";
-    syms[Symbol.DATA] = "data";
-    syms[Symbol.SYNC] = "sync";
-    syms[Symbol.LOOP] = "loop";
-    syms[Symbol.WHILE] = "while";
-    syms[Symbol.FOR] = "for";
-    syms[Symbol.ASSERT] = "assert";
-    syms[Symbol.EXPECT] = "expect";
-    syms[Symbol.THIS] = "this";
+    syms[IMPORT] = "import";
+    syms[IF] = "if";
+    syms[ELIF] = "elif";
+    syms[ELSE] = "else";
+    syms[BREAK] = "break";
+    syms[EQUALS] = "=";
+    syms[FUNCTION] = "=>";
+    syms[AMPERSAND] = "&";
+    syms[NOP] = "nop";
+    syms[EVAL] = "eval";
+    syms[RUN] = "run";
+    syms[MRUN] = "mrun";
+    syms[DATA] = "data";
+    syms[SYNC] = "sync";
+    syms[LOOP] = "loop";
+    syms[WHILE] = "while";
+    syms[FOR] = "for";
+    syms[CONTINUE] = "continue";
+    syms[RECURSIVE] = "recursive";
+    syms[ASSERT] = "assert";
+    syms[EXPECT] = "expect";
+    syms[THIS] = "this";
 
-    syms[Symbol.STACK] = "= @";
-    syms[Symbol.STACK_CHECK] = "= @?";
+    syms[STACK] = "= @";
+    syms[STACK_CHECK] = "= @?";
 
-    syms[Symbol.BLOB_] = "= Blob";
-    syms[Symbol.ITERATOR_] = "= Iterator";
+    syms[PLUS] = "+";
+    syms[TO_STR] = "toStr";
+    syms[REF_OUT] = ">>";
+
+    syms[BLOB_] = "= Blob";
+    syms[ITERATOR_] = "= Iterator";
+    syms[EXC_] = "= Exc";
+    syms[DATE_] = "= Date";
+    syms[TIMER_] = "= Timer";
+    syms[ELEMENT_] = "= Element";
+    syms[EVENT_] = "= Event";
   }
 
   /**
@@ -128,6 +215,13 @@ export class Symbol {
     @return {number} Symbol identifier.
   **/
   static mk (name) {
+    if (name === "#") {
+      ++sharp;
+      return Symbol.NOP;
+    }
+    if (name.endsWith("#")) {
+      name = name + String(sharp);
+    }
     const len = syms.length;
     for (let i = 0; i < len; ++i)
       if (syms[i] === name) return i;

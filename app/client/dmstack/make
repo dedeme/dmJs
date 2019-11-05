@@ -1,13 +1,13 @@
 #!/bin/bash
 
 JS_ROOT="../../.."
-LIBS="lib/dmjs"
+LIBS=""
 
 # DON'T CHANGE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 COMPILER=$JS_ROOT/tools/closure-compiler-v20180805.jar
 
-cp -fR lib/dmjs src
+#cp -fR lib/dmjs src
 
 compile () {
   java -jar $COMPILER \
@@ -28,4 +28,4 @@ echo "... end compilation."
 
 cp -f www/index-closure.html www/index.html
 
-rm -fR src/dmjs
+#rm -fR src/dmjs

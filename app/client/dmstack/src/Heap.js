@@ -16,7 +16,7 @@ export class Heap {
     @param {!Token} token
   **/
   static add (heap, symbol, token) {
-    heap.push(new HeapEntry(symbol, token)); // eslint-disable-line
+    heap.unshift(new HeapEntry(symbol, token)); // eslint-disable-line
   }
 
   /**
@@ -25,9 +25,7 @@ export class Heap {
     @return {Token}
   **/
   static take (heap, symbol) {
-    for (const e of heap) {
-      if (e.symbol === symbol) return e.token;
-    }
+    for (const e of heap) if (e.symbol === symbol) return e.token;
     return null;
   }
 }

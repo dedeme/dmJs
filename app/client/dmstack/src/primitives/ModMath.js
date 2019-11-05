@@ -14,7 +14,7 @@ import Tk from "../Tk.js";
 **/
 function fn1 (m, f) {
   const n = Tk.popFloat(m);
-  m.push(Token.mkFloat(0, f(n)));
+  m.push(Token.mkFloat(f(n)));
 }
 
 /**
@@ -25,12 +25,12 @@ function fn1 (m, f) {
 function fn2 (m, f) {
   const n2 = Tk.popFloat(m);
   const n1 = Tk.popFloat(m);
-  m.push(Token.mkFloat(0, f(n1, n2)));
+  m.push(Token.mkFloat(f(n1, n2)));
 }
 
 /** @type function (!Machine):void} */
 const pi = m => {
-  m.push(Token.mkFloat(0, Math.PI));
+  m.push(Token.mkFloat(Math.PI));
 };
 
 /** @type function (!Machine):void} */
@@ -70,7 +70,7 @@ const atan2 = m => {
 
 /** @type function (!Machine):void} */
 const e = m => {
-  m.push(Token.mkFloat(0, Math.E));
+  m.push(Token.mkFloat(Math.E));
 };
 
 /** @type function (!Machine):void} */

@@ -9,8 +9,30 @@ import Token from "./Token.js";
 import {Symbol} from "./Symbol.js";
 
 import ModGlobal from "./primitives/ModGlobal.js";
+import ModStk from "./primitives/ModStk.js";
 import ModFloat from "./primitives/ModFloat.js";
 import ModMath from "./primitives/ModMath.js";
+import ModInt from "./primitives/ModInt.js";
+import ModBlob from "./primitives/ModBlob.js";
+import ModList from "./primitives/ModList.js";
+import ModIt from "./primitives/ModIt.js";
+import ModObj from "./primitives/ModObj.js";
+import ModMap from "./primitives/ModMap.js";
+import ModStr from "./primitives/ModStr.js";
+import ModJs from "./primitives/ModJs.js";
+import ModExc from "./primitives/ModExc.js";
+import ModWrap from "./primitives/ModWrap.js";
+import ModB64 from "./primitives/ModB64.js";
+import ModCryp from "./primitives/ModCryp.js";
+import ModPath from "./primitives/ModPath.js";
+import ModClock from "./primitives/ModClock.js";
+import ModTime from "./primitives/ModTime.js";
+import ModSys from "./primitives/ModSys.js";
+import ModChan from "./primitives/ModChan.js";
+import ModFfi from "./primitives/ModFfi.js";
+import ModUi from "./primitives/ModUi.js";
+import ModCom from "./primitives/ModCom.js";
+import ModStore from "./primitives/ModStore.js";
 
 /** @type {!Array<!PrimitivesEntry>} */
 const modules = [];
@@ -30,8 +52,30 @@ export default class Primitives {
 
     add("", ModGlobal.mk()); // Must go at the first position!!!
 
+    add("stk", ModStk.mk());
     add("float", ModFloat.mk());
     add("math", ModMath.mk());
+    add("int", ModInt.mk());
+    add("blob", ModBlob.mk());
+    add("lst", ModList.mk());
+    add("it", ModIt.mk());
+    add("obj", ModObj.mk());
+    add("map", ModMap.mk());
+    add("str", ModStr.mk());
+    add("js", ModJs.mk());
+    add("exc", ModExc.mk());
+    add("wrap", ModWrap.mk());
+    add("b64", ModB64.mk());
+    add("cryp", ModCryp.mk());
+    add("path", ModPath.mk());
+    add("clock", ModClock.mk());
+    add("time", ModTime.mk());
+    add("sys", ModSys.mk());
+    add("chan", ModChan.mk());
+    add("ffi", ModFfi.mk());
+    add("ui", ModUi.mk());
+    add("com", ModCom.mk());
+    add("store", ModStore.mk());
   }
 
   /**
@@ -61,9 +105,9 @@ export default class Primitives {
 
     for (const e of global.pmodule) {
       const fnSym = e.symbol;
-      const tk = Token.mkList(0, [
-        Token.mkList(0, [Token.mkSymbol(0, msym), Token.mkSymbol(0, fnSym)]),
-        Token.mkSymbol(0, Symbol.MRUN)
+      const tk = Token.mkList([
+        Token.mkList([Token.mkSymbol(msym), Token.mkSymbol(fnSym)]),
+        Token.mkSymbol(Symbol.MRUN)
       ]);
       Heap.add(base, fnSym, tk);
     }
@@ -80,11 +124,11 @@ export default class Primitives {
 
       for (const e of module.pmodule) {
         const fnSym = e.symbol;
-        const tk = Token.mkList(0, [
-          Token.mkList(0, [
-            Token.mkSymbol(0, module.symbol), Token.mkSymbol(0, fnSym)
+        const tk = Token.mkList([
+          Token.mkList([
+            Token.mkSymbol(module.symbol), Token.mkSymbol(fnSym)
           ]),
-          Token.mkSymbol(0, Symbol.MRUN)
+          Token.mkSymbol(Symbol.MRUN)
         ]);
         Heap.add(heap, fnSym, tk);
       }

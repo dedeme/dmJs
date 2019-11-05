@@ -6,6 +6,10 @@ import Machine from "../Machine.js"; // eslint-disable-line
 import {Symbol} from "../Symbol.js"; // eslint-disable-line
 import Token from "../Token.js"; // eslint-disable-line
 import Tk from "../Tk.js";
+import Exception from "../Exception.js";
+import ModGlobal0 from "./ModGlobal0.js";
+import ModGlobal1 from "./ModGlobal1.js";
+import ModGlobal2 from "./ModGlobal2.js";
 
 /**
   @param {!Machine} m
@@ -23,12 +27,12 @@ function stkFail (m, fn, min) {
 
 /** @type function (!Machine):void} */
 const puts = m => {
-  console.log(m.pop().toString()); // eslint-disable-line
+  console.log(m.pop().toStringDraft()); // eslint-disable-line
 };
 
 /** @type function (!Machine):void} */
 const toStr = m => {
-  m.push(Token.mkString(0, m.pop().toString()));
+  m.push(Token.mkString(m.pop().toString()));
 };
 
 /** @type function (!Machine):void} */
@@ -38,17 +42,35 @@ const clone = m => {
 
 /** @type function (!Machine):void} */
 const eq = m => {
-  m.push(Token.mkInt(0, m.pop().eq(m.pop()) ? 1 : 0));
+  m.push(Token.mkInt(m.pop().eq(m.pop()) ? 1 : 0));
 };
 
 /** @type function (!Machine):void} */
 const neq = m => {
-  m.push(Token.mkInt(0, m.pop().eq(m.pop()) ? 0 : 1));
+  m.push(Token.mkInt(m.pop().eq(m.pop()) ? 0 : 1));
 };
 
 /** @type function (!Machine):void} */
 const fail = m => {
-  m.fail(Tk.popString(m));
+  Exception.raise(m, "generic", Tk.popString(m));
+};
+
+/** @type function (!Machine):void} */
+const sthrow = m => {
+  const msg = Tk.popString(m);
+  Exception.raise(m, Tk.popString(m), msg);
+};
+
+/** @type function (!Machine):void} */
+const stry = m => {
+  const a = Array.from(Tk.popList(m));
+  const prgtry = m.popExc(Token.LIST);
+  try {
+    Machine.isolateProcess("", m.pmachines, prgtry);
+  } catch (e) {
+    a.unshift(Token.fromPointer(Symbol.EXC_, e));
+    Machine.isolateProcess("", m.pmachines, Token.mkList(a));
+  }
 };
 
 /** @type function (!Machine):void} */
@@ -81,7 +103,7 @@ const dup = m => {
 
 /** @type function (!Machine):void} */
 const empty = m => {
-  m.push(Token.mkInt(0, m.stack.length === 0 ? 1 : 0));
+  m.push(Token.mkInt(m.stack.length === 0 ? 1 : 0));
 };
 
 /** Global symbols. */
@@ -105,10 +127,43 @@ export default class ModGlobal {
     add("==", eq);
     add("!=", neq);
     add("fail", fail);
+    add("throw", sthrow);
+    add("try", stry);
     add("swap", swap);
     add("pop", pop);
     add("dup", dup);
     add("empty?", empty);
+
+    // ModGlobal0 -------------------------------------
+    add("+", ModGlobal0.add);
+    add("-", ModGlobal0.sub);
+    add("*", ModGlobal0.mul);
+    add("/", ModGlobal0.div);
+    add("%", ModGlobal0.mod);
+    add("++", ModGlobal0.incr);
+    add("--", ModGlobal0.decr);
+
+    // ModGlobal1 -------------------------------------
+    add("&&", ModGlobal1.and);
+    add("||", ModGlobal1.or);
+    add("!", ModGlobal1.not);
+    add(">", ModGlobal1.greater);
+    add(">=", ModGlobal1.greaterEq);
+    add("<", ModGlobal1.less);
+    add("<=", ModGlobal1.lessEq);
+
+    // ModGlobal2 -------------------------------------
+    add("size", ModGlobal2.size);
+    add("get", ModGlobal2.sget);
+    add("set", ModGlobal2.sset);
+    add("set+", ModGlobal2.setPlus);
+    add("up", ModGlobal2.up);
+    add("up+", ModGlobal2.upPlus);
+    add(">>", ModGlobal2.refGet);
+    add("<<", ModGlobal2.refSet);
+    add("<<+", ModGlobal2.refSetPlus);
+    add("^^", ModGlobal2.refUp);
+    add("^^+", ModGlobal2.refUpPlus);
 
     return r;
   }

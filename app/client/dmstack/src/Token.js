@@ -4,25 +4,52 @@
 import {Symbol} from "./Symbol.js";
 import List from "./util/List.js"; // eslint-disable-line
 
+let i = 0;
+const INT = i++;
+const FLOAT = i++;
+const STRING = i++;
+const LIST = i++;
+const SYMBOL = i++;
+const NATIVE = i++;
+
+/** Record of a Token position */
+class TokenPos {
+  /**
+    @private
+    @param {number} source
+    @param {number} line
+  **/
+  constructor (source, line) {
+    this._source = source;
+    this._line = line;
+  }
+
+  /** @return {string} */
+  get source () { return Symbol.toStr(this._source) }
+
+  /** @return {number} */
+  get line () { return this._line }
+}
+
 /** Imports management. */
 export default class Token {
 
   /**
     @private
-    @param {number} line
-    @param {number} type INT, FLOAT, STRING, LIST, SYMBOL or POINTER
+    @param {TokenPos} pos
+    @param {number} type INT, FLOAT, STRING, LIST, SYMBOL or NATIVE
     @param {?} value
   **/
-  constructor (line, type, value) {
-    this._line = line;
+  constructor (pos, type, value) {
+    this._pos = pos;
     this._type = type;
     this._value = value;
   }
 
-  /** @return {number} */
-  get line () { return this._line }
+  /** @return {TokenPos} */
+  get pos () { return this._pos }
 
-  /** @return {number} One of INT, FLOAT, STRING, LIST, SYMBOL or POINTER */
+  /** @return {number} One of INT, FLOAT, STRING, LIST, SYMBOL or NATIVE */
   get type () { return this._type }
 
   /** @return {number} */
@@ -40,16 +67,19 @@ export default class Token {
   /** @return {number} */
   get symbolValue () { return this._value }
 
-  /** @return {*} */
-  get pointerValue () { return this._value }
+  /** @return {number} */
+  get nativeSymbol () { return this._value[0] }
 
-  /** @return {!Token} Make a deep copy, except for POINTER. */
+  /** @return {*} */
+  get nativeObject () { return this._value[1] }
+
+  /** @return {!Token} Make a deep copy, except for NATIVE. */
   clone () {
     const type = this._type;
     let value = this._value;
     if (type === Token.LIST)
       value = this.listValue.map(tk => tk.clone());
-    return new Token(0, type, value);
+    return new Token(null, type, value);
   }
 
   /**
@@ -66,6 +96,8 @@ export default class Token {
         if (!l1[i].eq(l2[i])) return false;
       return true;
     }
+    if (this._type === Token.NATIVE)
+      return this._value[1] === other._value[1];
     return this._value === other._value;
   }
 
@@ -80,7 +112,7 @@ export default class Token {
     case Token.STRING: return "String";
     case Token.LIST: return "List";
     case Token.SYMBOL: return "Symbol";
-    case Token.POINTER: return "Pointer";
+    case Token.NATIVE: return "JsObject";
     }
     throw new Error("Switch not exhaustive.");
   }
@@ -90,82 +122,88 @@ export default class Token {
     switch(this._type) {
     case Token.INT: return String(this._value | 0);
     case Token.FLOAT: return String(this._value);
-    case Token.STRING: return JSON.stringify(this._value);
+    case Token.STRING: return this._value;
     case Token.LIST: {
-      let a = this.listValue.map(tk => tk.toString());
+      const a = this.listValue.map(tk => tk.toString());
+      return "(" + a.join(", ") + ")";
+    }
+    case Token.SYMBOL: return "'" + Symbol.toStr(this._value) + "'";
+    case Token.NATIVE: return "JS Object";
+    }
+    throw new Error("Switch not exhaustive.");
+  }
+
+  /** @return {string} */
+  toStringDraft () {
+    switch(this._type) {
+    case Token.LIST: {
+      let a = this.listValue.map(tk => tk.toStringDraft());
       if (a.length > 5) {
         a = a.slice(0, 5);
         a.push("...");
       }
       return "(" + a.join(", ") + ")";
     }
-    case Token.SYMBOL: return Symbol.toStr(this._value);
-    case Token.POINTER: return "JS Object";
+    default: return this.toString();
     }
-    throw new Error("Switch not exhaustive.");
   }
 
   /** @return {number} Type of token. */
-  static get INT () { return 0 }
+  static get INT () { return INT }
 
   /** @return {number} Type of token. */
-  static get FLOAT () { return Token.INT + 1 }
+  static get FLOAT () { return FLOAT }
 
   /** @return {number} Type of token. */
-  static get STRING () { return Token.FLOAT + 1 }
+  static get STRING () { return STRING }
 
   /** @return {number} Type of token. */
-  static get LIST () { return Token.STRING + 1 }
+  static get LIST () { return LIST }
 
   /** @return {number} Type of token. */
-  static get SYMBOL () { return Token.LIST + 1 }
+  static get SYMBOL () { return SYMBOL }
 
   /** @return {number} Type of token. */
-  static get POINTER () { return Token.SYMBOL + 1 }
+  static get NATIVE () { return NATIVE }
 
   /**
-    @param {number} line
     @param {number} value
     @return {!Token}
   **/
-  static mkInt (line, value) {
-    return new Token(line, Token.INT, value | 0);
+  static mkInt (value) {
+    return new Token(null, Token.INT, value | 0);
   }
 
   /**
-    @param {number} line
     @param {number} value
     @return {!Token}
   **/
-  static mkFloat (line, value) {
-    return new Token(line, Token.FLOAT, value);
+  static mkFloat (value) {
+    return new Token(null, Token.FLOAT, value);
   }
 
   /**
-    @param {number} line
     @param {string} value
     @return {!Token}
   **/
-  static mkString (line, value) {
-    return new Token(line, Token.STRING, value);
+  static mkString (value) {
+    return new Token(null, Token.STRING, value);
   }
 
   /**
-    @param {number} line
     @param {!Array<!Token>} value
     @return {!Token}
   **/
-  static mkList (line, value) {
-    return new Token(line, Token.LIST, value);
+  static mkList (value) {
+    return new Token(null, Token.LIST, value);
   }
 
   /**
-    @param {number} line
     @param {number} value
     @return {!Token}
   **/
-  static mkSymbol (line, value) {
-    return new Token(line, Token.SYMBOL, value);
+  static mkSymbol (value) {
+    return new Token(null, Token.SYMBOL, value);
   }
 
   /**
@@ -174,10 +212,57 @@ export default class Token {
     @return {!Token}
   **/
   static fromPointer (symbol, value) {
-    return Token.mkList(0, [
-      new Token(0, Token.SYMBOL, symbol),
-      new Token(0, Token.POINTER, value)
-    ]);
+    return new Token(null, Token.NATIVE, [symbol, value]);
+  }
+
+  /**
+    @param {number} value
+    @param {number} source
+    @param {number} line
+    @return {!Token}
+  **/
+  static mkIntPos (value, source, line) {
+    return new Token(new TokenPos(source, line), Token.INT, value | 0);
+  }
+
+  /**
+    @param {number} value
+    @param {number} source
+    @param {number} line
+    @return {!Token}
+  **/
+  static mkFloatPos (value, source, line) {
+    return new Token(new TokenPos(source, line), Token.FLOAT, value);
+  }
+
+  /**
+    @param {string} value
+    @param {number} source
+    @param {number} line
+    @return {!Token}
+  **/
+  static mkStringPos (value, source, line) {
+    return new Token(new TokenPos(source, line), Token.STRING, value);
+  }
+
+  /**
+    @param {!Array<!Token>} value
+    @param {number} source
+    @param {number} line
+    @return {!Token}
+  **/
+  static mkListPos (value, source, line) {
+    return new Token(new TokenPos(source, line), Token.LIST, value);
+  }
+
+  /**
+    @param {number} value
+    @param {number} source
+    @param {number} line
+    @return {!Token}
+  **/
+  static mkSymbolPos (value, source, line) {
+    return new Token(new TokenPos(source, line), Token.SYMBOL, value);
   }
 
   /**
@@ -187,7 +272,122 @@ export default class Token {
     @return {string} Actual type
   **/
   static checkType (tokens, type) {
-    throw ("witout implementation " + tokens + type);
+    if (tokens.isEmpty()) return "";
+    const tk = tokens.head;
+    const tail = tokens.tail;
+
+    function paste (code, len) {
+      return code + Token.checkType(tail, type.substring(len));
+    }
+
+    function tpaste () {
+      switch (tk._type) {
+      case Token.INT: return paste("i", 1);
+      case Token.FLOAT: return paste("f", 1);
+      case Token.STRING: return paste("s", 1);
+      case Token.SYMBOL: return paste("y", 1);
+      case Token.LIST: return paste("l", 1);
+      case Token.NATIVE: return paste("n", 1);
+      }
+      throw ("switch not exhaustive");
+    }
+
+    function object () {
+      const a = tk._type === Token.LIST ? tk._value : null;
+      function badformat () {
+        for (let i = 0; i < a.length; i += 2)
+          if (a[i].type !== Token.STRING) return true;
+        return false;
+      }
+      if (a === null || a.length % 2 === 1 || badformat()) return tpaste();
+      return paste("o", 1);
+    }
+
+    function map () {
+      const a = tk._type === Token.LIST ? tk._value : null;
+      function badformat () {
+        for (const t of a) {
+          const a2 = t._type === Token.LIST ? t._value : null;
+          if (
+            a2 === null || a2.length !== 2 ||
+            a2[0].type !== Token.STRING
+          ) return true;
+        }
+        return false;
+      }
+      if (a === null || badformat()) return tpaste();
+      return paste("m", 1);
+    }
+
+    function pointer () {
+      const ix = type.indexOf(">", 1);
+      if (ix === -1) return paste("<?", 1);
+      if (ix === 1) return paste("<>?", 2);
+      const len = ix + 1;
+
+      if (tk._type !== Token.NATIVE) {
+        const r = tpaste();
+        return r.charAt(0) + type.substring(len);
+      }
+      const symid = "<" + Symbol.toStr(tk.nativeSymbol).substring(2) + ">";
+      return symid + Token.checkType(tail, type.substring(len));
+    }
+
+    function list () {
+      function close () {
+        let ix = 2;
+        let c = 1;
+        while (ix < type.length) {
+          const ch = type.charAt(ix++);
+          if (ch === ">") {
+            --c;
+            if (c === 0) return ix - 1;
+          } else if (ch === "<") {
+            ++c;
+          }
+        }
+        return -1;
+      }
+
+      if (type.charAt(1) !== "<") return paste("L?", 1);
+      const ix = close();
+      if (ix === -1) return paste("L<?", 2);
+      const len = ix + 1;
+      const a = tk._type === Token.LIST ? tk._value : null;
+
+      function badformat () {
+        const intype = type.substring(2, ix);
+        if (intype !== "") {
+          let lst = List.fromArray(a);
+          if (intype !== Token.checkType(lst, intype)) return true;
+          lst = lst.reverse().tail.reverse();
+          return intype === Token.checkType(lst, intype);
+        }
+        return a.length !== 0;
+      }
+      if (a === null || badformat()) {
+        const r = tpaste();
+        return r.charAt(0) + type.substring(len);
+      }
+      return type.substring(0, len) +
+        Token.checkType(tail, type.substring(len));
+    }
+
+    // ---------------------------------------------
+
+    switch (type.charAt(0)) {
+    case "": return "";
+    case "i":
+    case "f":
+    case "s":
+    case "y":
+    case "l": return tpaste();
+    case "o": return object();
+    case "m": return map();
+    case "<": return pointer();
+    case "L": return list();
+    default: return paste(type.charAt(0) + "?", 1);
+    }
   }
 
 }
