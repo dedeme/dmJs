@@ -8,6 +8,7 @@ import Machine from "../Machine.js"; // eslint-disable-line
 import {Symbol} from "../Symbol.js";
 import Token from "../Token.js"; // eslint-disable-line
 import Tk from "../Tk.js"; // eslint-disable-line
+import Fails from "../Fails.js";
 import Path from "../util/Path.js"; // eslint-disable-line
 
 /** @type function (!Machine):void} */
@@ -22,8 +23,10 @@ const plus = m => {
 };
 
 /** @type function (!Machine):void} */
-const cat = m => {
-  const a = Tk.popList(m);
+const plus2 = m => {
+  const m2 = Machine.isolateProcess("", m._pmachines, m.popExc(Token.LIST));
+  const a = m2.stack;
+  if (a.length === 0) Fails.listSize(m, a, 1);
   m.push(Token.mkString(Path.cat(a.map(tk => Tk.stringValue(m, tk)))));
 };
 
@@ -63,8 +66,8 @@ export default class ModPath {
     }
 
     add("canonical", canonical); // STRING - OPT<STRING>
-    add("+", plus); // STRING - STRING
-    add("cat", cat); // STRING - STRING
+    add("+", plus); // [STRING, STRING] - STRING
+    add("++", plus2); // [(STRING,  STRING, ...)] - STRING
     add("extension", extension); // STRING - STRING
     add("name", name); // STRING - STRING
     add("onlyName", onlyName); // STRING - STRING

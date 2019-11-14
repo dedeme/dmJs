@@ -360,6 +360,29 @@ export default class Machine {
   }
 
   /**
+    @param {string} source
+    @param {!List<!Machine>} pmachines
+    @param {!Token} prg
+    @return {!Machine}
+  **/
+  static closureProcess (source, pmachines, prg) {
+    const m = new Machine(source, pmachines, prg);
+    if (source !== "")
+      Imports.add(Symbol.mk(source.substring(0, source.length - 4)), m._heap);
+
+    try {
+      m.cprocess();
+    } catch (e) {
+      if (typeof (e) === "string") {
+        console.log(e); // eslint-disable-line
+      } else {
+        Fails.fromException(e);
+      }
+    }
+    return m;
+  }
+
+  /**
     @private
     @return {void}
   **/
@@ -476,6 +499,8 @@ export default class Machine {
   }
 
   cprocess () {
+    Fails.registerMachine(this);
+
     let module = -1; // Symbol
     let moduleh = null; // Array<HeapEntry>
     let sym = -1; // Symbol

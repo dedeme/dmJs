@@ -181,6 +181,19 @@ const plus = m => {
 };
 
 /** @type function (!Machine):void} */
+const plus2 = m => {
+  const m2 = Machine.isolateProcess("", m._pmachines, m.popExc(Token.LIST));
+  const a = m2.stack;
+  if (a.length === 0) Fails.listSize(m, a, 1);
+
+  m.push(a[0]);
+  for (let i = 1; i < a.length; ++i) {
+    m.push(a[i]);
+    plus(m);
+  }
+};
+
+/** @type function (!Machine):void} */
 const fromJs = m => {
   const bs = B64.decodeBytes(
     /** @type {string} */ (JSON.parse(Tk.popString(m)))
@@ -229,6 +242,7 @@ export default class ModBlob {
     add("right", right); // [BLOB, INT] - [BLOB]*/
     add("copy", copy); // [BLOB] - [BLOB]
     add("+", plus); // [BLOB, BLOB] - [BLOB]
+    add("++", plus2); // [(BLOB, BLOB, ...)] - [BLOB]
 
     add("fromJs", fromJs); // STRING - BLOB
     add("toJs", toJs); // BLOB - STRING

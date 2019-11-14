@@ -14,7 +14,6 @@
 "smath" import
 "lst" import
 "it" import
-"obj" import
 "map" import
 "str" import
 "js" import

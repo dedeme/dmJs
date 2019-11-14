@@ -77,8 +77,15 @@ export default class Token {
   clone () {
     const type = this._type;
     let value = this._value;
-    if (type === Token.LIST)
+    if (type === Token.LIST) {
       value = this.listValue.map(tk => tk.clone());
+    } else if (type === Token.NATIVE && this.nativeSymbol === Symbol.MAP_) {
+      const mp = /** @type {!Object} */ (this.nativeObject);
+      const o = {};
+      for (const [key, value] of Object.entries(mp))
+        o[key] = value.clone();
+      return new Token(null, Token.NATIVE, [Symbol.MAP_, o]);
+    }
     return new Token(null, type, value);
   }
 
@@ -101,6 +108,64 @@ export default class Token {
     return this._value === other._value;
   }
 
+  /** @return {string} */
+  toString () {
+    switch(this._type) {
+    case Token.INT: return String(this._value | 0);
+    case Token.FLOAT: return String(this._value);
+    case Token.STRING: return this._value;
+    case Token.SYMBOL: return "'" + Symbol.toStr(this._value) + "'";
+    case Token.LIST: {
+      const a = this.listValue.map(tk => tk.toString());
+      return "(" + a.join(", ") + ")";
+    }
+    case Token.NATIVE: {
+      if (this.nativeSymbol === Symbol.MAP_) {
+        const mp = /** @type {!Object} */ (this.nativeObject);
+        const a = [];
+        for (const [key, value] of Object.entries(mp))
+          a.push(key + ": " + value.toString());
+        return "{" + a.join(", ") + "}";
+      }
+      return "<" + Symbol.toStr(this.nativeSymbol) + ", JsObject>";
+    }
+    }
+    throw new Error("Switch not exhaustive.");
+  }
+
+  /** @return {string} */
+  toStringDraft () {
+    switch(this._type) {
+    case Token.STRING: return JSON.stringify(this._value);
+    case Token.LIST: {
+      let a = this.listValue.map(tk => tk.toStringDraft());
+      if (a.length > 5) {
+        a = a.slice(0, 5);
+        a.push("...");
+      }
+      return "(" + a.join(", ") + ")";
+    }
+    case Token.NATIVE: {
+      if (this.nativeSymbol === Symbol.MAP_) {
+        const mp = /** @type {!Object} */ (this.nativeObject);
+        const a = [];
+        let c = 0;
+        for (const [key, value] of Object.entries(mp)) {
+          if (c >= 5) {
+            a.push("...");
+            break;
+          }
+          ++c;
+          a.push(key + ": " + value.toString());
+        }
+        return "{" + a.join(", ") + "}";
+      }
+      return this.toString();
+    }
+    default: return this.toString();
+    }
+  }
+
   /**
     @param {number} type
     @return {string}
@@ -115,37 +180,6 @@ export default class Token {
     case Token.NATIVE: return "JsObject";
     }
     throw new Error("Switch not exhaustive.");
-  }
-
-  /** @return {string} */
-  toString () {
-    switch(this._type) {
-    case Token.INT: return String(this._value | 0);
-    case Token.FLOAT: return String(this._value);
-    case Token.STRING: return this._value;
-    case Token.LIST: {
-      const a = this.listValue.map(tk => tk.toString());
-      return "(" + a.join(", ") + ")";
-    }
-    case Token.SYMBOL: return "'" + Symbol.toStr(this._value) + "'";
-    case Token.NATIVE: return "JS Object";
-    }
-    throw new Error("Switch not exhaustive.");
-  }
-
-  /** @return {string} */
-  toStringDraft () {
-    switch(this._type) {
-    case Token.LIST: {
-      let a = this.listValue.map(tk => tk.toStringDraft());
-      if (a.length > 5) {
-        a = a.slice(0, 5);
-        a.push("...");
-      }
-      return "(" + a.join(", ") + ")";
-    }
-    default: return this.toString();
-    }
   }
 
   /** @return {number} Type of token. */
@@ -287,36 +321,13 @@ export default class Token {
       case Token.STRING: return paste("s", 1);
       case Token.SYMBOL: return paste("y", 1);
       case Token.LIST: return paste("l", 1);
-      case Token.NATIVE: return paste("n", 1);
+      case Token.NATIVE:
+        return tk.nativeSymbol === Symbol.MAP_
+          ? paste("m", 1)
+          : paste("n", 1)
+        ;
       }
       throw ("switch not exhaustive");
-    }
-
-    function object () {
-      const a = tk._type === Token.LIST ? tk._value : null;
-      function badformat () {
-        for (let i = 0; i < a.length; i += 2)
-          if (a[i].type !== Token.STRING) return true;
-        return false;
-      }
-      if (a === null || a.length % 2 === 1 || badformat()) return tpaste();
-      return paste("o", 1);
-    }
-
-    function map () {
-      const a = tk._type === Token.LIST ? tk._value : null;
-      function badformat () {
-        for (const t of a) {
-          const a2 = t._type === Token.LIST ? t._value : null;
-          if (
-            a2 === null || a2.length !== 2 ||
-            a2[0].type !== Token.STRING
-          ) return true;
-        }
-        return false;
-      }
-      if (a === null || badformat()) return tpaste();
-      return paste("m", 1);
     }
 
     function pointer () {
@@ -381,9 +392,8 @@ export default class Token {
     case "f":
     case "s":
     case "y":
-    case "l": return tpaste();
-    case "o": return object();
-    case "m": return map();
+    case "l":
+    case "m": return tpaste();
     case "<": return pointer();
     case "L": return list();
     default: return paste(type.charAt(0) + "?", 1);

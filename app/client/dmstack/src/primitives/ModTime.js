@@ -137,14 +137,14 @@ const now = m => {
 /** @type function (!Machine):void} */
 const broke = m => {
   const dt = new Date(Tk.popFloat(m));
-  m.push(Token.mkList([
-    Token.mkString("year"), Token.mkInt(dt.getFullYear()),
-    Token.mkString("month"), Token.mkInt(dt.getMonth() + 1),
-    Token.mkString("day"), Token.mkInt(dt.getDate()),
-    Token.mkString("hour"), Token.mkInt(dt.getHours()),
-    Token.mkString("minute"), Token.mkInt(dt.getMinutes()),
-    Token.mkString("second"), Token.mkInt(dt.getSeconds())
-  ]));
+  m.push(Token.fromPointer(Symbol.MAP_, {
+    "year": Token.mkInt(dt.getFullYear()),
+    "month": Token.mkInt(dt.getMonth() + 1),
+    "day": Token.mkInt(dt.getDate()),
+    "hour": Token.mkInt(dt.getHours()),
+    "minute": Token.mkInt(dt.getMinutes()),
+    "second": Token.mkInt(dt.getSeconds())
+  }));
 };
 
 /** @type function (!Machine):void} */
@@ -255,7 +255,7 @@ export default class ModStk {
     add("format", format);
 
     add("now", now); // [] - INT
-    add("broke", broke); // INT - OBJ
+    add("broke", broke); // INT - MAP
     add("add", sadd); // [INT - INT] - INT  - In seconds (date + secs.)
     add("df", df); // [INT - INT] - INT  - In seconds (date - date) = secs.
     add("addDays", addd); // [INT - INT] - INT (date + days)

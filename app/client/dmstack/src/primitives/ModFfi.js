@@ -93,6 +93,15 @@ const o = m => {
   m.push(Token.fromPointer(Symbol.mk("= " + Symbol.toStr(tk.symbolValue)), r));
 };
 
+/** @type function (!Machine):void} */
+const fn = m => {
+  const prg = m.popExc(Token.LIST);
+  const fn = () => {
+    Machine.closureProcess("", m.pmachines, prg);
+  };
+  m.push(Token.fromPointer(Symbol.CLOSURE_, fn));
+};
+
 /** Global symbols. */
 export default class ModFfi {
   /** @return {!Array<!PmoduleEntry>} */
@@ -113,6 +122,7 @@ export default class ModFfi {
     add("f", f);
     add("s", s);
     add("o", o);
+    add("fn", fn);
 
     return r;
   }

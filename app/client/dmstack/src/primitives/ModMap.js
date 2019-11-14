@@ -8,56 +8,103 @@ import Machine from "../Machine.js"; // eslint-disable-line
 import {Symbol} from "../Symbol.js";
 import Token from "../Token.js"; // eslint-disable-line
 import Tk from "../Tk.js";
+import Fails from "../Fails.js";
 import ModJs from "./ModJs.js";
 
 /** @type function (!Machine):void} */
 const snew = m => {
-  m.push(Token.mkList([]));
+  m.push(Token.fromPointer(Symbol.MAP_, {}));
+};
+
+/** @type function (!Machine):void} */
+const sfrom = m => {
+  const prg = m.popExc(Token.LIST);
+  const m2 = Machine.isolateProcess("", m.pmachines, prg);
+
+  const a = m2.stack;
+  const sz = a.length;
+  if (sz % 2) Fails.listSize(m, a, sz + 1);
+
+  // Map<Token>
+  const r = {};
+  for (let i = 0; i < sz;) {
+    const k = Tk.stringValue(m, a[i++]);
+    r[k] = a[i++];
+  }
+
+  m.push(Token.fromPointer(Symbol.MAP_, r));
+};
+
+/** @type function (!Machine):void} */
+const size = m => {
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  m.push(Token.mkInt(Object.keys(mp).length));
+};
+
+function eqAux (m) {
+  // Arr<Token>
+  const prg = m.popExc(Token.LIST);
+  function fn (tk1, tk2) {
+    m.push(tk1);
+    m.push(tk2);
+    Machine.process("", m.pmachines, prg);
+    return Tk.popInt(m) !== 0;
+  }
+
+  const m1 = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  const m2 = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  if (Object.keys(m1).length !== Object.keys(m2).length) return 0;
+  for (const [key, value] of Object.entries(m1)) {
+    const tk = m2[key];
+    if (tk === undefined || !fn(value, tk)) return 0;
+  }
+  return 1;
+}
+
+/** @type function (!Machine):void} */
+const eq = m => {
+  m.push(Token.mkInt(eqAux(m)));
+};
+
+/** @type function (!Machine):void} */
+const neq = m => {
+  m.push(Token.mkInt(eqAux(m) === 0 ? 1 : 0));
 };
 
 /** @type function (!Machine):void} */
 const sget = m => {
-  const key = Tk.popString(m);
-  for (const kvTk of Tk.popList(m)) {
-    const kv = Tk.listValue(m, kvTk);
-    if (Tk.stringValue(m, kv[0]) === key) {
-      m.push(Token.mkList([kv[1]]));
-      return;
-    }
-  }
-  m.push(Token.mkList([]));
+  const k = Tk.popString(m);
+  const mp = Tk.popNative(m, Symbol.MAP_);
+  const tk = mp[k];
+  if (tk !== undefined) m.push(tk);
+  else m.fail("Key '" + k + "' not found");
+};
+
+/** @type function (!Machine):void} */
+const oget = m => {
+  const k = Tk.popString(m);
+  const mp = Tk.popNative(m, Symbol.MAP_);
+  const tk = mp[k];
+  if (tk !== undefined) m.push(Token.mkList([tk]));
+  else m.push(Token.mkList([]));
 };
 
 /** @type function (!Machine):void} */
 const has = m => {
-  const key = Tk.popString(m);
-  for (const kvTk of Tk.popList(m)) {
-    const kv = Tk.listValue(m, kvTk);
-    if (Tk.stringValue(m, kv[0]) === key) {
-      m.push(Token.mkInt(1));
-      return;
-    }
-  }
-  m.push(Token.mkInt(0));
+  const k = Tk.popString(m);
+  const mp = Tk.popNative(m, Symbol.MAP_);
+  m.push(Token.mkInt(mp[k] === undefined ? 0 : 1));
 };
 
 function putBoth (m, isPlus) {
   const tk = m.pop();
-  const keyTk = m.pop();
+  const k = Tk.popString(m);
 
-  const key = Tk.stringValue(m, keyTk);
-  const a = isPlus
-    ? Tk.peekList(m)
-    : Tk.popList(m)
+  const mp = isPlus
+    ? Tk.peekNative(m, Symbol.MAP_)
+    : Tk.popNative(m, Symbol.MAP_)
   ;
-  for (const kvTk of a) {
-    const kv = Tk.listValue(m, kvTk);
-    if (Tk.stringValue(m, kv[0]) === key) {
-      kv[1] = tk;
-      return;
-    }
-  }
-  a.push(Token.mkList([keyTk, tk]));
+  mp[k] = tk;
 }
 
 /** @type function (!Machine):void} */
@@ -77,10 +124,6 @@ function upBoth (m, isPlus) {
   m.push(tk2);
   sget(m);
 
-  const a = Tk.popList(m);
-  if (a.length === 0)
-    m.fail("Key '" + tk2.stringValue + "' not found");
-  m.push(a[0]);
   Machine.process("", m.pmachines, prg);
 
   const tk3 = m.pop(m);
@@ -102,52 +145,74 @@ const upPlus = m => {
 
 /** @type function (!Machine):void} */
 const remove = m => {
-  const key = Tk.popString(m);
-  const a = Tk.popList(m);
-  let ix = -1;
-  for (let i = 0; i < a.length; ++i) {
-    const kv = Tk.listValue(m, a[i]);
-    if (Tk.stringValue(m, kv[0]) === key) {
-      ix = i;
-      break;
-    }
-  }
-  if (ix !== -1) a.splice(ix, 1);
+  const k = Tk.popString(m);
+  const mp = Tk.popNative(m, Symbol.MAP_);
+  delete mp[k];
 };
 
 /** @type function (!Machine):void} */
 const keys = m => {
-  const a = Tk.popList(m);
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
   const r = [];
-  for (const kvTk of a) r.push(Tk.listValue(m, kvTk)[0]);
+  for (const k of Object.keys(mp)) r.push(Token.mkString(k));
   m.push(Token.mkList(r));
 };
 
 /** @type function (!Machine):void} */
 const values = m => {
-  const a = Tk.popList(m);
-  const r = [];
-  for (const kvTk of a) r.push(Tk.listValue(m, kvTk)[1]);
-  m.push(Token.mkList(r));
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  m.push(Token.mkList(Object.values(mp)));
+};
+
+/**
+  @param {!Array<!Array<?>>} a0
+  @return {!Array<!Token>}
+**/
+function pairsAux (a0) {
+  const a = [];
+  for (const [key, value] of a0)
+    a.push(Token.mkList([Token.mkString(key), value]));
+  return a;
+}
+
+/** @type function (!Machine):void} */
+const pairs = m => {
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  const pairs = Object.entries(mp);
+  m.push(Token.mkList(pairsAux(pairs)));
 };
 
 /** @type function (!Machine):void} */
 const sort = m => {
-  const a = Tk.popList(m);
-  a.sort((kvTk1, kvTk2) =>
-    Tk.stringValue(m, Tk.listValue(m, kvTk1)[0]) >
-      Tk.stringValue(m, Tk.listValue(m, kvTk2)[0]) ? 1 : -1
-  );
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  const pairs = Object.entries(mp);
+  pairs.sort();
+  m.push(Token.mkList(pairsAux(pairs)));
 };
 
 /** @type function (!Machine):void} */
 const sortLocale = m => {
-  const a = Tk.popList(m);
-  a.sort((kvTk1, kvTk2) =>
-    Tk.stringValue(m, Tk.listValue(m, kvTk1)[0]).localeCompare(
-      Tk.stringValue(m, Tk.listValue(m, kvTk2)[0])
-    )
-  );
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  const pairs = Object.entries(mp);
+  pairs.sort((a, b) => a[0].localeCompare(b[0]));
+  m.push(Token.mkList(pairsAux(pairs)));
+};
+
+/** @type function (!Machine):void} */
+const copy = m => {
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  m.push(Token.fromPointer(Symbol.MAP_, Object.assign({}, mp)));
+};
+
+/** @type function (!Machine):void} */
+const to = m => {
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+  const a = [];
+  for (const [key, value] of Object.entries(mp)) {
+    a.push(Token.mkString(key));
+    a.push(value);
+  }
+  m.push(Token.mkList(a));
 };
 
 /** @type function (!Machine):void} */
@@ -176,7 +241,12 @@ export default class ModMap {
     }
 
     add("new", snew); // [] - MAP
-    add("get", sget); // [MAP, STRING] - LIST // ([map, key] - OPT)
+    add("from", sfrom); // LIST - MAP
+    add("size", size); // [MAP] - INT
+    add("eq?", eq); // [MAP, MAP] - INT
+    add("neq?", neq); // [MAP, MAP] - INT
+    add("get", sget); // [MAP, STRING] - LIST // *
+    add("oget", oget); // [MAP, STRING] - LIST // ([map, key] - OPT)
     add("has?", has); // [MAP, STRING] - INT
     add("put", put); // [MAP - STRING - *] - []
     add("put+", putPlus); // [MAP - STRING - *] - MAP
@@ -185,8 +255,11 @@ export default class ModMap {
     add("remove", remove); // [MAP, STRING] - []
     add("keys", keys); // MAP - LIST
     add("values", values); // MAP - LIST
-    add("sort", sort); // MAP - []
-    add("sortLocale", sortLocale); // MAP - []
+    add("pairs", pairs); // MAP - LIST (map - list<list<key, value>>
+    add("sort", sort); // MAP - LIST (map - list<list<key, value>>
+    add("sortLocale", sortLocale); // MAP - LIST (map - list<list<key, value>>
+    add("copy", copy); // MAP - MAP
+    add("to", to); // MAP - LIST
 
     add("fromJs", fromJs);
     add("toJs", toJs);

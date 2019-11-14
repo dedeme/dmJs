@@ -63,6 +63,22 @@ export default class ModGlobal0 {
     @param {!Machine} m
     @return {void}
   **/
+  static add2 (m) {
+    const m2 = Machine.isolateProcess("", m._pmachines, m.popExc(Token.LIST));
+    const a = m2.stack;
+    if (a.length === 0) Fails.listSize(m, a, 1);
+
+    m.push(a[0]);
+    for (let i = 1; i < a.length; ++i) {
+      m.push(a[i]);
+      ModGlobal0.add(m);
+    }
+  }
+
+  /**
+    @param {!Machine} m
+    @return {void}
+  **/
   static sub (m) {
     let tk = m.popOpt(Token.INT);
     if (tk !== null) {
@@ -182,7 +198,9 @@ export default class ModGlobal0 {
     @return {void}
   **/
   static incr (m) {
-    m.push(Token.mkInt(Tk.popInt(m) + 1));
+    const tk = m.popOpt(Token.INT);
+    if (tk !== null) m.push(Token.mkInt(tk.intValue + 1));
+    else ModGlobal0.add2(m);
   }
 
   /**

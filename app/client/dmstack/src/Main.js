@@ -30,7 +30,6 @@ export default class Main {
     const pathId = path.substring(0, path.length - 4);
     const ssource = Symbol.mk(pathId);
 
-
     const code = await Imports.load("Main:0", path);
     const r = new Reader(pathId, code);
     const mainPrg = r.process();
@@ -57,11 +56,17 @@ export default class Main {
 
   static async read (source, pathId) {
     const ssource = Symbol.mk(pathId);
+    if (Imports.isOnWay(ssource)) {
+      const ix = source.indexOf(":");
+      const s = ix === -1
+        ? "?"
+        : Symbol.toStr(Number(source.substring(0, ix)))
+      ;
+      throw new Error("Cyclic imports in " + s + " -> " + pathId + ".dms");
+    }
+
     let prg = Imports.takeCache(ssource);
     if (prg) return;
-
-    if (Imports.isOnWay(ssource))
-      throw new Error("Cyclic imports in " + pathId + ".dms");
 
     const code = await Imports.load(source, pathId + ".dms");
     const r = new Reader(pathId, code);

@@ -360,25 +360,11 @@ export default class TkReader {
         const subr = Reader.fromReader(
           reader, prg.substring(lstart, prgIx), nline
         );
-
-        const a = [];
-        let tk = TkReader.next(subr);
-        while (tk !== null) {
-          if (tk.type === Token.SYMBOL) {
-            for (const t of reader.symbolId(a, tk))
-              a.push(t);
-          } else if (tk.type === Token.STRING) {
-            for (const t of reader.interpolation(tk))
-              a.push(t);
-          } else {
-            a.push(tk);
-          }
-          tk = TkReader.next(subr);
-        }
+        const tk = subr.process();
 
         reader.nline = subr.nline;
         reader.prgIx = prgIx + 1;
-        return Token.mkListPos(a, reader.source, nlineStart);
+        return Token.mkListPos(tk.listValue, reader.source, nlineStart);
       }
 
       // Symbol ----------------------------------------------------------------

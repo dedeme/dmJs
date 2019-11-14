@@ -4,9 +4,21 @@
 import Token from "./Token.js";
 import Machine from "./Machine.js"; // eslint-disable-line
 import Exception from "./Exception.js";
+import {Symbol} from "./Symbol.js";
+
+/** @type {Machine } */
+let currentMachine = null;
 
 /** Erros management. */
 export default class Fails {
+
+  /**
+    @param {!Machine} m
+    @return void
+  **/
+  static registerMachine (m) {
+    currentMachine = m;
+  }
 
   /**
     @param {!Error} e
@@ -14,12 +26,17 @@ export default class Fails {
   **/
   static fromException (e) {
     if (Exception.isDmStack(e)) {
-      console.log(Exception.msg); // eslint-disable-line
-      console.log(Exception.stack); // eslint-disable-line
+      console.log(Exception.msg(e)); // eslint-disable-line
+      console.log(Exception.stack(e)); // eslint-disable-line
       throw "Runtime error";
     } else {
-      console.log(e.stack); // eslint-disable-line
-      throw e.message;
+      const m = currentMachine;
+      if (m) {
+        m.fail(e.message);
+      } else {
+        console.log(e.stack); // eslint-disable-line
+        throw e.message;
+      }
     }
   }
 
@@ -30,6 +47,16 @@ export default class Fails {
   **/
   static type (m, type) {
     Fails.typeIn(m, type, m.peek());
+  }
+
+  /**
+    Fails of a Native type.
+    @param {!Machine} m
+    @param {number} id
+    @return void
+  **/
+  static ntype (m, id) {
+    Fails.ntypeIn(m, id, m.peek());
   }
 
   /**
@@ -44,6 +71,25 @@ export default class Fails {
       Token.typeToString(type) +
       "'. Found type '" +
       Token.typeToString(tk.type) +
+      "'"
+    );
+  }
+
+  /**
+    Fail of a Native type.
+    @param {!Machine} m
+    @param {number} id
+    @param {!Token} tk
+    @return void
+  **/
+  static ntypeIn (m, id, tk) {
+    m.fail(
+      "Stack pop: Expected token of type '" +
+      Symbol.toStr(id) +
+      "'. Found type '" +
+      (tk.type === Token.NATIVE
+        ? Symbol.toStr(tk.nativeSymbol)
+        : Token.typeToString(tk.type)) +
       "'"
     );
   }

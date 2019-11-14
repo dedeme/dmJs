@@ -19,7 +19,7 @@ const locale = m => {
 const go = m => {
   const prg = m.popExc(Token.LIST);
   function fn () {
-    Machine.isolateProcess("", m.pmachines, prg);
+    Machine.closureProcess("", m.pmachines, prg);
   }
   setTimeout(fn, 0);
 };
@@ -29,7 +29,7 @@ const delay = m => {
   const prg = m.popExc(Token.LIST);
   const time = Tk.popInt(m);
   function fn () {
-    Machine.isolateProcess("", m.pmachines, prg);
+    Machine.closureProcess("", m.pmachines, prg);
   }
   const timer = setTimeout(fn, time);
   m.push(Token.fromPointer(Symbol.TIMER_, timer));
@@ -40,7 +40,7 @@ const interval = m => {
   const prg = m.popExc(Token.LIST);
   const time = Tk.popInt(m);
   function fn () {
-    Machine.isolateProcess("", m.pmachines, prg);
+    Machine.closureProcess("", m.pmachines, prg);
   }
   const timer = setInterval(fn, time);
   m.push(Token.fromPointer(Symbol.TIMER_, timer));

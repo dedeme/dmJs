@@ -14,6 +14,20 @@ import Imports from "../Imports.js"; // eslint-disable-line
 import Tk from "../Tk.js"; // eslint-disable-line
 import Fails from "../Fails.js"; // eslint-disable-line
 
+/**
+  @param {!Token} tk
+  @param {function ():void} fn
+**/
+function fail (tk, fn) {
+  console.log("Ui error:");
+  const pos = tk.pos;
+  if (pos !== null)
+    console.log(pos.source + ":" + pos.line + ":" + tk.toStringDraft());
+  else
+    console.log("Runtime:0:" + tk.toStringDraft());
+  fn();
+}
+
 /** Create a Js Element from a string */
 function element (s) {
   return s.charAt(0) === "#"
@@ -38,7 +52,7 @@ function isElement (tk) {
 function isolateProcess (m, tk) {
   const prg = tk.type === Token.LIST ? tk : Token.mkList([tk]);
   const m2 = Machine.isolateProcess("", m.pmachines, prg);
-  if (m2.stack.length !== 1) Fails.listSize(m, m2.stack, 1);
+  if (m2.stack.length !== 1) fail(tk, () => Fails.listSize(m, m2.stack, 1));
   return m2.stack[0];
 }
 
@@ -53,20 +67,21 @@ function popOptElement (m) {
 /**
   Read a callback without arguments.
   @param {!Machine} m
+  @param {!Token} tk
   @param {!Array<!Token>} atts Symbol - List (program without argument)
   @return {!Array<?>} Array with two elements:
     - {string} ev - Event type: "click", "change", etc.
     - {function ():void} fn - Callback
 **/
-function event (m, atts) {
-  if (atts.length === 0) m.fail("Value of 'on' is missing.");
+function event (m, tk, atts) {
+  if (atts.length === 0) fail(tk, () => m.fail("Value of 'on' is missing."));
   const tks = Array.from(Tk.listValue(m, atts.shift()));
-  if (tks.length !== 2) Fails.listSize(m, tks, 2);
+  if (tks.length !== 2) fail(tk, () => Fails.listSize(m, tks, 2));
   const ev = Symbol.toStr(Tk.symbolValue(m, tks.shift()));
   const prg = tks.shift();
-  if (prg.type !== Token.LIST) Fails.typeIn(m, Token.LIST, prg);
+  if (prg.type !== Token.LIST) fail(tk, () => Fails.typeIn(m, Token.LIST, prg));
   function fn () {
-    Machine.isolateProcess("", m.pmachines, prg);
+    Machine.closureProcess("", m.pmachines, prg);
   }
   return [ev, fn];
 }
@@ -74,19 +89,20 @@ function event (m, atts) {
 /**
   Read a callback with an event as argument.
   @param {!Machine} m
+  @param {!Token} tk
   @param {!Array<!Token>} atts Symbol - List (program with EVENT_ argument)
   @return {!Array<?>} Array with two elements:
     - {string} ev - Event type: "click", "change", etc.
     - {function (Event):void} fn - Callback
 **/
 
-function eventEv (m, atts) {
-  if (atts.length === 0) m.fail("Value of 'on' is missing.");
+function eventEv (m, tk, atts) {
+  if (atts.length === 0) fail(tk, () => m.fail("Value of 'on' is missing."));
   const tks = Array.from(Tk.listValue(m, atts.shift()));
-  if (tks.length !== 2) Fails.listSize(m, tks, 2);
+  if (tks.length !== 2) fail(tk, () => Fails.listSize(m, tks, 2));
   const ev = Symbol.toStr(Tk.symbolValue(m, tks.shift()));
   const prg = tks.shift();
-  if (prg.type !== Token.LIST) Fails.typeIn(m, Token.LIST, prg);
+  if (prg.type !== Token.LIST) fail(tk, () => Fails.typeIn(m, Token.LIST, prg));
   function fn (ev) {
     const ls = Array.from(prg.listValue);
     ls.unshift(Token.fromPointer(Symbol.EVENT_, ev));
@@ -94,7 +110,7 @@ function eventEv (m, atts) {
       ? Token.mkList(ls)
       : Token.mkListPos(ls, prg.pos.source, prg.pos.line)
     ;
-    Machine.isolateProcess("", m.pmachines, p);
+    Machine.closureProcess("", m.pmachines, p);
   }
   return [ev, fn];
 }
@@ -107,20 +123,22 @@ function eventEv (m, atts) {
   @param {!Array<!Token>} atts Token list.
   @return {void}
 **/
-function attrs (m, e, atts) {
+function attrs (m, tk, e, atts) {
   function read (att, type) {
-    if (atts.length === 0) m.fail("Value of '" + att + "' is missing.");
-    const tk = isolateProcess(m, atts.shift());
-    if (tk.type !== type)
-      m.fail(
+    if (atts.length === 0)
+      fail(tk, () => m.fail("Value of '" + att + "' is missing."));
+    const tk2 = isolateProcess(m, atts.shift());
+    if (tk2.type !== type)
+      fail(tk2, () => m.fail(
         "Expected value of type '" + Token.typeToString(type) +
-        "', found '" + tk.toStringDraft() + "'"
-      );
-    return tk;
+        "', found '" + tk2.toStringDraft() + "'"
+      ));
+    return tk2;
   }
 
   function read2 (att) {
-    if (atts.length === 0) m.fail("Key of '" + att + "' is missing.");
+    if (atts.length === 0)
+      fail(tk, () => m.fail("Key of '" + att + "' is missing."));
     const key = Symbol.toStr(Tk.symbolValue(m, atts.shift()));
     const value = read(key, Token.STRING).stringValue;
     return [key, value];
@@ -129,7 +147,9 @@ function attrs (m, e, atts) {
   while (atts.length !== 0) {
     const attTk = atts.shift();
     if (attTk.type !== Token.SYMBOL)
-      m.fail("Expected symbol, found '" + attTk.toString() + "'");
+      fail(
+        tk, () => m.fail("Expected symbol, found '" + attTk.toString() + "'")
+      );
     const att = Symbol.toStr(attTk.symbolValue);
     switch (att) {
     case "removeAll":
@@ -184,16 +204,16 @@ function attrs (m, e, atts) {
       break;
     }
     case "on": {
-      const evFn = event(m, atts);
+      const evFn = event(m, tk, atts);
       e.addEventListener(evFn[0], evFn[1], false);
       break;
     }
     case "onEv": {
-      const evFn = eventEv(m, atts);
+      const evFn = eventEv(m, tk, atts);
       e.addEventListener(evFn[0], evFn[1], false);
       break;
     }
-    default: m.fail("Unkown attribute '" + att + "'");
+    default: fail(tk, () => m.fail("Unkown attribute '" + att + "'"));
     }
   }
 }
@@ -207,16 +227,17 @@ function attrs (m, e, atts) {
 **/
 function addEls (m, parent, adds) {
   while (adds.length !== 0) {
-    const tk = isolateProcess(m, adds.shift());
+    const ftk = adds.shift();
+    const tk = isolateProcess(m, ftk);
     if (
       tk.type !== Token.STRING &&
       tk.type !== Token.SYMBOL &&
       !isElement(tk)
     )
-      m.fail(
+      fail(ftk, () => m.fail(
         "Expected token type 'String', 'Symbol' or 'Element', found " +
         tk.toStringDraft()
-      );
+      ));
     let e = null;
     if (tk.type === Token.STRING) {
       e = element(tk.stringValue);
@@ -237,7 +258,9 @@ function addEls (m, parent, adds) {
         }
       }
       if (t === null) {
-        m.fail("Symbol '" + Symbol.toStr(sym) + "' not found");
+        fail(ftk, () => m.fail(
+          "Symbol '" + Symbol.toStr(sym) + "' not found"
+        ));
       }
       e = Tk.nativeValue(m, /** @type {!Token} */ (t), Symbol.ELEMENT_);
     }
@@ -248,7 +271,7 @@ function addEls (m, parent, adds) {
       !isElement(adds[0])
     ) {
       const atts = Array.from(Tk.listValue(m, adds.shift()));
-      attrs(m, e, atts);
+      attrs(m, tk, e, atts);
       if (
         adds.length !== 0 &&
         adds[0].type === Token.LIST &&
@@ -298,7 +321,7 @@ function prop1 (m, e, tk) {
   case "disabled":
     m.push(Token.mkInt(e.disabled ? 1 : 0));
     break;
-  default: m.fail("Unkown attribute '" + att + "'");
+  default: fail(tk, () => m.fail("Unkown attribute '" + att + "'"));
   }
 }
 
@@ -313,27 +336,6 @@ function prop1 (m, e, tk) {
 function prop2 (m, e, tk1, tk2) {
   const att = Symbol.toStr(Tk.symbolValue(m, tk1));
   switch (att) {
-  case "style":
-    e.setAttribute("style", Tk.stringValue(m, isolateProcess(m, tk2)));
-    break;
-  case "text":
-    e.textContent = Tk.stringValue(m, isolateProcess(m, tk2));
-    break;
-  case "html":
-    e.innerHTML = Tk.stringValue(m, isolateProcess(m, tk2));
-    break;
-  case "class":
-    e.className = Tk.stringValue(m, isolateProcess(m, tk2));
-    break;
-  case "value":
-    e.value = Tk.stringValue(m, isolateProcess(m, tk2));
-    break;
-  case "checked":
-    e.checked = Tk.intValue(m, isolateProcess(m, tk2)) !== 0;
-    break;
-  case "disabled":
-    e.checked = Tk.intValue(m, isolateProcess(m, tk2)) !== 0;
-    break;
   case "att":
     m.push(Token.mkString(
       e.getAttribute(Symbol.toStr(Tk.symbolValue(m, tk2)))
@@ -345,47 +347,21 @@ function prop2 (m, e, tk1, tk2) {
     ));
     break;
   case "on": {
-    const evFn = event(m, [tk2]);
+    const evFn = event(m, tk1, [tk2]);
     e.addEventListener(evFn[0], evFn[1], false);
     break;
   }
   case "onEv": {
-    const evFn = eventEv(m, [tk2]);
+    const evFn = eventEv(m, tk1, [tk2]);
     e.addEventListener(evFn[0], evFn[1], false);
     break;
   }
-  default: m.fail("Unkown attribute '" + att + "'");
-  }
-}
-
-/**
-  Sets a property of a Js Element.
-  @param {!Machine} m
-  @param {*} e Js Element.
-  @param {!Token} tk1 Property id (Symbol token).
-  @param {!Token} tk2 Property value.
-  @param {!Token} tk3 Property value.
-  @return {void}
-**/
-function prop3 (m, e, tk1, tk2, tk3) {
-  const att = Symbol.toStr(Tk.symbolValue(m, tk1));
-  switch (att) {
-  case "att":
-    e.setAttribute(
-      Symbol.toStr(Tk.symbolValue(m, tk2)),
-      Tk.stringValue(m, isolateProcess(m, tk3))
-    );
-    break;
-  case "styleOf":
-    e.style[Symbol.toStr(Tk.symbolValue(m, tk2))] =
-      Tk.stringValue(m, isolateProcess(m, tk3));
-    break;
-  default: m.fail("Unkown attribute '" + att + "'");
+  default: fail(tk1, () => m.fail("Unkown attribute '" + att + "'"));
   }
 }
 
 /** @type function (!Machine):void} */
-const dolar = m => {
+const dolarPlus = m => {
   let tk = m.popOpt(Token.STRING);
   if (tk !== null) {
     m.push(elementTk(element(tk.stringValue)));
@@ -401,14 +377,14 @@ const dolar = m => {
   tk = m.popOpt(Token.STRING);
   if (tk !== null) {
     const e = element(tk.stringValue);
-    attrs(m, e, atts);
+    attrs(m, tk, e, atts);
     m.push(elementTk(e));
     return;
   }
   tk = popOptElement(m);
   if (tk !== null) {
     const e = tk.nativeObject;
-    attrs(m, e, atts);
+    attrs(m, tk, e, atts);
     m.push(tk);
     return;
   }
@@ -418,7 +394,7 @@ const dolar = m => {
   tk = m.popOpt(Token.STRING);
   if (tk !== null) {
     const e = element(tk.stringValue);
-    attrs(m, e, atts);
+    attrs(m, tk, e, atts);
     addEls(m, e, adds);
     m.push(elementTk(e));
     return;
@@ -426,27 +402,28 @@ const dolar = m => {
   tk = popOptElement(m);
   if (tk !== null) {
     const e = tk.nativeObject;
-    attrs(m, e, atts);
+    attrs(m, tk, e, atts);
     addEls(m, e, adds);
     m.push(tk);
     return;
   }
 
-  m.fail(
+  fail(m.peek(), () => m.fail(
     "Expected 'String' or 'Element', found '" +
     Token.typeToString(m.peek().type) + "'"
-  );
+  ));
 };
 
 /** @type function (!Machine):void} */
-const dolarMinus = m => {
-  dolar(m);
+const dolar = m => {
+  dolarPlus(m);
   m.pop();
 };
 
 /** @type function (!Machine):void} */
 const prop = m => {
-  const ls = Tk.popList(m);
+  const tk = m.popExc(Token.LIST);
+  const ls = tk.listValue;
   const e = Tk.nativeValue(m, m.pop(), Symbol.ELEMENT_);
 
   if (ls.length === 1) {
@@ -459,15 +436,10 @@ const prop = m => {
     return;
   }
 
-  if (ls.length === 3) {
-    prop3(m, e, ls[0], ls[1], ls[2]);
-    return;
-  }
-
-  m.fail(
+  fail(tk, () => m.fail(
     "List " + Token.mkList(ls).toString() +
-    "\nExpected size: 1, 2 or 3. Actual size: " + ls.length
-  );
+    "\nExpected size: 1 or 2. Actual size: " + ls.length
+  ));
 };
 
 /** Ui management. */
@@ -486,7 +458,7 @@ export default class ModUi {
     }
 
     add("$", dolar);
-    add("$-", dolarMinus);
+    add("$+", dolarPlus);
     add("prop", prop);
 
     return r;

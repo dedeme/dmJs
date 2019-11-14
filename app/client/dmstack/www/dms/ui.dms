@@ -8,14 +8,14 @@
 
 ("Message 2" sys,alert) : fn2 =>
 
-"p" { text: "Text predefined"} ui,$ : P =
-"button" ui,$ : Bt =
-Bt {text: ("house" i18n,_)} ui,prop
-Bt {styleOf: width ("300" "px" +)} ui,prop
-Bt {on: {click: ("Button msg" sys,alert)} } ui,prop
+"p" { text: "Text predefined"} ui,$+ : P =
+"button" ui,$+ : Bt =
+Bt {text: ("house" i18n,_)} ui,$
+Bt {styleOf: width ("300" "px" +)} ui,$
+Bt {on: {click: ("Button msg" sys,alert)} } ui,$
 
-("p" { text : "From function" } ui,$) : mkP =>
-(tx =; "p" { text : tx } ui,$) : mkP2 =>
+("p" { text : "From function" } ui,$+) : mkP =>
+(tx =; "p" { text : tx } ui,$+) : mkP2 =>
 
 "@body" { removeAll } [
   "div" {} [
@@ -36,10 +36,21 @@ Bt {on: {click: ("Button msg" sys,alert)} } ui,prop
     ("With text" mkP2)
     "hr"
   ]
-] ui,$ : Body =
+] ui,$+ : Body =
 
 (["p" {html: "new1"} mkP]) : mkPs =>
 
-Body {} ["p" {html: "new0"}] mkPs + ui,$-
+Body {} ["p" {html: "new0"}] mkPs + ui,$
 
+4 toStr : number =
+("Message " this,number + sys,alert) ffi,fn : Fn3 =
+
+Body
+Fn3
+(body fn `
+  const e = document.createElement("p");
+  e.innerHTML = "Hello";
+  e.onclick = fn;
+  body.appendChild(e);
+  ` ) ffi,v
 

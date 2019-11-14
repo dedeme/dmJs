@@ -21,4 +21,11 @@ chan,new : Ch3 =
 (n =; (n 1 + Ch3 chan,send) sys,go) Ch3 chan,recv
 (2 expect) Ch3 chan,recv
 
+chan,new : Ch4 =
+(0 Ch4 chan,send) sys,go
+(0 Ch4 chan,send) sys,go
+(1 Ch4 chan,send) sys,go
+0 wrap,ref : Rs =
+( Rs (1 +) ^^; (Rs >> 3 expect) if) Ch4 chan,recv
+
 empty? assert

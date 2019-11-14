@@ -546,6 +546,12 @@ const right = m => {
 };
 
 /** @type function (!Machine):void} */
+const copy = m => {
+  const a = Tk.popList(m);
+  pushList(m, Array.from(a));
+};
+
+/** @type function (!Machine):void} */
 const fromJs = m => {
   ModJs.toList(m);
 };
@@ -621,6 +627,7 @@ export default class ModList {
     add("sub", sub);
     add("left", left);
     add("right", right);
+    add("copy", copy);
 
     add("fromJs", fromJs);
     add("toJs", toJs);

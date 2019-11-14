@@ -95,7 +95,7 @@ export default class Reader {
         for (const t of this.symbolId(r, tk))
           r.push(t);
       } else if (tk.type === Token.STRING) {
-        for (const t of reader.interpolation(tk))
+        for (const t of this.interpolation(tk))
           r.push(t);
       } else {
         r.push(tk);
@@ -146,7 +146,7 @@ export default class Reader {
     } else if (symChar === "." && symStr !== ".") {
       return [
         Token.mkStringPos(symStr.substring(1), this._source, tk.pos.line),
-        Token.mkSymbolPos(Symbol.mk("obj"), this._source, tk.pos.line),
+        Token.mkSymbolPos(Symbol.mk("map"), this._source, tk.pos.line),
         Token.mkSymbolPos(Symbol.mk("get"), this._source, tk.pos.line)
       ];
     } else if (symChar === "@") {
@@ -172,7 +172,7 @@ export default class Reader {
       return [];
     } else {
       let syms = this._syms;
-      while (!syms.isEmpty()) {
+      while (!syms.isEmpty() && this._prg.charAt(this._prgIx) === ",") {
         if (syms.head.key === sym) {
           if (tk.pos === null) throw new Error("tk.pos is null");
           return [
@@ -212,19 +212,8 @@ export default class Reader {
       const subr = Reader.fromReader(
         this, s.substring(ix + 2, ix2), nline
       );
-
       /** @type !Array<!Token> */
-      const prg = [];
-      let tk = TkReader.next(subr);
-      while (tk !== null) {
-        if (tk.type === Token.SYMBOL) {
-          for (const t of this.symbolId(prg, tk))
-            prg.push(t);
-        } else {
-          prg.push(tk);
-        }
-        tk = TkReader.next(subr);
-      }
+      const prg = subr.process().listValue;
 
       p = ix + 2;
       while (p < ix2) if (s.charAt(p++) === "\n") ++nline;

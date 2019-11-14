@@ -5,18 +5,18 @@
   "en": {
     "car": "car"
     "house": "house"
-  }
+  } map,from
   "es": {
     "car": "coche"
     "house": "casa"
-  }
-} data : Dics =
+  } map,from
+} map,from : Dics =
 
 "en" wrap,ref : Dic =
 
 (this,Dic swap <<) init =>
 
 ( key =
-  this,Dics : this,Dic >> : obj,get : Cdic =
-  Cdic key obj,has? (Cdic key obj,get) (key) elif
+  this,Dics : this,Dic >> : map,get : Cdic =
+  Cdic key map,has? (Cdic key map,get) (key) elif
 ) _ =>

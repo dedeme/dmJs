@@ -8,7 +8,6 @@ import Machine from "../Machine.js"; // eslint-disable-line
 import {Symbol} from "../Symbol.js";
 import Token from "../Token.js"; // eslint-disable-line
 import Tk from "../Tk.js";
-import Fails from "../Fails.js";
 
 /** @type function (!Machine):void} */
 const isNull = m => {
@@ -49,7 +48,7 @@ const rs = m => {
 
 /** @type function (!Machine):void} */
 const ra = m => {
-  const v = /** @type {!Array} */ (JSON.parse(Tk.popString(m)));
+  const v = JSON.parse(Tk.popString(m));
   if (!Array.isArray(v))
     m.fail("Expected JSON array");
   m.push(Token.mkList(v.map(s => Token.mkString(JSON.stringify(s)))));
@@ -63,29 +62,10 @@ const ro = m => {
   if (Array.isArray(v))
     m.fail("Expected JSON object");
 
-  const r = [];
-  for (const k of Object.keys(v)) {
-    r.push(Token.mkString(k));
-    r.push(Token.mkString(JSON.stringify(v[k])));
-  }
-  m.push(Token.mkList(r));
-};
-
-/** @type function (!Machine):void} */
-const rm = m => {
-  const v = /** @type {!Object} */ (JSON.parse(Tk.popString(m)));
-  if (typeof v !== "object")
-    m.fail("Expected JSON object");
-  if (Array.isArray(v))
-    m.fail("Expected JSON object");
-
-  const r = [];
-  for (const k of Object.keys(v)) {
-    r.push(Token.mkList(
-      [Token.mkString(k), Token.mkString(JSON.stringify(v[k]))]
-    ));
-  }
-  m.push(Token.mkList(r));
+  const r = {};
+  for (const [key, value] of Object.entries(v))
+    r[key] = Token.mkString(JSON.stringify(value));
+  m.push(Token.fromPointer(Symbol.MAP_, r));
 };
 
 /** @type function (!Machine):void} */
@@ -122,32 +102,11 @@ const wa = m => {
 
 /** @type function (!Machine):void} */
 const wo = m => {
-  const a = Tk.popList(m);
-  const o = {};
-  let key = null;
-  for (const tk of a) {
-    if (key === null) {
-      key = Tk.stringValue(m, tk);
-    } else {
-      o[key] = JSON.parse(Tk.stringValue(m, tk));
-      key = null;
-    }
-  }
-  if (key !== null)
-    Fails.listSize(m, a, a.length + 1);
-  m.push(Token.mkString(JSON.stringify(o)));
-};
+  const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
 
-/** @type function (!Machine):void} */
-const wm = m => {
-  const a = Tk.popList(m);
   const o = {};
-  for (const tk of a) {
-    const kv = Tk.listValue(m, tk);
-    if (kv.length !== 2)
-      Fails.listSize(m, kv, 2);
-    o[Tk.stringValue(m, kv[0])] = JSON.parse(Tk.stringValue(m, kv[1]));
-  }
+  for (const [key, value] of Object.entries(mp))
+    o[key] = JSON.parse(Tk.stringValue(m, value));
   m.push(Token.mkString(JSON.stringify(o)));
 };
 
@@ -172,8 +131,7 @@ export default class ModJs {
     add("rf", rf); // STRING - FLOAT
     add("rs", rs); // STRING - STRING
     add("ra", ra); // STRING - LIST
-    add("ro", ro); // STRING - OBJ
-    add("rm", rm); // STRING - MAP
+    add("ro", ro); // STRING - MAP
 
     add("wn", wn); // INT - STRING
     add("wb", wb); // INT - STRING
@@ -181,8 +139,7 @@ export default class ModJs {
     add("wf", wf); // FLOAT - STRING
     add("ws", ws); // STRING - STRING
     add("wa", wa); // LIST - STRING
-    add("wo", wo); // OBJ- STRING
-    add("wm", wm); // MAP- STRING
+    add("wo", wo); // MAP- STRING
 
     add("fromList", ModJs.fromList); // LIST - STRING
     add("toList", ModJs.toList); // STRING - LIST
@@ -231,17 +188,14 @@ export default class ModJs {
   **/
   static fromMap (m) {
     const prg = m.popExc(Token.LIST);
-    const r = [];
-    for (const tk of Tk.popList(m)) {
-      const kv = Tk.listValue(m, tk);
-      if (kv.length !== 2)
-        Fails.listSize(m, kv, 2);
-      r.push(kv[0]);
-      m.push(kv[1]);
+    const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+    const r = {};
+    for (const [key, value] of Object.entries(mp)) {
+      m.push(value);
       Machine.process("", m.pmachines, prg);
-      r.push(m.pop());
+      r[key] = m.pop();
     }
-    m.push(Token.mkList(r));
+    m.push(Token.fromPointer(Symbol.MAP_, r));
     wo(m);
   }
 
@@ -252,21 +206,13 @@ export default class ModJs {
   static toMap (m) {
     const prg = m.popExc(Token.LIST);
     ro(m);
-    const r = [];
-    let key = null;
-    const a = Tk.popList(m);
-    for (const tk of a) {
-      if (key === null) {
-        key = tk;
-      } else {
-        m.push(tk);
-        Machine.process("", m.pmachines, prg);
-        r.push(Token.mkList([key, m.pop()]));
-        key = null;
-      }
+    const mp = /** @type {!Object} */ (Tk.popNative(m, Symbol.MAP_));
+    const r = {};
+    for (const [key, value] of Object.entries(mp)) {
+      m.push(value);
+      Machine.process("", m.pmachines, prg);
+      r[key] = m.pop();
     }
-    if (key !== null)
-      Fails.listSize(m, a, a.length + 1);
-    m.push(Token.mkList(r));
+    m.push(Token.fromPointer(Symbol.MAP_, r));
   }
 }

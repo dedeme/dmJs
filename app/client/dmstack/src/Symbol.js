@@ -38,6 +38,7 @@ const PLUS = ++i;
 const TO_STR = ++i;
 const REF_OUT = ++i;
 
+const MAP_ = ++i;
 const BLOB_ = ++i;
 const ITERATOR_ = ++i;
 const EXC_ = ++i;
@@ -45,6 +46,7 @@ const DATE_ = ++i;
 const TIMER_ = ++i;
 const ELEMENT_ = ++i;
 const EVENT_ = ++i;
+const CLOSURE_ = ++i;
 
 const SYSTEM_COUNT = ++i;
 
@@ -137,6 +139,9 @@ export class Symbol {
   // ---------------------------------------------
 
   /** @return {number} Symbol identifier. */
+  static get MAP_ () { return MAP_ }
+
+  /** @return {number} Symbol identifier. */
   static get BLOB_ () { return BLOB_ }
 
   /** @return {number} Symbol identifier. */
@@ -156,6 +161,9 @@ export class Symbol {
 
   /** @return {number} Symbol identifier. */
   static get EVENT_ () { return EVENT_ }
+
+  /** @return {number} Symbol identifier. */
+  static get CLOSURE_ () { return CLOSURE_ }
 
   // ---------------------------------------------
 
@@ -199,6 +207,7 @@ export class Symbol {
     syms[TO_STR] = "toStr";
     syms[REF_OUT] = ">>";
 
+    syms[MAP_] = "= Map";
     syms[BLOB_] = "= Blob";
     syms[ITERATOR_] = "= Iterator";
     syms[EXC_] = "= Exc";
@@ -206,6 +215,7 @@ export class Symbol {
     syms[TIMER_] = "= Timer";
     syms[ELEMENT_] = "= Element";
     syms[EVENT_] = "= Event";
+    syms[CLOSURE_] = "= Closure";
   }
 
   /**
@@ -220,7 +230,7 @@ export class Symbol {
       return Symbol.NOP;
     }
     if (name.endsWith("#")) {
-      name = name + String(sharp);
+      name = name + "·" + String(sharp);
     }
     const len = syms.length;
     for (let i = 0; i < len; ++i)
