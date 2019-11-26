@@ -12,7 +12,7 @@ export default class Global {
   static get ERROR_DMSTACK () { return "dmstack" }
 
   /** @return {number} */
-  static get MAX_ERR_STACK () { return 10 }
+  static get MAX_ERR_STACK () { return 5 }
 
   /** @return {number} */
   static get MAX_ERR_TRACE () { return 15 }

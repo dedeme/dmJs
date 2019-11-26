@@ -2,6 +2,7 @@
 // GNU General Public License - V3 <http://www.gnu.org/licenses/>
 
 import Token from "../Token.js"; // eslint-disable-line
+import {Symbol} from "../Symbol.js"; // eslint-disable-line
 
 /** Iterator. */
 export default class It {
@@ -268,9 +269,9 @@ export default class It {
   find (f) {
     while (this._has) {
       const tk = /** @type {!Token} */ (this.next());
-      if (f(tk)) return Token.mkList([tk]);
+      if (f(tk)) return Token.fromPointer(Symbol.OPTION_, tk);
     }
-    return Token.mkList([]);
+    return Token.fromPointer(Symbol.OPTION_, null);
   }
 
   /**

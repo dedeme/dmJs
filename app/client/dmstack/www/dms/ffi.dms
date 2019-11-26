@@ -10,8 +10,8 @@ Date (d, "return d.getFullYear();") ffi,i 2000 expect
 
 ("return JSON.stringify(['a', 3, false]);") ffi,s : json =
 json js,ra : Ajs =
-Ajs 0 get js,rs "a" expect
-Ajs 1 get js,ri 3 expect
-Ajs 2 get js,rb 0 expect
+Ajs !0 js,rs "a" expect
+Ajs !1 js,ri 3 expect
+Ajs !2 js,rb 0 expect
 
 empty? assert

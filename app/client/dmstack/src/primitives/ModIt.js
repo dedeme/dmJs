@@ -38,11 +38,10 @@ const snew = m => {
     "next": function () {
       m.push(o);
       Machine.process("", m.pmachines, prg);
-      const a = Tk.popList(m);
-      if (a.length > 1) Fails.listSize(m, a, 1);
-      return a.length === 0
+      const value = Tk.popNative(m, Symbol.OPTION_);
+      return value === null
         ? {"done": true}
-        : {"value": a[0], "done": false}
+        : {"value": value, "done": false}
       ;
     }
   }; };
@@ -50,9 +49,7 @@ const snew = m => {
   setIt(m, new It(() => {
     m.push(o);
     Machine.process("", m.pmachines, prg);
-    const a = Tk.popList(m);
-    if (a.length > 1) Fails.listSize(m, a, 1);
-    return a.length === 0 ? null : a[0];
+    return /** @type{Token} */ (Tk.popNative(m, Symbol.OPTION_));
   }));
 };
 

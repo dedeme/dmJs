@@ -85,8 +85,8 @@ const oget = m => {
   const k = Tk.popString(m);
   const mp = Tk.popNative(m, Symbol.MAP_);
   const tk = mp[k];
-  if (tk !== undefined) m.push(Token.mkList([tk]));
-  else m.push(Token.mkList([]));
+  if (tk !== undefined) m.push(Token.fromPointer(Symbol.OPTION_, tk));
+  else m.push(Token.fromPointer(Symbol.OPTION_, null));
 };
 
 /** @type function (!Machine):void} */
@@ -246,7 +246,7 @@ export default class ModMap {
     add("eq?", eq); // [MAP, MAP] - INT
     add("neq?", neq); // [MAP, MAP] - INT
     add("get", sget); // [MAP, STRING] - LIST // *
-    add("oget", oget); // [MAP, STRING] - LIST // ([map, key] - OPT)
+    add("oget", oget); // [MAP, STRING] - OPT
     add("has?", has); // [MAP, STRING] - INT
     add("put", put); // [MAP - STRING - *] - []
     add("put+", putPlus); // [MAP - STRING - *] - MAP

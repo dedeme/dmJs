@@ -33,7 +33,9 @@ const expires = m => {
 /** @type function (!Machine):void} */
 const take = m => {
   const r = window.localStorage.getItem(Tk.popString(m));
-  m.push(Token.mkList(r === null ? [] : [Token.mkString(r)]));
+  m.push(Token.fromPointer(
+    Symbol.OPTION_, r === null ? null : Token.mkString(r)
+  ));
 };
 
 /** @type function (!Machine):void} */
@@ -89,7 +91,9 @@ const sessionDel = m => {
 /** @type function (!Machine):void} */
 const sessionTake = m => {
   const r = window.sessionStorage.getItem(Tk.popString(m));
-  m.push(Token.mkList(r === null ? [] : [Token.mkString(r)]));
+  m.push(Token.fromPointer(
+    Symbol.OPTION_, r === null ? null : Token.mkString(r)
+  ));
 };
 
 /** @type function (!Machine):void} */

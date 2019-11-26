@@ -153,12 +153,6 @@ export default class ModGlobal {
     add("<=", ModGlobal1.lessEq);
 
     // ModGlobal2 -------------------------------------
-    add("size", ModGlobal2.size);
-    add("get", ModGlobal2.sget);
-    add("set", ModGlobal2.sset);
-    add("set+", ModGlobal2.setPlus);
-    add("up", ModGlobal2.up);
-    add("up+", ModGlobal2.upPlus);
     add(">>", ModGlobal2.refGet);
     add("<<", ModGlobal2.refSet);
     add("<<+", ModGlobal2.refSetPlus);

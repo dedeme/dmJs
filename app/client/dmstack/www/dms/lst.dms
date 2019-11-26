@@ -185,15 +185,15 @@
 
   // find
 
-  () (2 %) lst,find () == assert
-  (23) (2 %) lst,find (23) == assert
-  (1, 2, 3) (2 %) lst,find (1) == assert
-  () (2 % !) lst,find () == assert
-  (23) (2 % !) lst,find () == assert
-  (1, 2, 3) (2 % !) lst,find (2) == assert
+  () (2 %) lst,find ( 0 assert) ( 1 assert) wrap,option
+  (23) (2 %) lst,find ( 23 expect) ( 0 assert) wrap,option
+  (1, 2, 3) (2 %) lst,find ( 1 expect) ( 0 assert) wrap,option
+
+  () (2 % !) lst,find ( 0 assert) ( 1 assert) wrap,option
+  (23) (2 % !) lst,find ( 0 assert) ( 1 assert) wrap,option
+  (1, 2, 3) (2 % !) lst,find ( 2 expect) ( 0 assert) wrap,option
 
   // reduce
-
   L0 100 (-) lst,reduce 100 == assert
   L1 100 (-) lst,reduce 77 == assert
   L2 100 (-) lst,reduce 79 == assert

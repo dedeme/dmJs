@@ -33,11 +33,18 @@ const EXPECT = ++i;
 const THIS = ++i;
 const STACK = ++i;
 const STACK_CHECK = ++i;
+const STACK_OPEN = ++i;
+const STACK_CLOSE = ++i;
+const STACK_STOP = ++i;
 
 const PLUS = ++i;
 const TO_STR = ++i;
-const REF_OUT = ++i;
+const LST = ++i;
+const GET = ++i;
 
+const REF_ = ++i;
+const OPTION_ = ++i;
+const EITHER_ = ++i;
 const MAP_ = ++i;
 const BLOB_ = ++i;
 const ITERATOR_ = ++i;
@@ -125,6 +132,15 @@ export class Symbol {
   /** @return {number} Symbol identifier. */
   static get STACK_CHECK () { return STACK_CHECK }
 
+  /** @return {number} Symbol identifier. */
+  static get STACK_OPEN () { return STACK_OPEN }
+
+  /** @return {number} Symbol identifier. */
+  static get STACK_CLOSE () { return STACK_CLOSE }
+
+  /** @return {number} Symbol identifier. */
+  static get STACK_STOP () { return STACK_STOP }
+
   // ---------------------------------------------
 
   /** @return {number} Symbol identifier. */
@@ -134,9 +150,21 @@ export class Symbol {
   static get TO_STR () { return TO_STR }
 
   /** @return {number} Symbol identifier. */
-  static get REF_OUT () { return REF_OUT }
+  static get LST () { return LST }
+
+  /** @return {number} Symbol identifier. */
+  static get GET () { return GET }
 
   // ---------------------------------------------
+
+  /** @return {number} Symbol identifier. */
+  static get REF_ () { return REF_ }
+
+  /** @return {number} Symbol identifier. */
+  static get OPTION_ () { return OPTION_ }
+
+  /** @return {number} Symbol identifier. */
+  static get EITHER_ () { return EITHER_ }
 
   /** @return {number} Symbol identifier. */
   static get MAP_ () { return MAP_ }
@@ -202,11 +230,18 @@ export class Symbol {
 
     syms[STACK] = "= @";
     syms[STACK_CHECK] = "= @?";
+    syms[STACK_OPEN] = "= @+";
+    syms[STACK_CLOSE] = "= @-";
+    syms[STACK_STOP] = "= @!";
 
     syms[PLUS] = "+";
     syms[TO_STR] = "toStr";
-    syms[REF_OUT] = ">>";
+    syms[LST] = "lst";
+    syms[GET] = "get";
 
+    syms[REF_] = "= Ref";
+    syms[OPTION_] = "= Option";
+    syms[EITHER_] = "= Either";
     syms[MAP_] = "= Map";
     syms[BLOB_] = "= Blob";
     syms[ITERATOR_] = "= Iterator";

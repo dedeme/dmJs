@@ -44,11 +44,15 @@ const request = m => {
   const url = Tk.popString(m);
   const method = Tk.popString(m);
   function fnOk (rp) {
-    prga.unshift(Token.mkList([Token.mkString(rp)]));
+    prga.unshift(Token.fromPointer(
+      Symbol.EITHER_, [null, Token.mkString(rp)]
+    ));
     Machine.isolateProcess("", m.pmachines, Token.mkList(prga));
   }
   function fnFail (e) {
-    prga.unshift(Token.mkList([Token.mkString(e), Token.mkInt(0)]));
+    prga.unshift(Token.fromPointer(
+      Symbol.EITHER_, [Token.mkString(e), null]
+    ));
     Machine.isolateProcess("", m.pmachines, Token.mkList(prga));
   }
   jsRequest(method, url, contentType, rq, fnOk, fnFail);

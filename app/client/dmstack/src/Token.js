@@ -73,18 +73,48 @@ export default class Token {
   /** @return {*} */
   get nativeObject () { return this._value[1] }
 
+  /**
+    @param {*} value
+    @return {void}
+  **/
+  set nativeObject (value) { this._value[1] = value }
+
   /** @return {!Token} Make a deep copy, except for NATIVE. */
   clone () {
     const type = this._type;
     let value = this._value;
     if (type === Token.LIST) {
       value = this.listValue.map(tk => tk.clone());
-    } else if (type === Token.NATIVE && this.nativeSymbol === Symbol.MAP_) {
-      const mp = /** @type {!Object} */ (this.nativeObject);
-      const o = {};
-      for (const [key, value] of Object.entries(mp))
-        o[key] = value.clone();
-      return new Token(null, Token.NATIVE, [Symbol.MAP_, o]);
+    } else if (type === Token.NATIVE) {
+      if (this.nativeSymbol === Symbol.MAP_) {
+        const mp = /** @type {!Object} */ (this.nativeObject);
+        const o = {};
+        for (const [key, value] of Object.entries(mp))
+          o[key] = value.clone();
+        return new Token(null, Token.NATIVE, [Symbol.MAP_, o]);
+      }
+      if (this.nativeSymbol === Symbol.REF_) {
+        const value = /** @type {!Token} */ (this.nativeObject);
+        return new Token(null, Token.NATIVE, [Symbol.REF_, value.clone()]);
+      }
+      if (this.nativeSymbol === Symbol.OPTION_) {
+        const value = /** @type {Token} */ (this.nativeObject);
+        return value === null
+          ? new Token(null, Token.NATIVE, [Symbol.OPTION_, null])
+          : new Token(null, Token.NATIVE, [Symbol.OPTION_, value.clone()])
+        ;
+      }
+      if (this.nativeSymbol === Symbol.EITHER_) {
+        const values = /** @type {!Array<Token>} */ (this.nativeObject);
+        if (values[0] === null) {
+          return new Token(
+            null, Token.NATIVE, [Symbol.EITHER_, [null, values[1].clone()]]
+          );
+        }
+        return new Token(
+          null, Token.NATIVE, [Symbol.EITHER_, [values[0].clone(), null]]
+        );
+      }
     }
     return new Token(null, type, value);
   }
@@ -94,7 +124,7 @@ export default class Token {
     @return {boolean} True if this === other
   **/
   eq (other) {
-    if (this._type !== other._type) return false;
+    if (other === null || this._type !== other._type) return false;
     if (this._type === Token.LIST) {
       const l1 = this.listValue;
       const l2 = other.listValue;
@@ -103,8 +133,26 @@ export default class Token {
         if (!l1[i].eq(l2[i])) return false;
       return true;
     }
-    if (this._type === Token.NATIVE)
+    if (this._type === Token.NATIVE) {
+      const sym = this.nativeSymbol;
+      if (sym === Symbol.REF_)
+        return this.nativeObject.eq(other.nativeObject);
+      if (sym === Symbol.OPTION_) {
+        const value = this.nativeObject;
+        return value === null
+          ? other.nativeObject === null
+          : value.eq(other.nativeObject)
+        ;
+      }
+      if (sym === Symbol.EITHER_) {
+        const values = this.nativeObject;
+        return values[0] === null
+          ? values[1].eq(other.nativeObject[1])
+          : values[0].eq(other.nativeObject[0])
+        ;
+      }
       return this._value[1] === other._value[1];
+    }
     return this._value === other._value;
   }
 
@@ -126,6 +174,23 @@ export default class Token {
         for (const [key, value] of Object.entries(mp))
           a.push(key + ": " + value.toString());
         return "{" + a.join(", ") + "}";
+      }
+      if (this.nativeSymbol === Symbol.REF_) {
+        return "<|" + this.nativeObject.toString() + ">";
+      }
+      if (this.nativeSymbol === Symbol.OPTION_) {
+        const value = this.nativeObject;
+        return value === null
+          ? "<O|>"
+          : "<O|" + this.nativeObject.toString() + ">"
+        ;
+      }
+      if (this.nativeSymbol === Symbol.EITHER_) {
+        const values = this.nativeObject;
+        return values[0] === null
+          ? "<R|" + this.nativeObject[1].toString() + ">"
+          : "<L|" + this.nativeObject[0].toString() + ">"
+        ;
       }
       return "<" + Symbol.toStr(this.nativeSymbol) + ", JsObject>";
     }
@@ -298,107 +363,5 @@ export default class Token {
   static mkSymbolPos (value, source, line) {
     return new Token(new TokenPos(source, line), Token.SYMBOL, value);
   }
-
-  /**
-    Check a type against an stack.
-    @param {!List<!Token>} tokens Stack
-    @param {string} type Type to check.
-    @return {string} Actual type
-  **/
-  static checkType (tokens, type) {
-    if (tokens.isEmpty()) return "";
-    const tk = tokens.head;
-    const tail = tokens.tail;
-
-    function paste (code, len) {
-      return code + Token.checkType(tail, type.substring(len));
-    }
-
-    function tpaste () {
-      switch (tk._type) {
-      case Token.INT: return paste("i", 1);
-      case Token.FLOAT: return paste("f", 1);
-      case Token.STRING: return paste("s", 1);
-      case Token.SYMBOL: return paste("y", 1);
-      case Token.LIST: return paste("l", 1);
-      case Token.NATIVE:
-        return tk.nativeSymbol === Symbol.MAP_
-          ? paste("m", 1)
-          : paste("n", 1)
-        ;
-      }
-      throw ("switch not exhaustive");
-    }
-
-    function pointer () {
-      const ix = type.indexOf(">", 1);
-      if (ix === -1) return paste("<?", 1);
-      if (ix === 1) return paste("<>?", 2);
-      const len = ix + 1;
-
-      if (tk._type !== Token.NATIVE) {
-        const r = tpaste();
-        return r.charAt(0) + type.substring(len);
-      }
-      const symid = "<" + Symbol.toStr(tk.nativeSymbol).substring(2) + ">";
-      return symid + Token.checkType(tail, type.substring(len));
-    }
-
-    function list () {
-      function close () {
-        let ix = 2;
-        let c = 1;
-        while (ix < type.length) {
-          const ch = type.charAt(ix++);
-          if (ch === ">") {
-            --c;
-            if (c === 0) return ix - 1;
-          } else if (ch === "<") {
-            ++c;
-          }
-        }
-        return -1;
-      }
-
-      if (type.charAt(1) !== "<") return paste("L?", 1);
-      const ix = close();
-      if (ix === -1) return paste("L<?", 2);
-      const len = ix + 1;
-      const a = tk._type === Token.LIST ? tk._value : null;
-
-      function badformat () {
-        const intype = type.substring(2, ix);
-        if (intype !== "") {
-          let lst = List.fromArray(a);
-          if (intype !== Token.checkType(lst, intype)) return true;
-          lst = lst.reverse().tail.reverse();
-          return intype === Token.checkType(lst, intype);
-        }
-        return a.length !== 0;
-      }
-      if (a === null || badformat()) {
-        const r = tpaste();
-        return r.charAt(0) + type.substring(len);
-      }
-      return type.substring(0, len) +
-        Token.checkType(tail, type.substring(len));
-    }
-
-    // ---------------------------------------------
-
-    switch (type.charAt(0)) {
-    case "": return "";
-    case "i":
-    case "f":
-    case "s":
-    case "y":
-    case "l":
-    case "m": return tpaste();
-    case "<": return pointer();
-    case "L": return list();
-    default: return paste(type.charAt(0) + "?", 1);
-    }
-  }
-
 }
 

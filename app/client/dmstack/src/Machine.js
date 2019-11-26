@@ -53,20 +53,19 @@ export default class Machine {
   /** @return {string} */
   get stackTrace () {
     let r = "  Stack:\n";
-    const a = Array.from(this._stack);
-    if (a.length === 0) {
-      r += "    [EMPTY]\n";
-    } else {
-      r += "    ";
-      let c = 0;
-      while (a.length !== 0 && c < Global.MAX_ERR_STACK) {
-        r += a.pop().toStringDraft() + " ";
-        ++c;
-      }
-      r += "\n";
-    }
-
+    r += "    [";
     let c = 0;
+    const a = this._stack;
+    const sz = a.length;
+    while (a.length !== 0 && c < Global.MAX_ERR_STACK) {
+      if (c !== 0) r += ", ";
+      r += a.pop().toStringDraft();
+      ++c;
+    }
+    if (sz > c) r += ", ... (" + String(sz - c) + " more)]\n";
+    else r += "]\n";
+
+    c = 0;
     let ms = this._pmachines;
     while (!ms.isEmpty()) {
       if (c >= Global.MAX_ERR_TRACE) break;
@@ -178,7 +177,13 @@ export default class Machine {
       }
       if (rprg && prg !== null) Machine.process("", this._pmachines, prg);
     } else if (prg === null) {
-      this.fail("Expected List");
+      this.fail(
+        "Expected List. Actual " + Token.typeToString(this.peek().type) + "."
+      );
+    } else {
+      this.fail(
+        "Expected Int. Actual " + Token.typeToString(this.peek().type) + "."
+      );
     }
   }
 
@@ -388,7 +393,7 @@ export default class Machine {
   **/
   _assert () {
     if (this.popExc(Token.INT).intValue === 1) return;
-    console.log("Assert error:" + (this._pmachines.count() + 1) + ":");
+    console.log("Assert error:");
     console.log(this.stackTrace);
     throw "Assert error";
   }
@@ -402,7 +407,7 @@ export default class Machine {
     const actual = this.pop();
     if (expect.eq(actual)) return;
     console.log(
-      "Expect error:" + (this._pmachines.count() + 1) + ":" +
+      "Expect error:" +
       "\n  Expected: " + expect.toStringDraft() +
       "\n  Actual  : " + actual.toStringDraft()
     );
@@ -415,7 +420,7 @@ export default class Machine {
     @return {void}
   **/
   fail (msg) {
-    console.log("Runtime error:" + (this._pmachines.count() + 1) + ": " + msg);
+    console.log("Runtime error: " + msg);
     console.log(this.stackTrace);
     throw "Runtime error";
   }
@@ -683,6 +688,8 @@ export default class Machine {
         else if (symbol === Symbol.EXPECT) this._expect();
         else if (symbol === Symbol.STACK) Types.fail(this);
         else if (symbol === Symbol.STACK_CHECK) Types.check(this);
+        else if (symbol === Symbol.STACK_OPEN) Types.openFail(this);
+        else if (symbol === Symbol.STACK_CLOSE) Types.closeFail(this);
         else {
           const h = Imports.take(symbol);
           if (h === null) {

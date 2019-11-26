@@ -14,6 +14,25 @@ function isBlank (ch) {
 }
 
 /**
+  @param {string} ch
+  @return {boolean}
+**/
+function isParent (ch) {
+  return ch === "(" || ch === ")" ||
+         ch === "{" || ch === "}" ||
+         ch === "[" || ch === "]"
+  ;
+}
+
+/**
+  @param {string} ch
+  @return {boolean}
+**/
+function isBlankOrParent (ch) {
+  return isBlank(ch) || isParent(ch);
+}
+
+/**
   @param {string} hexdigits
   @return {string}
 **/
@@ -29,6 +48,22 @@ function isHex (ch) {
   return (ch >= "0" && ch <= "9") ||
     (ch >= "a" && ch <= "f") ||
     (ch >= "A" && ch <= "F");
+}
+
+/**
+  @param {string} tx
+  @return {string}
+**/
+function bigMsg (tx) {
+  tx = tx.trim();
+  let ix = tx.indexOf("\n");
+  const left = ix === -1 ? tx : tx.substring(0, ix);
+  ix = tx.lastIndexOf("\n");
+  const right = tx.substring(ix + 1);
+  return left === right
+    ? left
+    : left + "\n...\n" + right
+  ;
 }
 
 /** Reading process. */
@@ -283,7 +318,7 @@ export default class TkReader {
             }
             if (ch !== "\"")
               reader.fail(
-                "Quotes unclosed in\n" + prg.substring(start, prgIx)
+                "Quotes unclosed in\n" + bigMsg(prg.substring(start, prgIx))
               );
             continue;
           }
@@ -305,7 +340,7 @@ export default class TkReader {
               }
               if (ch === "")
                 reader.fail(
-                  "'/*' unclosed in\n" + prg.substring(start)
+                  "'/*' unclosed in\n" + bigMsg(prg.substring(start))
                 );
               ++prgIx;
               continue;
@@ -324,7 +359,8 @@ export default class TkReader {
               }
             }
             reader.fail(
-              "'`' unclosed or not at end of line in\n" + prg.substring(start)
+              "'`' unclosed or not at end of line in\n" +
+              bigMsg(prg.substring(start))
             );
           }
 
@@ -334,8 +370,8 @@ export default class TkReader {
           if (sum2 < 0) e = "{";
           if (e !== " ")
             reader.fail(
-              "Extra '" + e + "' in\n'" +
-              prg.substring(prgIxD, prgIx + 1) + "'"
+              "Extra '" + e + "' in\n" +
+              bigMsg(prg.substring(prgIxD, prgIx + 1))
             );
 
           e = " ";
@@ -348,13 +384,13 @@ export default class TkReader {
           if (e !== " ")
             reader.fail(
               "Internal '" + e + "' open when '" + sign +
-              "' was closed in\n'" + prg.substring(prgIxD, prgIx + 1) + "'"
+              "' was closed in\n" + bigMsg(prg.substring(prgIxD, prgIx + 1))
             );
         }
         if (ch === "")
           reader.fail(
-            "'" + sign + "' without close in\n'" +
-            prg.substring(prgIxD, prgIx) + "'"
+            "'" + sign + "' without close in\n" +
+            bigMsg(prg.substring(prgIxD, prgIx))
           );
 
         const subr = Reader.fromReader(
@@ -367,8 +403,12 @@ export default class TkReader {
         return Token.mkListPos(tk.listValue, reader.source, nlineStart);
       }
 
+      // Closed parentheses ----------------------------------------------------
+      if (ch === ")" || ch === "}" || ch === "]")
+        reader.fail("'" + ch + "' not open");
+
       // Symbol ----------------------------------------------------------------
-      while (!isBlank(ch)) ch = prg.charAt(++prgIx);
+      while (!isBlankOrParent(ch)) ch = prg.charAt(++prgIx);
       reader.prgIx = prgIx;
       return Token.mkSymbolPos(
         Symbol.mk(prg.substring(prgIxD, prgIx)), reader.source, nline

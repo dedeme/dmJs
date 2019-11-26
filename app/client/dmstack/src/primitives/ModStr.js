@@ -138,6 +138,12 @@ const sget = m => {
   m.push(Token.mkString(s.charAt(ix)));
 };
 
+/** @type function (!Machine):void} */
+const len = m => {
+  const s = Tk.popString(m);
+  m.push(Token.mkInt(s.length));
+};
+
 function subaux (m, begin, end, isRight) {
   function bounds (size) {
     if (isRight) end = size;
@@ -219,6 +225,7 @@ export default class ModStr {
     add("toUpper", toUpper);
 
     add("get", sget);
+    add("len", len);
     add("sub", sub);
     add("left", left);
     add("right", right);

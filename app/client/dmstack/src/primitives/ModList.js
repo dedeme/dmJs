@@ -36,6 +36,66 @@ const make = m => {
 };
 
 /** @type function (!Machine):void} */
+const size = m => {
+  const a = Tk.popList(m);
+  m.push(Token.mkInt(a.length));
+};
+
+/** @type function (!Machine):void} */
+const sget = m => {
+  const ix = Tk.popInt(m);
+  const a = Tk.popList(m);
+  Fails.checkRange(m, 0, a.length - 1, ix);
+  m.push(a[ix]);
+};
+
+/** @private */
+const setBoth = (m, isPlus) => {
+  const value = m.pop();
+  const ix = Tk.popInt(m);
+  const a = isPlus ? Tk.peekList(m) : Tk.popList(m);
+  Fails.checkRange(m, 0, a.length - 1, ix);
+  a[ix] = value;
+};
+
+/** @type function (!Machine):void} */
+const sset = m => {
+  setBoth(m, false);
+};
+
+/** @type function (!Machine):void} */
+const setPlus = m => {
+  setBoth(m, true);
+};
+
+/** @private */
+const upBoth = (m, isPlus) => {
+  const prg = m.popExc(Token.LIST);
+  const ix = m.pop(m);
+  const tk = m.peek(m);
+  m.push(ix);
+  sget(m);
+
+  Machine.process("", m.pmachines, prg);
+
+  const value = m.pop();
+  m.push(tk);
+  m.push(ix);
+  m.push(value);
+  setBoth(m, isPlus);
+};
+
+/** @type function (!Machine):void} */
+const up = m => {
+  upBoth(m, false);
+};
+
+/** @type function (!Machine):void} */
+const upPlus = m => {
+  upBoth(m, true);
+};
+
+/** @type function (!Machine):void} */
 const fill = m => {
   const value = m.pop();
   const a = Tk.popList(m);
@@ -325,14 +385,14 @@ const find = m => {
     Machine.process("", m.pmachines, prg);
     return Tk.popInt(m);
   }
-  let r = [];
+  let r = null;
   for (let i = 0; i < a.length; ++i) {
     if (fn(a[i])) {
-      r = [a[i]];
+      r = a[i];
       break;
     }
   }
-  pushList(m, r);
+  m.push(Token.fromPointer(Symbol.OPTION_, r));
 };
 
 /** @type function (!Machine):void} */
@@ -388,7 +448,7 @@ const flat = m => {
   const r = [];
   function add (ls) {
     for (const tk of ls)
-      if (tk.type === Token.LIST) add(tk.listValue);
+      if (tk.type === Token.LIST) tk.listValue.forEach(t => r.push(t));
       else r.push(tk);
   }
   add(a);
@@ -580,6 +640,13 @@ export default class ModList {
     add("unary", unary); // [] - LIST
     add("make", make); // <INT, *> - <LIST>
 
+    add("size", size);
+    add("get", sget);
+    add("set", sset);
+    add("set+", setPlus);
+    add("up", up);
+    add("up+", upPlus);
+
     add("fill", fill); // <LIST, *> - <>
     add("push", push); // [LIST, *] - LIST
     add("push+", pushPlus); // [LIST, *] - []
@@ -612,7 +679,7 @@ export default class ModList {
     add("lastIndexf", lastIndexf);
     add("reduce", reduce);
 
-    add("flat", flat);
+    add("flat", flat); // only one level
     add("drop", drop);
     add("dropf", dropf);
     add("filter", filter);

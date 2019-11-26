@@ -31,6 +31,7 @@ export default class Reader {
     this._syms = new List();
     /** @type {!Array<string>} Paths wihout extension. */
     this._imports = [];
+    this._stkCounter = 0;
   }
 
   /**
@@ -149,16 +150,45 @@ export default class Reader {
         Token.mkSymbolPos(Symbol.mk("map"), this._source, tk.pos.line),
         Token.mkSymbolPos(Symbol.mk("get"), this._source, tk.pos.line)
       ];
+    } else if (symChar === "!" && symStr !== "!") {
+      const ns = symStr.substring(1);
+      if (isNaN(ns)) return [tk];
+      const n = Number(ns);
+      return [
+        Token.mkIntPos(n, this._source, tk.pos.line),
+        Token.mkSymbolPos(Symbol.mk("lst"), this._source, tk.pos.line),
+        Token.mkSymbolPos(Symbol.mk("get"), this._source, tk.pos.line)
+      ];
     } else if (symChar === "@") {
       if (tk.pos === null) throw new Error("tk.pos is null");
       const line = tk.pos.line;
-      if (symStr.charAt(symStr.length - 1) === "?") {
+      if (symStr.charAt(1) === "?") {
         return [
           Token.mkListPos([Token.mkSymbolPos(
-            Symbol.mk(symStr.substring(1, symStr.length - 1)),
+            Symbol.mk(symStr.substring(2)),
             this._source, line
           )], this._source, line),
           Token.mkSymbolPos(Symbol.STACK_CHECK, this._source, line)
+        ];
+      }
+      if (symStr.charAt(1) === "+") {
+        ++this._stkCounter;
+        return [
+          Token.mkListPos([Token.mkSymbolPos(
+            Symbol.mk(symStr.substring(2)),
+            this._source, line
+          )], this._source, line),
+          Token.mkSymbolPos(Symbol.STACK_OPEN, this._source, line)
+        ];
+      }
+      if (symStr.charAt(1) === "-") {
+        --this._stkCounter;
+        return [
+          Token.mkListPos([Token.mkSymbolPos(
+            Symbol.mk(symStr.substring(2)),
+            this._source, line
+          )], this._source, line),
+          Token.mkSymbolPos(Symbol.STACK_CLOSE, this._source, line)
         ];
       }
       if (Args.debug) {
@@ -221,7 +251,9 @@ export default class Reader {
       if (prg.length > 0) {
         r.push(Token.mkListPos(prg, this._source, nline));
         r.push(Token.mkSymbolPos(Symbol.DATA, this._source, nline));
-        r.push(Token.mkSymbolPos(Symbol.REF_OUT, this._source, nline));
+        r.push(Token.mkIntPos(0, this._source, nline));
+        r.push(Token.mkSymbolPos(Symbol.LST, this._source, nline));
+        r.push(Token.mkSymbolPos(Symbol.GET, this._source, nline));
         r.push(Token.mkSymbolPos(Symbol.TO_STR, this._source, nline));
         r.push(Token.mkSymbolPos(Symbol.PLUS, this._source, nline));
       } else {

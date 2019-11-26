@@ -190,7 +190,7 @@ function attrs (m, tk, e, atts) {
     }
     case "disabled": {
       const tk = read("disabled", Token.INT);
-      e.checked = tk.intValue !== 0;
+      e.disabled = tk.intValue !== 0;
       break;
     }
     case "att": {

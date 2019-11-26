@@ -16,7 +16,6 @@ import ModInt from "./primitives/ModInt.js";
 import ModBlob from "./primitives/ModBlob.js";
 import ModList from "./primitives/ModList.js";
 import ModIt from "./primitives/ModIt.js";
-import ModObj from "./primitives/ModObj.js";
 import ModMap from "./primitives/ModMap.js";
 import ModStr from "./primitives/ModStr.js";
 import ModJs from "./primitives/ModJs.js";
@@ -59,7 +58,6 @@ export default class Primitives {
     add("blob", ModBlob.mk());
     add("lst", ModList.mk());
     add("it", ModIt.mk());
-    add("obj", ModObj.mk());
     add("map", ModMap.mk());
     add("str", ModStr.mk());
     add("js", ModJs.mk());

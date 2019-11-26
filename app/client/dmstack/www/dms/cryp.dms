@@ -6,7 +6,7 @@
 (
   // genk
 
-  6 cryp,genk size 6 == assert
+  6 cryp,genk str,len 6 == assert
   // 6 cryp,genk puts
 
   // key

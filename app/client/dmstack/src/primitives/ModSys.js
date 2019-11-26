@@ -106,7 +106,7 @@ export default class ModSys {
     add("timerClear", timerClear); // Timer - <>
 
     add("alert", salert); // STRING - <>
-    add("confirm", sconfirm); // STRING - INT
+    add("confirm?", sconfirm); // STRING - INT
     add("prompt", sprompt); // LIST - STRING
 
     add("log", log); // STRING - <>

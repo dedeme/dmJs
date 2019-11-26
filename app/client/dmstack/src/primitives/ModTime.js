@@ -40,6 +40,11 @@ function rdg (s, ix, n) {
   return [Number(bf), ix];
 }
 
+/**
+  @param {string} dt
+  @param {string} tpl
+  @return {Token}
+**/
 function dfrom (dt, tpl) {
   const dtLen = dt.length;
   const tplLen = tpl.length;
@@ -103,7 +108,7 @@ function dfrom (dt, tpl) {
     }
   }
 
-  return r.getTime();
+  return Token.mkFloat(r.getTime());
 }
 
 /** @type function (!Machine):void} */
@@ -151,15 +156,13 @@ const broke = m => {
 const fromStr = m => {
   const fm = Tk.popString(m);
   const dt = Tk.popString(m);
-  const r = dfrom(dt, fm);
-  m.push(Token.mkList(r === null ? [] : [Token.mkFloat(r)]));
+  m.push(Token.fromPointer(Symbol.OPTION_, dfrom(dt, fm)));
 };
 
 /** @type function (!Machine):void} */
 const fromDate = m => {
   const dt = Tk.popString(m);
-  const r = dfrom(dt, "%Y%m%d");
-  m.push(Token.mkList(r === null ? [] : [Token.mkFloat(r)]));
+  m.push(Token.fromPointer(Symbol.OPTION_, dfrom(dt, "%Y%m%d")));
 };
 
 /** @type function (!Machine):void} */
