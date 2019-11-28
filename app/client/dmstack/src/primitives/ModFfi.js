@@ -38,8 +38,8 @@ function value (m, ls) {
   if (tk === null) Fails.listSize(m, ls.toArray(), 1);
   if (tk.type !== Token.STRING) m.fail("FFI string is missing.");
   jsVars.reverse();
-  const js = "(" + jsVars.join(", ") + ") => {\n" +
-    tk.stringValue + "\n}\n";
+  const js = "(" + jsVars.join(", ") + ") => {" +
+    tk.stringValue + "}";
   try {
     const fn = eval(js);
     /** @suppress {checkTypes} */

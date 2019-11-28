@@ -487,7 +487,7 @@ export default class Machine {
     if (tk === undefined)
       this.fail("Stack is empty");
     if (tk.type !== type)
-      Fails.type(this, type);
+      Fails.typeIn(this, type, tk);
     return tk;
   }
 

@@ -15,9 +15,25 @@ export default class ModGlobal1 {
     @return {void}
   **/
   static and (m) {
-    const i1 = Tk.popInt(m);
-    const i2 = Tk.popInt(m);
-    m.push(Token.mkInt(i1 === 0 || i2 === 0 ? 0 : 1));
+    const tk = m.popOpt(Token.LIST);
+    if (tk !== null) {
+      const i2 = Tk.popInt(m);
+      if (i2 !== 0) {
+        const m2 = Machine.isolateProcess("", m.pmachines, tk);
+        if (m2.stack.length !== 1)
+          m.fail(
+            "Lazy '&&' stack. Expected size: 1, actual size: " +
+            m2.stack.length + "."
+          );
+        m.push(m2.popExc(Token.INT));
+      } else {
+        m.push(Token.mkInt(0));
+      }
+    } else {
+      const i1 = Tk.popInt(m);
+      const i2 = Tk.popInt(m);
+      m.push(Token.mkInt(i1 === 0 || i2 === 0 ? 0 : 1));
+    }
   }
 
   /**
@@ -25,9 +41,25 @@ export default class ModGlobal1 {
     @return {void}
   **/
   static or (m) {
-    const i1 = Tk.popInt(m);
-    const i2 = Tk.popInt(m);
-    m.push(Token.mkInt(i1 === 0 && i2 === 0 ? 0 : 1));
+    const tk = m.popOpt(Token.LIST);
+    if (tk !== null) {
+      const i2 = Tk.popInt(m);
+      if (i2 === 0) {
+        const m2 = Machine.isolateProcess("", m.pmachines, tk);
+        if (m2.stack.length !== 1)
+          m.fail(
+            "Lazy '||' stack. Expected size: 1, actual size: " +
+            m2.stack.length + "."
+          );
+        m.push(m2.popExc(Token.INT));
+      } else {
+        m.push(Token.mkInt(1));
+      }
+    } else {
+      const i1 = Tk.popInt(m);
+      const i2 = Tk.popInt(m);
+      m.push(Token.mkInt(i1 === 0 && i2 === 0 ? 0 : 1));
+    }
   }
 
   /**
