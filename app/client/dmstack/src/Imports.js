@@ -156,6 +156,8 @@ export default class Imports {
         , "text/plain"
       );
 
+      request.responseType = "text";
+
       request.send();
     });
   }

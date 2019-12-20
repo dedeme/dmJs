@@ -109,7 +109,7 @@ export default class Machine {
     const runner = Token.mkList([
       this.popExc(Token.LIST), Token.mkSymbol(Symbol.mk("run"))
     ]);
-    Machine.process(module + ".dms", this._pmachines, runner);
+    Machine.process(module + ".dmjs", this._pmachines, runner);
   }
 
   /** @private */
@@ -322,9 +322,9 @@ export default class Machine {
 
     const sid = Symbol.toStr(source);
     const f = Path.canonical(
-      Path.cat([Path.parent(this.source), sid + ".dms"])
+      Path.cat([Path.parent(this.source), sid + ".dmjs"])
     );
-    const fid = f.substring(0, f.length - 4);
+    const fid = f.substring(0, f.length - 5);
     const ssource = Symbol.mk(fid);
 
     const prg = Imports.takeCache(ssource);
@@ -358,7 +358,7 @@ export default class Machine {
   static isolateProcess (source, pmachines, prg) {
     const m = new Machine(source, pmachines, prg);
     if (source !== "")
-      Imports.add(Symbol.mk(source.substring(0, source.length - 4)), m._heap);
+      Imports.add(Symbol.mk(source.substring(0, source.length - 5)), m._heap);
 
     m.cprocess();
     return m;
@@ -373,7 +373,7 @@ export default class Machine {
   static closureProcess (source, pmachines, prg) {
     const m = new Machine(source, pmachines, prg);
     if (source !== "")
-      Imports.add(Symbol.mk(source.substring(0, source.length - 4)), m._heap);
+      Imports.add(Symbol.mk(source.substring(0, source.length - 5)), m._heap);
 
     try {
       m.cprocess();

@@ -44,6 +44,25 @@ function decimalAdjust (type, value, exp) {
   return Number(vals[0] + "e" + (vals[1] ? (Number(vals[1]) - exp) : -exp));
 }
 
+function thousands (s, point) {
+  if (s === "")
+    return "";
+
+  const end = s.charAt(0) === "-" ? 1 : 0;
+  let r = "";
+  let c = 0;
+  for (let i = s.length - 1; i >= end; --i) {
+    if (c === 3) {
+      r = point + r;
+      c = 1;
+    } else {
+      ++c;
+    }
+    r = s.charAt(i) + r;
+  }
+  return s.substring(0, end) + r;
+}
+
 /** @type function (!Machine):void} */
 const fromStr = m => {
   m.push(Token.mkFloat(Number(Tk.popString(m))));
@@ -94,6 +113,46 @@ const toInt = m => {
   m.push(Token.mkInt(Tk.popFloat(m)));
 };
 
+/** @type function (!Machine):void} */
+const toIso = m => {
+  let scale = Tk.popInt(m);
+  if (scale < 0) scale = 0;
+
+  const s = decimalAdjust("round", Tk.popFloat(m), scale).toFixed(scale);
+  let ep = s;
+  let dp = "";
+  const ix = s.indexOf(".");
+  if (ix !== -1) {
+    ep = s.substring(0, ix);
+    dp = s.substring(ix + 1, s.length);
+  }
+  m.push(Token.mkString(
+    ix === -1
+      ? thousands(ep, ".")
+      : thousands(ep, ".") + "," + dp
+  ));
+};
+
+/** @type function (!Machine):void} */
+const toUs = m => {
+  let scale = Tk.popInt(m);
+  if (scale < 0) scale = 0;
+
+  const s = decimalAdjust("round", Tk.popFloat(m), scale).toFixed(scale);
+  let ep = s;
+  let dp = "";
+  const ix = s.indexOf(".");
+  if (ix !== -1) {
+    ep = s.substring(0, ix);
+    dp = s.substring(ix + 1, s.length);
+  }
+  m.push(Token.mkString(
+    ix === -1
+      ? thousands(ep, ",")
+      : thousands(ep, ",") + "." + dp
+  ));
+};
+
 /** Global symbols. */
 export default class ModFloat {
   /** @return {!Array<!PmoduleEntry>} */
@@ -120,7 +179,11 @@ export default class ModFloat {
     add("roundn", roundn); // [FLOAT, INT] - FLOAT
     add("==", eq);
 
-    add("toInt", toInt); // [FLOAT] - INT
+    add("toInt", toInt); // FLOAT - INT
+
+
+    add("toIso", toIso); // [FLOAT, INT] - STRING
+    add("toUs", toUs); // [FLOAT, INT] - STRING
 
     return r;
   }

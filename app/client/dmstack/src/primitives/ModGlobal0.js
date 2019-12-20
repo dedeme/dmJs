@@ -108,7 +108,7 @@ export default class ModGlobal0 {
       }
       Fails.types(m, [Token.INT, Token.FLOAT]);
     }
-    Fails.types(m, [Token.INT, Token.FLOAT, Token.STRING, Token.LIST]);
+    Fails.types(m, [Token.INT, Token.FLOAT]);
   }
 
   /**
@@ -144,7 +144,7 @@ export default class ModGlobal0 {
       }
       Fails.types(m, [Token.INT, Token.FLOAT]);
     }
-    Fails.types(m, [Token.INT, Token.FLOAT, Token.STRING, Token.LIST]);
+    Fails.types(m, [Token.INT, Token.FLOAT]);
   }
 
   /**

@@ -98,7 +98,11 @@
     "ñ" expect
   "世" str,code str,fromCode "世" expect
 
-  // trim - ltrim - rtrim
+  // reverse - trim - ltrim - rtrim
+
+  "" str,reverse "" expect
+  "a" str,reverse "a" expect
+  "abc" str,reverse "cba" expect
 
   "" str,trim "" expect
   " " str,trim "" expect
@@ -244,6 +248,24 @@ fg \n
   They are ${n1 n2 +} $.
   That's all.`
     "Result:\nThey are 7 $.\nThat's all." expect
+
+  // digits? - number? - regularizeIso - regularizeUs
+
+  "0g0" str,digits? ! assert
+  "093" str,digits? assert
+  "" str,digits? assert
+  "0g0" str,number? ! assert
+  "0.345.34" str,number? ! assert
+  "12,34" str,number? ! assert
+  "093" str,number? assert
+  "12.34" str,number? assert
+
+  "3" str,regularizeIso "3" expect
+  "3,4" str,regularizeIso "3.4" expect
+  "1.232.452,22" str,regularizeIso "1232452.22" expect
+  "3" str,regularizeUs "3" expect
+  "3.4" str,regularizeUs "3.4" expect
+  "1,232,452.22" str,regularizeUs "1232452.22" expect
 
   empty? assert
 ) run

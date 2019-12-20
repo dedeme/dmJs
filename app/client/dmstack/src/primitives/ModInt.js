@@ -18,6 +18,25 @@ function fn2 (m, f) {
   m.push(Token.mkInt(f(n1, n2)));
 }
 
+function thousands (s, point) {
+  if (s === "")
+    return "";
+
+  const end = s.charAt(0) === "-" ? 1 : 0;
+  let r = "";
+  let c = 0;
+  for (let i = s.length - 1; i >= end; --i) {
+    if (c === 3) {
+      r = point + r;
+      c = 1;
+    } else {
+      ++c;
+    }
+    r = s.charAt(i) + r;
+  }
+  return s.substring(0, end) + r;
+}
+
 /** @type function (!Machine):void} */
 const fromStr = m => {
   m.push(Token.mkInt(Number(Tk.popString(m))));
@@ -98,6 +117,17 @@ const toFloat = m => {
   m.push(Token.mkFloat(Tk.popInt(m)));
 };
 
+/** @type function (!Machine):void} */
+const toIso = m => {
+  m.push(Token.mkString(thousands(String(Tk.popInt(m)), ".")));
+};
+
+/** @type function (!Machine):void} */
+const toUs = m => {
+  m.push(Token.mkString(thousands(String(Tk.popInt(m)), ",")));
+};
+
+
 /** Global symbols. */
 export default class ModInt {
   /** @return {!Array<!PmoduleEntry>} */
@@ -131,6 +161,9 @@ export default class ModInt {
     add("maxInt", maxInt); // () - INT
     add("minInt", minInt); // () - INT
     add("toFloat", toFloat); // INT - FLOAT
+
+    add("toIso", toIso); // INT - STRING
+    add("toUs", toUs); // INT - STRING
 
     return r;
   }

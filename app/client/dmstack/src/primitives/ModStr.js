@@ -101,6 +101,11 @@ const starts = m => {
 };
 
 /** @type function (!Machine):void} */
+const reverse = m => {
+  m.push(Token.mkString(Tk.popString(m).split("").reverse().join("")));
+};
+
+/** @type function (!Machine):void} */
 const trim = m => {
   m.push(Token.mkString(Tk.popString(m).trim()));
 };
@@ -190,6 +195,38 @@ const fromCode = m => {
   m.push(Token.mkString(String.fromCharCode(Tk.popInt(m))));
 };
 
+/** @type function (!Machine):void} */
+const isDigits = m => {
+  const s = Tk.popString(m);
+  let r = 1;
+  for (let i = 0; i < s.length; ++i) {
+    const ch = s.charAt(i);
+    if (ch < "0" || ch > "9") {
+      r = 0;
+      break;
+    }
+  }
+  m.push(Token.mkInt(r));
+};
+
+/** @type function (!Machine):void} */
+const isNumber = m => {
+  const s = Tk.popString(m);
+  m.push(Token.mkInt(isNaN(s) ? 0 : 1));
+};
+
+/** @type function (!Machine):void} */
+const riso = m => {
+  const s = Tk.popString(m);
+  m.push(Token.mkString(s.replace(/\./g, "").replace(/,/g, ".")));
+};
+
+/** @type function (!Machine):void} */
+const rus = m => {
+  const s = Tk.popString(m);
+  m.push(Token.mkString(s.replace(/,/g, "")));
+};
+
 /** Global symbols. */
 export default class ModStr {
   /** @return {!Array<!PmoduleEntry>} */
@@ -217,6 +254,7 @@ export default class ModStr {
     add("split", split);
     add("splitTrim", splitTrim);
     add("starts?", starts);
+    add("reverse", reverse);
     add("trim", trim);
     add("ltrim", ltrim);
     add("rtrim", rtrim);
@@ -232,10 +270,10 @@ export default class ModStr {
     add("code", code);
     add("fromCode", fromCode);
 
-    //add("digits?", isdigits);
-    //add("number?", isnumber);
-    //add("regularizeIso", riso);
-    //add("regularizeUs", rus);
+    add("digits?", isDigits);
+    add("number?", isNumber);
+    add("regularizeIso", riso);
+    add("regularizeUs", rus);
 
     return r;
   }

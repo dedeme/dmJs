@@ -25,9 +25,9 @@ export default class Main {
     Primitives.init();
     Imports.init();
 
-    path = path.endsWith(".dms") ? path : path + ".dms";
+    path = path.endsWith(".dmjs") ? path : path + ".dmjs";
     path = Path.canonical(path);
-    const pathId = path.substring(0, path.length - 4);
+    const pathId = path.substring(0, path.length - 5);
     const ssource = Symbol.mk(pathId);
 
     const code = await Imports.load("Main:0", path);
@@ -39,7 +39,7 @@ export default class Main {
       const [line, pId] = lPId.split(":");
       const ssource = Symbol.mk(pathId);
       Imports.putOnWay(ssource);
-      await Main.read(r.source + ":" + line, pId);
+      await Main.read(Symbol.toStr(r.source) + ":" + line, pId);
       Imports.quitOnWay(ssource);
     }
 
@@ -62,13 +62,12 @@ export default class Main {
         ? "?"
         : Symbol.toStr(Number(source.substring(0, ix)))
       ;
-      throw new Error("Cyclic imports in " + s + " -> " + pathId + ".dms");
+      throw new Error("Cyclic imports in " + s + " -> " + pathId + ".dmjs");
     }
 
     let prg = Imports.takeCache(ssource);
     if (prg) return;
-
-    const code = await Imports.load(source, pathId + ".dms");
+    const code = await Imports.load(source, pathId + ".dmjs");
     const r = new Reader(pathId, code);
     prg = r.process();
     Imports.addCache(ssource, prg);
@@ -77,7 +76,7 @@ export default class Main {
       const [line, pId] = lPId.split(":");
       const ssource = Symbol.mk(pathId);
       Imports.putOnWay(ssource);
-      await Main.read(r.source + ":" + line, pId);
+      await Main.read(Symbol.toStr(r.source) + ":" + line, pId);
       Imports.quitOnWay(ssource);
     }
   }

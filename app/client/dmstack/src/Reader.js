@@ -127,15 +127,15 @@ export default class Reader {
       const f = Symbol.toStr(sym);
 
       const fc = Path.canonical(Path.cat(
-        [Path.parent(Symbol.toStr(this._source)), f + ".dms"]
+        [Path.parent(Symbol.toStr(this._source)), f + ".dmjs"]
       ));
 
-      const fid = fc.substring(0, fc.length - 4);
+      const fid = fc.substring(0, fc.length - 5);
       if (tk.pos !== null)
         this._imports.push(tk.pos.line + ":" + fid);
       else
         this._imports.push("0:" + fid);
-      const newSym = Symbol.mk(fc.substring(0, fc.length - 4));
+      const newSym = Symbol.mk(fc.substring(0, fc.length - 5));
 
       let key = symKv.key;
       if (key === -1) key = Symbol.mk(Path.name(f));
@@ -283,7 +283,7 @@ export default class Reader {
   fail (msg) {
     // eslint-disable-next-line
     console.log(
-      Symbol.toStr(this._source) + ".dms:" + this._nline + ": " + msg
+      Symbol.toStr(this._source) + ".dmjs:" + this._nline + ": " + msg
     );
     throw ("");
   }

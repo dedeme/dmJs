@@ -9,7 +9,7 @@ export default class Global {
   static get VERSION () { return "201909" }
 
   /** @return {string} */
-  static get ERROR_DMSTACK () { return "dmstack" }
+  static get ERROR_DMSTACK () { return "dmstackJs" }
 
   /** @return {number} */
   static get MAX_ERR_STACK () { return 5 }
