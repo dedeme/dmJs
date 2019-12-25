@@ -18,7 +18,7 @@ const isNull = m => {
 const rb = m => {
   const v = JSON.parse(Tk.popString(m));
   if (typeof v !== "boolean")
-    m.fail("Expected JSON boolean");
+    m.fail("Expected JSON boolean. Found '" + v + "'");
   m.push(Token.mkInt(v === true ? 1 : 0));
 };
 
@@ -26,7 +26,7 @@ const rb = m => {
 const ri = m => {
   const v = JSON.parse(Tk.popString(m));
   if (typeof v !== "number")
-    m.fail("Expected JSON number");
+    m.fail("Expected JSON number. Found '" + v + "'");
   m.push(Token.mkInt(/** @type {number} */ (v)));
 };
 
@@ -34,7 +34,7 @@ const ri = m => {
 const rf = m => {
   const v = JSON.parse(Tk.popString(m));
   if (typeof v !== "number")
-    m.fail("Expected JSON number");
+    m.fail("Expected JSON number. Found '" + v + "'");
   m.push(Token.mkFloat(/** @type {number} */ (v)));
 };
 
@@ -42,7 +42,7 @@ const rf = m => {
 const rs = m => {
   const v = JSON.parse(Tk.popString(m));
   if (typeof v !== "string")
-    m.fail("Expected JSON string");
+    m.fail("Expected JSON string. Found '" + v + "'");
   m.push(Token.mkString(/** @type {string} */ (v)));
 };
 
@@ -50,7 +50,7 @@ const rs = m => {
 const ra = m => {
   const v = JSON.parse(Tk.popString(m));
   if (!Array.isArray(v))
-    m.fail("Expected JSON array");
+    m.fail("Expected JSON array. Found '" + v + "'");
   m.push(Token.mkList(v.map(s => Token.mkString(JSON.stringify(s)))));
 };
 
@@ -58,9 +58,9 @@ const ra = m => {
 const ro = m => {
   const v = /** @type {!Object} */ (JSON.parse(Tk.popString(m)));
   if (typeof v !== "object")
-    m.fail("Expected JSON object");
+    m.fail("Expected JSON object. Found '" + v + "'");
   if (Array.isArray(v))
-    m.fail("Expected JSON object");
+    m.fail("Expected JSON object. Found '" + v + "'");
 
   const r = {};
   for (const [key, value] of Object.entries(v))
