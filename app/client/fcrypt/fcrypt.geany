@@ -59,8 +59,10 @@ JavascriptFT_02_CM=
 JavascriptFT_02_WD=
 
 [files]
-current_page=0
+current_page=1
 FILE_NAME_0=0;Javascript;0;EUTF-8;0;1;0;%2Fdm%2FdmJs%2Fapp%2Fclient%2Ffcrypt%2Fsrc%2Fmain.js;0;2
+FILE_NAME_1=0;Sh;0;EUTF-8;0;1;0;%2Fdm%2FdmJs%2Fapp%2Fclient%2Ffcrypt%2Fmake;0;2
+FILE_NAME_2=0;Sh;0;EUTF-8;0;1;0;%2Fdm%2FdmJs%2Fapp%2Fclient%2Ffcrypt%2Fmelt.sh;0;2
 
 [editor]
 line_wrapping=false
@@ -68,4 +70,4 @@ line_break_column=80
 auto_continue_multiline=true
 
 [VTE]
-last_dir=/home/deme/dm/dmC/app/dmstack/tests/problems
+last_dir=/home/deme/.local/share/Trash/files

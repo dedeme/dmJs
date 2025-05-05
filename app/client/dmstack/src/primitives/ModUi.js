@@ -226,61 +226,13 @@ function attrs (m, tk, e, atts) {
   @return {void}
 **/
 function addEls (m, parent, adds) {
-  while (adds.length !== 0) {
-    const ftk = adds.shift();
-    const tk = isolateProcess(m, ftk);
-    if (
-      tk.type !== Token.STRING &&
-      tk.type !== Token.SYMBOL &&
-      !isElement(tk)
-    )
-      fail(ftk, () => m.fail(
-        "Expected token type 'String', 'Symbol' or 'Element', found " +
-        tk.toStringDraft()
+  const m2 = Machine.isolateProcess("", m.pmachines, Token.mkList(adds));
+  for (const e of m2.stack) {
+    if (!isElement(e))
+      fail(e, () => m.fail(
+        "Expected token type 'Element', found " + e.toStringDraft()
       ));
-    let e = null;
-    if (tk.type === Token.STRING) {
-      e = element(tk.stringValue);
-    } else if (tk.type === Token.NATIVE) {
-      e = tk.nativeObject;
-    } else {
-      const sym = tk.symbolValue;
-      let t = Heap.take(m.heap, sym);
-      if (t === null) t = Heap.take(Imports.base, sym);
-      if (t === null) {
-        let pms = m._pmachines;
-        for (;;) {
-          if (pms.isEmpty()) break;
-          const mch = pms.head;
-          t = Heap.take(mch._heap, sym);
-          if (t !== null) break;
-          pms = pms.tail;
-        }
-      }
-      if (t === null) {
-        fail(ftk, () => m.fail(
-          "Symbol '" + Symbol.toStr(sym) + "' not found"
-        ));
-      }
-      e = Tk.nativeValue(m, /** @type {!Token} */ (t), Symbol.ELEMENT_);
-    }
-
-    if (
-      adds.length !== 0 &&
-      adds[0].type === Token.LIST &&
-      !isElement(adds[0])
-    ) {
-      const atts = Array.from(Tk.listValue(m, adds.shift()));
-      attrs(m, tk, e, atts);
-      if (
-        adds.length !== 0 &&
-        adds[0].type === Token.LIST &&
-        !isElement(adds[0])
-      ) {
-        addEls(m, e, Array.from(adds.shift().listValue));
-      }
-    }
-    parent.appendChild(e);
+    parent.appendChild(Tk.nativeValue(m, e, Symbol.ELEMENT_));
   }
 }
 
@@ -362,36 +314,9 @@ function prop2 (m, e, tk1, tk2) {
 
 /** @type function (!Machine):void} */
 const dolarPlus = m => {
+  const adds = Array.from(Tk.popList(m));
+  const atts = Array.from(Tk.popList(m));
   let tk = m.popOpt(Token.STRING);
-  if (tk !== null) {
-    m.push(elementTk(element(tk.stringValue)));
-    return;
-  }
-  tk = popOptElement(m);
-  if (tk !== null) {
-    m.push(tk);
-    return;
-  }
-
-  let atts = Array.from(Tk.popList(m));
-  tk = m.popOpt(Token.STRING);
-  if (tk !== null) {
-    const e = element(tk.stringValue);
-    attrs(m, tk, e, atts);
-    m.push(elementTk(e));
-    return;
-  }
-  tk = popOptElement(m);
-  if (tk !== null) {
-    const e = tk.nativeObject;
-    attrs(m, tk, e, atts);
-    m.push(tk);
-    return;
-  }
-
-  const adds = atts;
-  atts = Array.from(Tk.popList(m));
-  tk = m.popOpt(Token.STRING);
   if (tk !== null) {
     const e = element(tk.stringValue);
     attrs(m, tk, e, atts);
@@ -421,6 +346,11 @@ const dolar = m => {
 };
 
 /** @type function (!Machine):void} */
+const mk = m => {
+  m.push(elementTk(element(Tk.popString(m))));
+};
+
+/** @type function (!Machine):void} */
 const prop = m => {
   const tk = m.popExc(Token.LIST);
   const ls = tk.listValue;
@@ -442,6 +372,13 @@ const prop = m => {
   ));
 };
 
+/** @type function (!Machine):void} */
+const addf = m => {
+  const adds = Array.from(Tk.popList(m));
+  const e = Tk.nativeValue(m, m.pop(), Symbol.ELEMENT_);
+  addEls(m, e, adds);
+};
+
 /** Ui management. */
 export default class ModUi {
   /** @return {!Array<!PmoduleEntry>} */
@@ -459,7 +396,9 @@ export default class ModUi {
 
     add("$", dolar);
     add("$+", dolarPlus);
+    add("mk", mk); // [STRING] - [ELEMENT]
     add("prop", prop);
+    add("add", addf);
 
     return r;
   }
